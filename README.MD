@@ -15,9 +15,9 @@ What you get:
 
 Core stack: Python, SQL, Bash, Docker, Kubernetes, Airflow, Spark, Flink, Kafka, Hadoop, Iceberg, PostgreSQL, MySQL, MongoDB, InfluxDB, MinIO, Prometheus, Grafana, MLflow, Feast, Great Expectations, Terraform.
 
-For a fast setup path, see `docs/QUICK_START.md`. Use this README for full architecture and customization details.
+For a fast setup path, see `docs/QUICK_START.MD`. Use this README for full architecture and customization details.
 
-Container layout and compose/dockerfile conventions are documented in `infra/README.md`.
+Container layout and compose/dockerfile conventions are documented in `infra/README.MD`.
 
 Use `Makefile` targets to standardize daily operations:
 
@@ -28,13 +28,13 @@ Use `Makefile` targets to standardize daily operations:
 
 ## <span style="color: #0ea5e9;">Documentation Hub</span>
 
-- Getting started: `docs/QUICK_START.md`
-- System design details: `docs/ARCHITECTURE.md`
-- Progressive delivery patterns: `docs/DEPLOYMENT_STRATEGIES.md`
-- Iceberg table format usage: `docs/ICEBERG.md`
-- Infra container layout: `infra/README.md`
-- Java orchestration API: `java-api/README.md`
-- Monitoring setup notes: `pipelines/monitoring/prometheus_grafana_setup.md`
+- Getting started: `docs/QUICK_START.MD`
+- System design details: `docs/ARCHITECTURE.MD`
+- Progressive delivery patterns: `docs/DEPLOYMENT.MD`
+- Iceberg table format usage: `docs/ICEBERG.MD`
+- Infra container layout: `infra/README.MD`
+- Java orchestration API: `java-api/README.MD`
+- Monitoring setup notes: `pipelines/monitoring/PROMETHEUS_GRAFANA_SETUP.MD`
 
 ## <span style="color: #0ea5e9;">High-Level Component Diagram</span>
 
@@ -230,7 +230,7 @@ Procedure:
 
 1. Run `make validate` before merge/deploy.
 2. Monitor `make logs` during rollout windows.
-3. Use rollback commands from `docs/QUICK_START.md` when health degrades.
+3. Use rollback commands from `docs/QUICK_START.MD` when health degrades.
 
 Best practices:
 
@@ -255,7 +255,7 @@ Best practices:
 13. [Contributing](#contributing)
 14. [License](#license)
 15. [Final Notes](#final-notes)
-16. [Iceberg Tables Guide](docs/ICEBERG.md)
+16. [Iceberg Tables Guide](docs/ICEBERG.MD)
 
 ## <span style="color: #0ea5e9;">Make Procedures</span>
 
@@ -660,14 +660,14 @@ flowchart LR
 
 ```
 modern-enterprise-data-stack/
-  ├── README.md
+  ├── README.MD
   ├── Makefile
   ├── .github/
   ├── .devcontainer/
   ├── docs/
-  │   ├── QUICK_START.md
-  │   ├── ARCHITECTURE.md
-  │   └── DEPLOYMENT_STRATEGIES.md
+  │   ├── QUICK_START.MD
+  │   ├── ARCHITECTURE.MD
+  │   └── DEPLOYMENT.MD
   ├── pipelines/
   │   ├── airflow/
   │   ├── spark/
@@ -685,7 +685,7 @@ modern-enterprise-data-stack/
   │   ├── dockerfiles/
   │   │   ├── airflow.Dockerfile
   │   │   ├── spark.Dockerfile
-  │   └── README.md
+  │   └── README.MD
   ├── iac/
   ├── k8s/
   ├── ops/

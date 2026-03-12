@@ -23,7 +23,7 @@ This document provides a comprehensive architectural overview of the Modern Data
 - Start with `System Architecture` for high-level context.
 - Use `Component Architecture` and `Data Flow Architecture` for implementation-level understanding.
 - Review `Security`, `Scalability`, and `Disaster Recovery` sections before production rollout.
-- Use this document together with `docs/QUICK_START.md` and `docs/DEPLOYMENT_STRATEGIES.md` for execution details.
+- Use this document together with `docs/QUICK_START.MD` and `docs/DEPLOYMENT.MD` for execution details.
 
 ### <span style="color: #22c55e;">Architectural Principles</span>
 
@@ -1177,7 +1177,7 @@ This architecture provides a robust, scalable, and maintainable foundation for e
 
 For more information, see:
 
-- [README.md](../README.md) - Project overview and setup instructions
-- [Contributing](../.github/CONTRIBUTING.md) - Contribution guidelines
-- [Containers Documentation](../infra/README.md) - Compose and Dockerfile layout
+- [README.MD](../README.MD) - Project overview and setup instructions
+- [Quick Start](./QUICK_START.MD) - Practical setup and rollout steps
+- [Containers Documentation](../infra/README.MD) - Compose and Dockerfile layout
 - [Kubernetes Manifests](../k8s/) - Deployment specifications
