@@ -1,0 +1,45 @@
+.venv
+
+# OS artifacts
+.DS_Store
+
+# Python artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+
+# Terraform local cache
+iac/.terraform/
+iac/*.tfstate
+iac/*.tfstate.*
+iac/crash.log
+iac/crash.*.log
+iac/override.tf
+iac/override.tf.json
+iac/*_override.tf
+iac/*_override.tf.json
+
+# .NET build outputs
+dotnet-api/src/DataPipelineApi/bin/
+dotnet-api/src/DataPipelineApi/obj/
+
+# Airflow runtime artifacts
+pipelines/airflow/logs/
+
+# Local IDE/editor folders
+.vscode/
+.idea/
+
+# Frontend/package artifacts
+node_modules/
+dist/
+build/
+
+# Generic runtime artifacts
+*.log
+*.pid

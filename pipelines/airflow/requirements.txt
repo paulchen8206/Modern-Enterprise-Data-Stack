@@ -1,0 +1,7 @@
+apache-airflow-providers-mysql
+apache-airflow-providers-postgres
+great_expectations
+boto3
+pandas
+psycopg2
+kafka-python

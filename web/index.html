@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Enterprise-grade Modern Data Stack with batch and streaming processing using Apache Spark, Kafka, Airflow, and cloud-native data technologies."
+    />
+    <meta
+      name="keywords"
+      content="data pipeline, ETL, streaming, batch processing, Apache Spark, Kafka, Airflow, data engineering, MLOps, data science"
+    />
+    <meta name="author" content="paulchen8206@github" />
+    <meta
+      property="og:title"
+      content="Modern Data Stack - Enterprise Data Engineering Platform"
+    />
+    <meta
+      property="og:description"
+      content="Production-ready data pipeline supporting batch & streaming processing with comprehensive monitoring, governance, and ML integration."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://github.com/paulchen8206/Modern-Enterprise-Data-Stack"
+    />
+    <title>Modern Data Stack - Enterprise Data Engineering Platform</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Mermaid for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav-container">
+        <div class="logo">
+          <span class="logo-icon">🚀</span>
+          <span>Modern Data Stack</span>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="#overview" class="nav-link">Overview</a></li>
+          <li><a href="#architecture" class="nav-link">Architecture</a></li>
+          <li><a href="#technologies" class="nav-link">Technologies</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#deployment" class="nav-link">Deployment</a></li>
+          <li><a href="#getting-started" class="nav-link">Get Started</a></li>
+          <li>
+            <a
+              href="https://github.com/paulchen8206/Modern-Enterprise-Data-Stack"
+              class="cta-button"
+              >GitHub</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <!-- Scroll Progress Bar -->
+      <div class="scroll-progress"></div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">Modern Data Stack</h1>
+        <p class="hero-subtitle">
+          Enterprise-grade data engineering platform with batch & streaming
+          processing, comprehensive monitoring, data governance, and ML
+          integration
+        </p>
+
+        <div class="hero-badges">
+          <span class="badge">🔥 Production-Ready</span>
+          <span class="badge">⚡ Real-Time Processing</span>
+          <span class="badge">🔒 Enterprise Security</span>
+          <span class="badge">📊 ML/AI Integration</span>
+          <span class="badge">🌐 Cloud-Native</span>
+          <span class="badge">🚀 GitOps Ready</span>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#getting-started" class="btn-primary"> 🚀 Get Started </a>
+          <a
+            href="https://github.com/paulchen8206/Modern-Enterprise-Data-Stack"
+            class="btn-secondary"
+          >
+            📖 View on GitHub
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-number" data-count="15" data-suffix="+">0+</div>
+          <div class="stat-label">Technologies Integrated</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="3" data-suffix="">0</div>
+          <div class="stat-label">Deployment Strategies</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="99" data-suffix=".9%">0%</div>
+          <div class="stat-label">Uptime SLA</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="100" data-suffix="%">0%</div>
+          <div class="stat-label">Open Source</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="section">
+      <h2 class="section-title">Overview</h2>
+      <p class="section-subtitle">
+        A comprehensive, production-ready data pipeline that seamlessly
+        integrates batch and streaming processing with enterprise-grade
+        monitoring, governance, and machine learning capabilities.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📥</div>
+          <h3 class="feature-title">Data Ingestion</h3>
+          <p class="feature-description">
+            <strong>Batch Sources:</strong> MySQL, PostgreSQL, CSV/JSON/XML
+            files, Data Lakes (MinIO/S3)<br /><br />
+            <strong>Streaming Sources:</strong> Apache Kafka for event logs, IoT
+            sensor data, social media streams, and real-time CDC (Change Data
+            Capture)
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h3 class="feature-title">Data Processing</h3>
+          <p class="feature-description">
+            <strong>Batch Processing:</strong> Apache Spark for large-scale ETL
+            with Great Expectations for data quality<br /><br />
+            <strong>Stream Processing:</strong> Spark Structured Streaming for
+            real-time transformations, anomaly detection, and event processing
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💾</div>
+          <h3 class="feature-title">Data Storage</h3>
+          <p class="feature-description">
+            <strong>Multi-tier Architecture:</strong> MinIO/S3 for raw data
+            lake, PostgreSQL for analytics, MongoDB for documents, InfluxDB for
+            time-series, Redis for caching, Elasticsearch for search
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 class="feature-title">Monitoring & Governance</h3>
+          <p class="feature-description">
+            <strong>Observability:</strong> Prometheus for metrics, Grafana for
+            dashboards, ELK stack for logs<br /><br />
+            <strong>Governance:</strong> Apache Atlas/OpenMetadata for lineage,
+            Great Expectations for quality
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3 class="feature-title">ML/AI Integration</h3>
+          <p class="feature-description">
+            <strong>MLOps:</strong> MLflow for experiment tracking and model
+            registry<br /><br />
+            <strong>Feature Store:</strong> Feast for feature management and
+            serving<br /><br />
+            <strong>BI Tools:</strong> Integration with Tableau, Power BI,
+            Looker
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3 class="feature-title">CI/CD & Deployment</h3>
+          <p class="feature-description">
+            <strong>GitOps:</strong> Argo CD for continuous delivery<br /><br />
+            <strong>Container Orchestration:</strong> Kubernetes with Helm
+            charts<br /><br />
+            <strong>IaC:</strong> Terraform for cloud infrastructure<br /><br />
+            <strong>Strategies:</strong> Blue/Green, Canary, Rolling deployments
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="section">
+      <h2 class="section-title">Architecture</h2>
+      <p class="section-subtitle">
+        Cloud-native, microservices-based architecture designed for scalability,
+        reliability, and maintainability
+      </p>
+
+      <div class="architecture-section">
+        <h3 style="margin-bottom: 2rem; font-size: 1.75rem">
+          High-Level System Architecture
+        </h3>
+        <div class="diagram-container">
+          <div class="mermaid">
+            graph TB subgraph "Data Sources" BS[Batch Sources<br />MySQL, Files,
+            CSV/JSON/XML] SS[Streaming Sources<br />Kafka Events, IoT, Social
+            Media] end subgraph "Ingestion & Orchestration" AIR[Apache
+            Airflow<br />DAG Orchestration] KAF[Apache Kafka<br />Event
+            Streaming] end subgraph "Processing Layer" SPB[Spark Batch<br />Large-scale
+            ETL] SPS[Spark Streaming<br />Real-time Processing] GE[Great
+            Expectations<br />Data Quality] end subgraph "Storage Layer"
+            MIN[MinIO<br />S3-Compatible Storage] PG[PostgreSQL<br />Analytics
+            Database] S3[AWS S3<br />Cloud Storage] MDB[MongoDB<br />NoSQL
+            Store] IDB[InfluxDB<br />Time-series DB] end subgraph "Monitoring &
+            Governance" PROM[Prometheus<br />Metrics Collection] GRAF[Grafana<br />Dashboards]
+            ATL[Apache Atlas<br />Data Lineage] end subgraph "ML & Serving"
+            MLF[MLflow<br />Model Tracking] FST[Feast<br />Feature Store] BI[BI
+            Tools<br />Tableau/PowerBI/Looker] end BS --> AIR SS --> KAF AIR -->
+            SPB KAF --> SPS SPB --> GE SPS --> GE GE --> MIN GE --> PG MIN -->
+            S3 PG --> MDB PG --> IDB SPB --> PROM SPS --> PROM PROM --> GRAF SPB
+            --> ATL SPS --> ATL PG --> MLF PG --> FST PG --> BI MIN --> MLF
+          </div>
+        </div>
+      </div>
+
+      <div class="architecture-section" style="margin-top: 3rem">
+        <h3 style="margin-bottom: 2rem; font-size: 1.75rem">
+          Batch Processing Flow
+        </h3>
+        <div class="diagram-container">
+          <div class="mermaid">
+            sequenceDiagram participant BS as Batch Source<br />(MySQL/Files)
+            participant AF as Airflow DAG participant GE as Great Expectations
+            participant MN as MinIO participant SP as Spark Batch participant PG
+            as PostgreSQL participant MG as MongoDB participant PR as Prometheus
+            BS->>AF: Trigger Batch Job AF->>BS: Extract Data AF->>GE: Validate
+            Data Quality GE-->>AF: Validation Results AF->>MN: Upload Raw Data
+            AF->>SP: Submit Spark Job SP->>MN: Read Raw Data SP->>SP: Transform
+            & Enrich SP->>PG: Write Processed Data SP->>MG: Write NoSQL Data
+            SP->>PR: Send Metrics AF->>PR: Job Status Metrics
+          </div>
+        </div>
+      </div>
+
+      <div class="architecture-section" style="margin-top: 3rem">
+        <h3 style="margin-bottom: 2rem; font-size: 1.75rem">
+          Streaming Processing Flow
+        </h3>
+        <div class="diagram-container">
+          <div class="mermaid">
+            sequenceDiagram participant KP as Kafka Producer participant KT as
+            Kafka Topic participant SS as Spark Streaming participant AD as
+            Anomaly Detection participant PG as PostgreSQL participant MN as
+            MinIO participant GF as Grafana loop Continuous Stream KP->>KT:
+            Publish Events KT->>SS: Consume Stream SS->>AD: Process Events
+            AD->>AD: Detect Anomalies AD->>PG: Store Results AD->>MN: Archive
+            Data SS->>GF: Real-time Metrics GF->>GF: Update Dashboard end
+          </div>
+        </div>
+      </div>
+
+      <div class="architecture-section" style="margin-top: 3rem">
+        <h3 style="margin-bottom: 2rem; font-size: 1.75rem">
+          Docker Services Architecture
+        </h3>
+        <div class="diagram-container">
+          <div class="mermaid">
+            graph TB subgraph "Docker Compose Stack" subgraph "Data Sources"
+            MYSQL[MySQL<br />Port: 3306] KAFKA[Kafka<br />Port: 9092]
+            ZK[Zookeeper<br />Port: 2181] end subgraph "Processing"
+            AIR[Airflow<br />Webserver:8080<br />Scheduler] SPARK[Spark<br />Master/Worker]
+            end subgraph "Storage" MINIO[MinIO<br />API: 9000<br />Console:
+            9001] PG[PostgreSQL<br />Port: 5432] end subgraph "Monitoring"
+            PROM[Prometheus<br />Port: 9090] GRAF[Grafana<br />Port: 3000] end
+            KAFKA --> ZK AIR --> MYSQL AIR --> PG AIR --> SPARK SPARK --> MINIO
+            SPARK --> PG SPARK --> KAFKA PROM --> AIR PROM --> SPARK GRAF -->
+            PROM end
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Technologies Section -->
+    <section id="technologies" class="section">
+      <h2 class="section-title">Technology Stack</h2>
+      <p class="section-subtitle">
+        Built with industry-leading open-source technologies and cloud-native
+        tools
+      </p>
+
+      <div class="tech-stack">
+        <div class="tech-categories">
+          <div class="tech-category">
+            <h3 class="tech-category-title">🔄 Data Processing</h3>
+            <ul class="tech-list">
+              <li class="tech-item">
+                ⚡ Apache Spark - Batch & Stream Processing
+              </li>
+              <li class="tech-item">🌊 Apache Flink - Low-latency Streaming</li>
+              <li class="tech-item">🔧 dbt - SQL Transformations</li>
+            </ul>
+          </div>
+
+          <div class="tech-category">
+            <h3 class="tech-category-title">📊 Orchestration</h3>
+            <ul class="tech-list">
+              <li class="tech-item">🌀 Apache Airflow - Workflow Management</li>
+              <li class="tech-item">☸️ Kubernetes - Container Orchestration</li>
+              <li class="tech-item">🚀 Argo CD - GitOps Deployment</li>
+            </ul>
+          </div>
+
+          <div class="tech-category">
+            <h3 class="tech-category-title">💾 Storage</h3>
+            <ul class="tech-list">
+              <li class="tech-item">🐘 PostgreSQL - Analytics Database</li>
+              <li class="tech-item">🪣 MinIO/S3 - Object Storage</li>
+              <li class="tech-item">🍃 MongoDB - NoSQL Database</li>
+              <li class="tech-item">📈 InfluxDB - Time-series Data</li>
+              <li class="tech-item">🔍 Elasticsearch - Search & Analytics</li>
+              <li class="tech-item">⚡ Redis - In-memory Cache</li>
+            </ul>
+          </div>
+
+          <div class="tech-category">
+            <h3 class="tech-category-title">📨 Messaging</h3>
+            <ul class="tech-list">
+              <li class="tech-item">📫 Apache Kafka - Event Streaming</li>
+              <li class="tech-item">
+                🔗 Kafka Connect - Source/Sink Connectors
+              </li>
+              <li class="tech-item">🦁 Zookeeper - Coordination Service</li>
+            </ul>
+          </div>
+
+          <div class="tech-category">
+            <h3 class="tech-category-title">📊 Monitoring</h3>
+            <ul class="tech-list">
+              <li class="tech-item">🔥 Prometheus - Metrics Collection</li>
+              <li class="tech-item">📈 Grafana - Visualization & Dashboards</li>
+              <li class="tech-item">📋 ELK Stack - Log Management</li>
+              <li class="tech-item">🔍 Jaeger - Distributed Tracing</li>
+            </ul>
+          </div>
+
+          <div class="tech-category">
+            <h3 class="tech-category-title">🤖 ML/AI</h3>
+            <ul class="tech-list">
+              <li class="tech-item">🔬 MLflow - Experiment Tracking</li>
+              <li class="tech-item">🍱 Feast - Feature Store</li>
+              <li class="tech-item">🧠 TensorFlow/PyTorch - Model Training</li>
+            </ul>
+          </div>
+
+          <div class="tech-category">
+            <h3 class="tech-category-title">✅ Data Quality</h3>
+            <ul class="tech-list">
+              <li class="tech-item">✨ Great Expectations - Validation</li>
+              <li class="tech-item">📊 Data Profiling - Quality Metrics</li>
+              <li class="tech-item">🎯 Business Rules Engine</li>
+            </ul>
+          </div>
+
+          <div class="tech-category">
+            <h3 class="tech-category-title">🛡️ Governance</h3>
+            <ul class="tech-list">
+              <li class="tech-item">🗺️ Apache Atlas - Data Lineage</li>
+              <li class="tech-item">📚 OpenMetadata - Data Catalog</li>
+              <li class="tech-item">🔒 Policy & Compliance Management</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+      <h2 class="section-title">Key Features</h2>
+      <p class="section-subtitle">
+        Enterprise-grade capabilities for production data engineering workloads
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3 class="feature-title">Real-Time Processing</h3>
+          <p class="feature-description">
+            Process millions of events per second with Spark Structured
+            Streaming and Kafka. Sub-second latency for critical business
+            insights with exactly-once semantics.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 class="feature-title">Batch Analytics</h3>
+          <p class="feature-description">
+            Scalable batch processing with Apache Spark. Handle petabyte-scale
+            datasets with optimized partitioning, compression, and distributed
+            computing.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3 class="feature-title">Data Quality</h3>
+          <p class="feature-description">
+            Automated validation with Great Expectations. Define expectations,
+            run validations, and generate data quality reports. Prevent bad data
+            from entering your pipeline.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🗺️</div>
+          <h3 class="feature-title">Data Lineage</h3>
+          <p class="feature-description">
+            Track data flow from source to destination with Apache Atlas.
+            Understand data dependencies, impact analysis, and compliance with
+            automated lineage tracking.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📈</div>
+          <h3 class="feature-title">Observability</h3>
+          <p class="feature-description">
+            Comprehensive monitoring with Prometheus and Grafana. Track pipeline
+            health, performance metrics, SLA compliance, and receive intelligent
+            alerts.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3 class="feature-title">Security & Compliance</h3>
+          <p class="feature-description">
+            Enterprise security with encryption at rest and in transit. RBAC,
+            audit logging, secrets management, and compliance with GDPR, HIPAA,
+            SOC 2.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3 class="feature-title">Containerized</h3>
+          <p class="feature-description">
+            Fully containerized with Docker and Kubernetes. Portable, scalable,
+            and cloud-agnostic. Run on AWS, GCP, Azure, or on-premises
+            infrastructure.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3 class="feature-title">CI/CD Ready</h3>
+          <p class="feature-description">
+            GitOps workflow with Argo CD. Automated testing, deployment, and
+            rollback. Blue/Green and Canary deployment strategies with
+            progressive delivery.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3 class="feature-title">ML Integration</h3>
+          <p class="feature-description">
+            Seamless MLOps with MLflow and Feast. Track experiments, manage
+            models, serve predictions, and maintain feature stores for ML
+            workflows.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deployment Section -->
+    <section id="deployment" class="section">
+      <h2 class="section-title">Deployment Strategies</h2>
+      <p class="section-subtitle">
+        Enterprise-grade deployment patterns for zero-downtime releases
+      </p>
+
+      <div class="deployment-grid">
+        <div class="deployment-card">
+          <h3 class="deployment-title">
+            🔵🟢 Blue/Green Deployment
+            <span class="deployment-badge">Zero Downtime</span>
+          </h3>
+          <p style="color: var(--text-secondary); margin: 1rem 0">
+            Deploy new version alongside current version, then switch traffic
+            instantly. Instant rollback capability by switching back to previous
+            version.
+          </p>
+          <ul class="deployment-features">
+            <li>Instant traffic switching between versions</li>
+            <li>Zero downtime during deployment</li>
+            <li>Immediate rollback capability</li>
+            <li>Full testing in production environment</li>
+            <li>Preview environment before promotion</li>
+          </ul>
+        </div>
+
+        <div class="deployment-card">
+          <h3 class="deployment-title">
+            🕯️ Canary Deployment
+            <span class="deployment-badge">Progressive Rollout</span>
+          </h3>
+          <p style="color: var(--text-secondary); margin: 1rem 0">
+            Gradually shift traffic from old to new version with automated
+            analysis. Detect issues early and rollback automatically if metrics
+            degrade.
+          </p>
+          <ul class="deployment-features">
+            <li>Progressive traffic shifting (10% → 25% → 50% → 100%)</li>
+            <li>Automated Prometheus metrics analysis</li>
+            <li>Auto-rollback on failure detection</li>
+            <li>Reduced blast radius for issues</li>
+            <li>Real-time performance comparison</li>
+          </ul>
+        </div>
+
+        <div class="deployment-card">
+          <h3 class="deployment-title">
+            🔄 Rolling Deployment
+            <span class="deployment-badge">Incremental Update</span>
+          </h3>
+          <p style="color: var(--text-secondary); margin: 1rem 0">
+            Update pods incrementally while maintaining service availability.
+            Ideal for stateless services with minimal resource requirements.
+          </p>
+          <ul class="deployment-features">
+            <li>Incremental pod updates</li>
+            <li>Configurable update speed</li>
+            <li>Health checks before promotion</li>
+            <li>Pause and resume capability</li>
+            <li>Minimal resource overhead</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="architecture-section" style="margin-top: 3rem">
+        <h3 style="margin-bottom: 2rem; font-size: 1.75rem">
+          CI/CD Pipeline Flow
+        </h3>
+        <div class="diagram-container">
+          <div class="mermaid">
+            graph LR subgraph "Development" DEV[Developer] --> GIT[Git Push] end
+            subgraph "CI/CD Pipeline" GIT --> GHA[GitHub Actions] GHA -->
+            TEST[Run Tests] TEST --> BUILD[Build Docker Images] BUILD -->
+            SCAN[Security Scan] SCAN --> PUSH[Push to Registry] end subgraph
+            "Deployment" PUSH --> ARGO[Argo CD] ARGO --> K8S[Kubernetes Cluster]
+            K8S --> HELM[Helm Charts] HELM --> PODS[Deploy Pods] end subgraph
+            "Infrastructure" TERRA[Terraform] --> CLOUD[Cloud Resources] CLOUD
+            --> K8S end PODS --> MON[Monitoring]
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section
+      class="section"
+      style="
+        background: rgba(30, 41, 59, 0.3);
+        border-radius: 16px;
+        padding: 4rem 2rem;
+      "
+    >
+      <h2 class="section-title">Use Cases</h2>
+      <p class="section-subtitle">
+        Real-world applications across industries and domains
+      </p>
+
+      <div class="use-cases-grid">
+        <div class="use-case-card">
+          <div class="use-case-icon">🛒</div>
+          <h3 class="use-case-title">E-Commerce & Retail</h3>
+          <p class="use-case-description">
+            Real-time recommendations, fraud detection, inventory optimization,
+            customer behavior analysis, and personalized marketing campaigns.
+          </p>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">💰</div>
+          <h3 class="use-case-title">Financial Services</h3>
+          <p class="use-case-description">
+            Risk analysis, trade surveillance, fraud detection, regulatory
+            compliance, portfolio analytics, and real-time transaction
+            monitoring.
+          </p>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🏥</div>
+          <h3 class="use-case-title">Healthcare</h3>
+          <p class="use-case-description">
+            Patient monitoring, clinical trial analysis, predictive diagnostics,
+            IoT medical device data processing, and treatment outcome
+            prediction.
+          </p>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🏭</div>
+          <h3 class="use-case-title">Manufacturing & IoT</h3>
+          <p class="use-case-description">
+            Predictive maintenance, supply chain optimization, quality control,
+            sensor data analysis, and production efficiency monitoring.
+          </p>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">📱</div>
+          <h3 class="use-case-title">Media & Social</h3>
+          <p class="use-case-description">
+            Sentiment analysis, ad fraud detection, content recommendations,
+            user engagement tracking, and real-time trend detection.
+          </p>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🚗</div>
+          <h3 class="use-case-title">Transportation & Logistics</h3>
+          <p class="use-case-description">
+            Route optimization, fleet management, demand forecasting, delivery
+            tracking, and real-time traffic analysis.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Getting Started Section -->
+    <section id="getting-started" class="section">
+      <h2 class="section-title">Getting Started</h2>
+      <p class="section-subtitle">
+        Set up the entire pipeline in minutes with Docker Compose
+      </p>
+
+      <div class="getting-started">
+        <div class="steps-container">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Clone the Repository</h3>
+              <p>
+                Get the source code from GitHub and navigate to the project
+                directory
+              </p>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-language">bash</span>
+                  <button class="copy-button" onclick="copyCode(this)">
+                    📋 Copy
+                  </button>
+                </div>
+                <pre><code>git clone https://github.com/paulchen8206/Modern-Enterprise-Data-Stack.git
+cd Modern-Enterprise-Data-Stack</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Start the Pipeline Stack</h3>
+              <p>
+                Launch all services with Docker Compose. This will start MySQL,
+                PostgreSQL, Kafka, MinIO, Airflow, Spark, Prometheus, and
+                Grafana
+              </p>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-language">bash</span>
+                  <button class="copy-button" onclick="copyCode(this)">
+                    📋 Copy
+                  </button>
+                </div>
+                <pre><code>docker-compose up --build</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Access the Services</h3>
+              <p>Once all services are running, access the web interfaces:</p>
+              <ul
+                style="
+                  list-style: none;
+                  margin-top: 1rem;
+                  color: var(--text-secondary);
+                "
+              >
+                <li style="padding: 0.5rem 0">
+                  🌀 <strong>Airflow UI:</strong>
+                  <a
+                    href="http://localhost:8080"
+                    style="color: var(--primary-color)"
+                    >http://localhost:8080</a
+                  >
+                </li>
+                <li style="padding: 0.5rem 0">
+                  🪣 <strong>MinIO Console:</strong>
+                  <a
+                    href="http://localhost:9001"
+                    style="color: var(--primary-color)"
+                    >http://localhost:9001</a
+                  >
+                  (minio/minio123)
+                </li>
+                <li style="padding: 0.5rem 0">
+                  📈 <strong>Grafana:</strong>
+                  <a
+                    href="http://localhost:3000"
+                    style="color: var(--primary-color)"
+                    >http://localhost:3000</a
+                  >
+                  (admin/admin)
+                </li>
+                <li style="padding: 0.5rem 0">
+                  🔥 <strong>Prometheus:</strong>
+                  <a
+                    href="http://localhost:9090"
+                    style="color: var(--primary-color)"
+                    >http://localhost:9090</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>Run Your First Pipeline</h3>
+              <p>
+                Enable and trigger the batch ingestion DAG in Airflow to see the
+                end-to-end pipeline in action
+              </p>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-language">bash</span>
+                  <button class="copy-button" onclick="copyCode(this)">
+                    📋 Copy
+                  </button>
+                </div>
+                <pre><code># In Airflow UI, enable batch_ingestion_dag
+# Or trigger via CLI:
+docker-compose exec airflow airflow dags trigger batch_ingestion_dag</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <h3>Run Streaming Pipeline</h3>
+              <p>
+                Start the Kafka producer and Spark streaming job for real-time
+                processing
+              </p>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-language">bash</span>
+                  <button class="copy-button" onclick="copyCode(this)">
+                    📋 Copy
+                  </button>
+                </div>
+                <pre><code># Start Kafka producer
+docker-compose exec kafka python /opt/spark_jobs/../kafka/producer.py
+
+# Run Spark streaming job
+docker-compose exec spark spark-submit --master local[2] \
+  /opt/spark_jobs/spark_streaming_job.py</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <h3>Deploy to Kubernetes (Optional)</h3>
+              <p>
+                For production deployment, use Kubernetes with Argo CD for
+                GitOps
+              </p>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-language">bash</span>
+                  <button class="copy-button" onclick="copyCode(this)">
+                    📋 Copy
+                  </button>
+                </div>
+                <pre><code># Apply Kubernetes manifests
+kubectl apply -f k8s/
+
+# Setup Argo CD
+kubectl apply -f k8s/argo-app.yaml
+
+# Deploy with Terraform (for cloud infrastructure)
+cd terraform
+terraform init
+terraform apply</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          margin-top: 3rem;
+          padding: 2rem;
+          background: rgba(79, 172, 254, 0.1);
+          border-radius: 12px;
+          border: 1px solid rgba(79, 172, 254, 0.3);
+        "
+      >
+        <h3 style="margin-bottom: 1rem; font-size: 1.5rem">
+          📚 Additional Resources
+        </h3>
+        <ul style="list-style: none; color: var(--text-secondary)">
+          <li style="padding: 0.5rem 0">
+            📖
+            <a href="../README.md" style="color: var(--primary-color)"
+              >Comprehensive README</a
+            >
+            - Detailed documentation
+          </li>
+          <li style="padding: 0.5rem 0">
+            🏗️
+            <a href="ARCHITECTURE.md" style="color: var(--primary-color)"
+              >Architecture Guide</a
+            >
+            - System design details
+          </li>
+          <li style="padding: 0.5rem 0">
+            🚀
+            <a href="QUICK_START.md" style="color: var(--primary-color)"
+              >Quick Start Guide</a
+            >
+            - Fast deployment commands
+          </li>
+          <li style="padding: 0.5rem 0">
+            📋
+            <a
+              href="DEPLOYMENT_STRATEGIES.md"
+              style="color: var(--primary-color)"
+              >Deployment Strategies</a
+            >
+            - Blue/Green & Canary deployments
+          </li>
+          <li style="padding: 0.5rem 0">
+            📓
+            <a
+              href="../notebooks/modern-data-stack.ipynb"
+              style="color: var(--primary-color)"
+              >Jupyter Notebook</a
+            >
+            - Interactive tutorial
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>About</h3>
+          <p
+            style="
+              color: var(--text-secondary);
+              line-height: 1.6;
+              margin-top: 1rem;
+            "
+          >
+            An enterprise-grade, production-ready data pipeline supporting both
+            batch and streaming processing with comprehensive monitoring,
+            governance, and ML integration.
+          </p>
+          <div class="social-links">
+            <a
+              href="https://github.com/paulchen8206/Modern-Enterprise-Data-Stack"
+              class="social-link"
+              title="GitHub"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#technologies">Technologies</a></li>
+            <li><a href="#deployment">Deployment</a></li>
+            <li><a href="#getting-started">Getting Started</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Documentation</h3>
+          <ul class="footer-links">
+            <li><a href="../README.md">README</a></li>
+            <li><a href="../docs/ARCHITECTURE.md">Architecture Guide</a></li>
+            <li><a href="../docs/QUICK_START.md">Quick Start</a></li>
+            <li>
+              <a href="../docs/DEPLOYMENT_STRATEGIES.md"
+                >Deployment Strategies</a
+              >
+            </li>
+            <li>
+              <a href="../notebooks/modern-data-stack.ipynb"
+                >Jupyter Notebook</a
+              >
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Technologies</h3>
+          <ul class="footer-links">
+            <li><a href="https://spark.apache.org/">Apache Spark</a></li>
+            <li><a href="https://kafka.apache.org/">Apache Kafka</a></li>
+            <li><a href="https://airflow.apache.org/">Apache Airflow</a></li>
+            <li><a href="https://kubernetes.io/">Kubernetes</a></li>
+            <li><a href="https://prometheus.io/">Prometheus</a></li>
+            <li><a href="https://grafana.com/">Grafana</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>
+          &copy; 2025 Modern Data Stack. Licensed under
+          <a href="../LICENSE" style="color: var(--primary-color)"
+            >MIT License</a
+          >.
+        </p>
+        <p style="margin-top: 0.5rem">
+          Created by
+          <a
+            href="https://github.com/paulchen8206"
+            style="color: var(--primary-color)"
+            >paulchen8206@github</a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top">↑</a>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+  </body>
+</html>
