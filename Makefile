@@ -14,7 +14,8 @@ COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/ta
 	format format-python format-text terraform-fmt \
 	validate validate-compose validate-shell validate-python validate-json validate-yaml validate-notebook validate-format validate-terraform \
 	terraform-init terraform-validate \
-	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo prepare-demo-data
+	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo prepare-demo-data \
+	run-java-api-local run-java-api-compose run-java-api-local-safe
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; print "Available targets:"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-26s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -93,6 +94,20 @@ terraform-init: ## Initialize Terraform providers/modules
 terraform-validate: ## Validate Terraform only
 	$(TERRAFORM) -chdir=iac init -backend=false -input=false >/dev/null
 	$(TERRAFORM) -chdir=iac validate
+
+run-java-api-local: ## Run Java API from repo root using local profile
+	mvn -f java-api/pom.xml spring-boot:run -Dspring-boot.run.profiles=local -DskipTests
+
+run-java-api-compose: ## Run Java API from repo root using compose profile
+	mvn -f java-api/pom.xml spring-boot:run -Dspring-boot.run.profiles=compose -DskipTests
+
+run-java-api-local-safe: ## Stop process on 8081, then run Java API local profile
+	@if lsof -ti tcp:8081 >/dev/null 2>&1; then \
+		echo "Stopping process on port 8081..."; \
+		kill $$(lsof -ti tcp:8081); \
+		sleep 1; \
+	fi
+	mvn -f java-api/pom.xml spring-boot:run -Dspring-boot.run.profiles=local -DskipTests
 
 run-kafka-producer: ## Run Kafka producer in compose stack
 	$(COMPOSE_MAIN) exec kafka python /opt/spark_jobs/../kafka/producer.py

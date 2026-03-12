@@ -6,7 +6,14 @@ Spring Boot implementation of the orchestration API.
 
 ```bash
 cd java-api
-mvn spring-boot:run
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+Run with Compose network hostnames (when Java API runs in a container/network with other services):
+
+```bash
+cd java-api
+mvn spring-boot:run -Dspring-boot.run.profiles=compose
 ```
 
 ## Build

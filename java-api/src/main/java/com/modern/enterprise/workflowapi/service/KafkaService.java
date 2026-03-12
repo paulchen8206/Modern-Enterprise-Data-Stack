@@ -13,10 +13,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaService {
   private final AppConfigProperties.Kafka cfg;
-  private final KafkaProducer<String, String> producer;
+  private KafkaProducer<String, String> producer;
 
   public KafkaService(AppConfigProperties props) {
     this.cfg = props.getKafka();
+  }
+
+  private synchronized KafkaProducer<String, String> getOrCreateProducer() {
+    if (producer != null) {
+      return producer;
+    }
+
     Properties p = new Properties();
     p.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, cfg.getBootstrapServers());
     p.put(ProducerConfig.CLIENT_ID_CONFIG, cfg.getClientId());
@@ -26,17 +33,19 @@ public class KafkaService {
     p.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, cfg.getMessageTimeoutMs());
     p.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     p.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    this.producer = new KafkaProducer<>(p);
+    producer = new KafkaProducer<>(p);
+    return producer;
   }
 
   public void produce(String message, int partition) throws Exception {
+    KafkaProducer<String, String> activeProducer = getOrCreateProducer();
     ProducerRecord<String, String> rec = new ProducerRecord<>(cfg.getTopic(), partition, null, message);
-    producer.send(rec).get();
+    activeProducer.send(rec).get();
   }
 
   public boolean canReachKafka() {
     try {
-      producer.partitionsFor(cfg.getTopic());
+      getOrCreateProducer().partitionsFor(cfg.getTopic());
       return true;
     } catch (Exception ex) {
       return false;
@@ -45,7 +54,9 @@ public class KafkaService {
 
   @PreDestroy
   public void close() {
-    producer.flush();
-    producer.close(Duration.ofSeconds(cfg.getProducerFlushSeconds()));
+    if (producer != null) {
+      producer.flush();
+      producer.close(Duration.ofSeconds(cfg.getProducerFlushSeconds()));
+    }
   }
 }

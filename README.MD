@@ -29,6 +29,7 @@ Use `Makefile` targets to standardize daily operations:
 ## <span style="color: #0ea5e9;">Documentation Hub</span>
 
 - Getting started: `docs/QUICK_START.MD`
+- Local development workflow: `LOCAL_DEVELOPMENT.MD`
 - System design details: `docs/ARCHITECTURE.MD`
 - Progressive delivery patterns: `docs/DEPLOYMENT.MD`
 - Iceberg table format usage: `docs/ICEBERG.MD`
