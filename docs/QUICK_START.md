@@ -13,6 +13,31 @@ This guide provides fast commands for common advanced deployment operations.
 | Promote rollout           | `kubectl argo rollouts promote airflow-rollout`             |
 | Abort rollout             | `kubectl argo rollouts abort airflow-rollout`               |
 
+## <span style="color: #0ea5e9;">Local Kubernetes (Kind) Quick Path</span>
+
+Use this when you want to run Docker-built containers in a local Kubernetes cluster.
+
+```bash
+make kind-deploy
+make kind-status
+make kind-smoke
+```
+
+Default host endpoints via Kind port mappings:
+
+- Workflow API: `http://localhost:8081`
+- MinIO API: `http://localhost:9000`
+- MinIO Console: `http://localhost:9001`
+- Kafka broker: `localhost:9092`
+
+Cleanup:
+
+```bash
+make kind-down
+```
+
+Implementation details: `k8s/kind/README.md`
+
 ## <span style="color: #0ea5e9;">Component Quick Procedures</span>
 
 ### <span style="color: #22c55e;">Orchestration (Airflow)</span>

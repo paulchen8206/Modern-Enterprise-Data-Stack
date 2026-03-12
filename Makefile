@@ -6,6 +6,10 @@ COMPOSE_CI ?= docker-compose --project-directory . -f infra/compose/docker-compo
 TERRAFORM ?= terraform
 PRETTIER ?= prettier
 WIKI_PORT ?= 8000
+KIND ?= kind
+KUBECTL ?= kubectl
+KIND_CLUSTER ?= modern-data-stack
+KIND_NAMESPACE ?= data-stack-local
 PYTHON_SRC ?= pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
 TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
 YAML_FILE_TYPES ?= \( -name '*.yml' -o -name '*.yaml' \)
@@ -18,7 +22,8 @@ COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/ta
 	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo prepare-demo-data \
 	run-java-api-local run-java-api-compose run-java-api-local-safe \
 	build-java-api-container run-java-api-container stop-java-api-container logs-java-api-container \
-	run-wiki
+	run-wiki \
+	kind-up kind-deploy kind-status kind-smoke kind-down
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; print "Available targets:"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-26s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -134,6 +139,21 @@ logs-java-api-container: ## Tail Java API container logs
 
 run-wiki: ## Run local wiki server (override port: make run-wiki WIKI_PORT=3000)
 	$(PYTHON) devtools/serve_wiki.py $(WIKI_PORT)
+
+kind-up: ## Create local kind cluster for Kubernetes deployment
+	$(KIND) create cluster --name $(KIND_CLUSTER) --config k8s/kind/cluster-config.yaml
+
+kind-deploy: ## Deploy local stack into kind (build/load/apply/wait)
+	./ops/deploy-kind.sh
+
+kind-status: ## Show status of pods/services in local kind namespace
+	$(KUBECTL) -n $(KIND_NAMESPACE) get pods,svc
+
+kind-smoke: ## Run local smoke checks for kind deployment
+	./ops/kind-smoke.sh
+
+kind-down: ## Delete local kind cluster
+	$(KIND) delete cluster --name $(KIND_CLUSTER)
 
 run-kafka-producer: ## Run Kafka producer in compose stack
 	$(COMPOSE_MAIN) exec -e KAFKA_TOPIC=events spark python3 /opt/kafka_jobs/producer.py

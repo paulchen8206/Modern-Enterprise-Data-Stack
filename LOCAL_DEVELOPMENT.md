@@ -11,6 +11,7 @@ Use this guide when you need:
 - Platform dependencies running in Docker Compose.
 - Java API running on host (recommended) or as a container.
 - Airflow, Kafka, MinIO, Postgres, and Conduktor integration available for end-to-end testing.
+- Local Kubernetes deployment on Kind for container-level validation.
 
 ## Architecture Notes (Local)
 
@@ -46,6 +47,29 @@ curl -sS http://localhost:8081/api/monitor/health
 ```
 
 If both checks are healthy, start testing API and pipeline flows.
+
+## Quick Start (Local Kubernetes with Kind)
+
+Use this path when you want to validate Kubernetes manifests and container behavior locally:
+
+```bash
+make kind-deploy
+make kind-status
+```
+
+Kind endpoints (from host):
+
+- Airflow UI: http://localhost:8080
+- Workflow API: http://localhost:8081
+- MinIO API: http://localhost:9000
+- MinIO Console: http://localhost:9001
+- Kafka broker: localhost:9092
+
+Destroy local Kind cluster:
+
+```bash
+make kind-down
+```
 
 ## 1. Start Platform Services
 

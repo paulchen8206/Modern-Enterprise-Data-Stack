@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for E2E Data Pipeline
+name: CI/CD Pipeline for Modern Enterprise Data Stack
 
 on:
   push:

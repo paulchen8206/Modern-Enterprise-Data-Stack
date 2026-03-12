@@ -1,0 +1,373 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: data-stack-local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper:7.3.2
+        env:
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        ports:
+        - containerPort: 2181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  namespace: data-stack-local
+spec:
+  selector:
+    app: zookeeper
+  ports:
+  - port: 2181
+    targetPort: 2181
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: confluentinc/cp-kafka:7.3.2
+        env:
+        - name: KAFKA_BROKER_ID
+          value: "1"
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: "zookeeper:2181"
+        - name: KAFKA_LISTENERS
+          value: "PLAINTEXT://0.0.0.0:9092"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://kafka:9092"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+          value: "1"
+        ports:
+        - containerPort: 9092
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: data-stack-local
+spec:
+  type: NodePort
+  selector:
+    app: kafka
+  ports:
+  - name: broker
+    port: 9092
+    targetPort: 9092
+    nodePort: 30092
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: source_db
+        - name: MYSQL_USER
+          value: user
+        - name: MYSQL_PASSWORD
+          value: pass
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: data-stack-local
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14
+        env:
+        - name: POSTGRES_DB
+          value: processed_db
+        - name: POSTGRES_USER
+          value: user
+        - name: POSTGRES_PASSWORD
+          value: pass
+        ports:
+        - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: data-stack-local
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: minio
+        image: minio/minio:latest
+        args:
+        - server
+        - /data
+        - --console-address
+        - :9001
+        env:
+        - name: MINIO_ROOT_USER
+          value: minio
+        - name: MINIO_ROOT_PASSWORD
+          value: minio123
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: data-stack-local
+spec:
+  type: NodePort
+  selector:
+    app: minio
+  ports:
+  - name: api
+    port: 9000
+    targetPort: 9000
+    nodePort: 30900
+  - name: console
+    port: 9001
+    targetPort: 9001
+    nodePort: 30901
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-webserver
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-webserver
+  template:
+    metadata:
+      labels:
+        app: airflow-webserver
+    spec:
+      containers:
+      - name: airflow-webserver
+        image: modern-enterprise-data-stack-airflow:kind
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: LocalExecutor
+        - name: AIRFLOW__CORE__LOAD_EXAMPLES
+          value: "False"
+        - name: AIRFLOW__API__AUTH_BACKENDS
+          value: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: postgresql+psycopg2://user:pass@postgres:5432/processed_db
+        - name: AIRFLOW_CONN_MYSQL_DEFAULT
+          value: mysql://user:pass@mysql:3306/source_db
+        - name: AIRFLOW_CONN_POSTGRES_DEFAULT
+          value: postgresql://user:pass@postgres:5432/processed_db
+        - name: AIRFLOW_WWW_USER
+          value: airflow_user
+        - name: AIRFLOW_WWW_PASSWORD
+          value: airflow_pass
+        command:
+        - bash
+        - -lc
+        - |
+          airflow db upgrade &&
+          if ! airflow users list | grep -q "${AIRFLOW_WWW_USER:-airflow_user}"; then
+            airflow users create --username "${AIRFLOW_WWW_USER:-airflow_user}" --password "${AIRFLOW_WWW_PASSWORD:-airflow_pass}" --firstname Airflow --lastname Admin --role Admin --email airflow@example.com;
+          fi &&
+          airflow webserver
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-webserver
+  namespace: data-stack-local
+spec:
+  type: NodePort
+  selector:
+    app: airflow-webserver
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-scheduler
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler
+    spec:
+      containers:
+      - name: airflow-scheduler
+        image: modern-enterprise-data-stack-airflow:kind
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: LocalExecutor
+        - name: AIRFLOW__CORE__LOAD_EXAMPLES
+          value: "False"
+        - name: AIRFLOW__API__AUTH_BACKENDS
+          value: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          value: postgresql+psycopg2://user:pass@postgres:5432/processed_db
+        - name: AIRFLOW_CONN_MYSQL_DEFAULT
+          value: mysql://user:pass@mysql:3306/source_db
+        - name: AIRFLOW_CONN_POSTGRES_DEFAULT
+          value: postgresql://user:pass@postgres:5432/processed_db
+        command:
+        - bash
+        - -lc
+        - |
+          airflow db upgrade && airflow scheduler
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-api
+  namespace: data-stack-local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workflow-api
+  template:
+    metadata:
+      labels:
+        app: workflow-api
+    spec:
+      containers:
+      - name: workflow-api
+        image: modern-enterprise-data-stack-workflow-api:kind
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: compose
+        - name: APP_CONNECTION_STRINGS_MY_SQL
+          value: "Server=mysql;Database=source_db;User=user;Password=pass;"
+        - name: APP_CONNECTION_STRINGS_POSTGRES
+          value: "Host=postgres;Database=processed_db;Username=user;Password=pass;"
+        - name: APP_MINIO_ENDPOINT
+          value: "minio:9000"
+        - name: APP_KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        - name: APP_AIRFLOW_BASE_URL
+          value: "http://airflow-webserver:8080/api/v1"
+        ports:
+        - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workflow-api
+  namespace: data-stack-local
+spec:
+  type: NodePort
+  selector:
+    app: workflow-api
+  ports:
+  - port: 8081
+    targetPort: 8081
+    nodePort: 30081
