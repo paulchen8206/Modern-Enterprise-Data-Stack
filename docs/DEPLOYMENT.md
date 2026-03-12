@@ -2,6 +2,12 @@
 
 This guide covers advanced deployment strategies for the Modern Data Stack, including Blue/Green, Canary, and progressive delivery patterns.
 
+## <span style="color: #0ea5e9;">Current Implementation Baseline</span>
+
+- CI/CD automation is represented by `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+- Local Kubernetes validation is implemented under `k8s/kind/` with automation scripts in `ops/deploy-kind.sh` and `ops/kind-smoke.sh`.
+- Compose-based local runtime remains available under `infra/compose/docker-compose.yaml` for service-level integration tests before rollout.
+
 ## <span style="color: #0ea5e9;">Table of Contents</span>
 
 1. [Overview](#overview)

@@ -2,6 +2,13 @@
 
 This directory contains manifests and cluster configuration for running a local Kubernetes stack on Kind.
 
+## Repository Integration
+
+- Main deployment script: `ops/deploy-kind.sh`
+- Post-deploy checks: `ops/kind-smoke.sh`
+- Related quick usage: `docs/QUICK_START.md`
+- CI/CD definitions: `.github/workflows/ci.yml` and `.github/workflows/cd.yml`
+
 ## What It Deploys
 
 - Zookeeper
@@ -20,6 +27,12 @@ From repository root:
 
 ```bash
 make kind-deploy
+```
+
+Hybrid path (Kind + Docker support services for Conduktor metadata/UI):
+
+```bash
+make hybrid-up
 ```
 
 This command:
@@ -46,10 +59,13 @@ Using host port mappings from `k8s/kind/cluster-config.yaml`:
 make kind-status
 make kind-smoke
 make kind-down
+make hybrid-status
+make hybrid-down
 ```
 
 ## Notes
 
 - This local stack is optimized for development smoke testing.
 - It is intentionally separate from Docker Compose workflow.
+- `make hybrid-up` bridges both approaches by only starting non-conflicting Compose support services.
 - Existing cloud-focused manifests in `k8s/` are still valid for EKS/Argo paths.

@@ -9,7 +9,16 @@ This folder centralizes container definitions for the Modern Data Stack.
   - `docker-compose.ci.yaml`: CI-oriented compose stack
 - `dockerfiles/`
   - `airflow.Dockerfile`: Airflow image definition
+  - `sample_dotnet_backend.Dockerfile`: sample .NET backend image definition
   - `spark.Dockerfile`: Spark image definition
+
+## <span style="color: #0ea5e9;">Current Runtime Topology</span>
+
+- Main local stack is defined in `compose/docker-compose.yaml`.
+- The stack uses two Postgres services:
+  - `postgres` on `5432` for project data.
+  - `postgres-conduktor` on `5433` for Conduktor metadata.
+- CI-focused stack overlays are defined in `compose/docker-compose.ci.yaml`.
 
 ## <span style="color: #0ea5e9;">Operational Workflow</span>
 

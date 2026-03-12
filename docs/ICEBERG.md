@@ -2,6 +2,12 @@
 
 This project supports writing Spark batch output to Apache Iceberg tables.
 
+## <span style="color: #0ea5e9;">Current Architecture Context</span>
+
+- Spark implementation lives in `pipelines/spark/` and image definitions are in `infra/dockerfiles/`.
+- Iceberg batch writes are validated first in Compose-based local runtime (`make up`) and can be smoke-tested in Kind after `make kind-deploy`.
+- CI/CD orchestration for changes is split between `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+
 ## <span style="color: #0ea5e9;">What Was Added</span>
 
 - Iceberg runtime JAR in Spark image:

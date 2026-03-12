@@ -18,6 +18,15 @@
 
 This document provides a comprehensive architectural overview of the Modern Data Stack system, designed to handle both batch and streaming data processing at scale. The architecture follows cloud-native principles, emphasizing scalability, reliability, and maintainability.
 
+### <span style="color: #22c55e;">Current Implementation Update</span>
+
+- GitHub Actions are separated into CI (`.github/workflows/ci.yml`) and CD (`.github/workflows/cd.yml`).
+- Local runtime has two supported paths:
+    - Docker Compose (`infra/compose/docker-compose.yaml`) for integrated service development.
+    - Kind (`k8s/kind/stack.yaml`) for local Kubernetes validation.
+- Compose data layer intentionally separates project and Conduktor metadata into two Postgres services (`postgres` and `postgres-conduktor`).
+- Local deployment and verification scripts are standardized in `ops/deploy-kind.sh` and `ops/kind-smoke.sh`.
+
 ### <span style="color: #22c55e;">How to Read This Document</span>
 
 - Start with `System Architecture` for high-level context.

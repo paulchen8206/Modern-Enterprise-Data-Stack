@@ -22,6 +22,20 @@ This stack intentionally uses **two Postgres services**:
 
 This separation prevents Conduktor schema/state from interfering with project data.
 
+## Current Repository Snapshot
+
+- CI workflow: `.github/workflows/ci.yml`
+- CD workflow: `.github/workflows/cd.yml`
+- Kind assets: `k8s/kind/cluster-config.yaml`, `k8s/kind/stack.yaml`, `k8s/kind/README.md`
+- Kind operations: `ops/deploy-kind.sh`, `ops/kind-smoke.sh`
+- Local docs viewer: `devtools/serve_wiki.py` (route `/wiki?doc=<path>`)
+
+Use these docs for implementation context:
+
+- `README.md` for top-level project map
+- `docs/ARCHITECTURE.md` for platform architecture
+- `docs/DEPLOYMENT.md` for progressive delivery patterns
+
 ## Prerequisites
 
 1. Docker Desktop running.
@@ -57,6 +71,13 @@ make kind-deploy
 make kind-status
 ```
 
+Use this path when you want Kind plus local Docker support services (`postgres-conduktor`, `conduktor`) in one flow:
+
+```bash
+make hybrid-up
+make hybrid-status
+```
+
 Kind endpoints (from host):
 
 - Airflow UI: http://localhost:8080
@@ -69,6 +90,12 @@ Destroy local Kind cluster:
 
 ```bash
 make kind-down
+```
+
+Destroy hybrid runtime (Kind + support services):
+
+```bash
+make hybrid-down
 ```
 
 ## 1. Start Platform Services

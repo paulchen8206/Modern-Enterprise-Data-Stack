@@ -23,10 +23,18 @@ Use `Makefile` targets to standardize daily operations:
 
 - `make help` to list all available commands
 - `make up`, `make ps`, `make logs`, `make down` for lifecycle operations
-- `make kind-deploy`, `make kind-status`, `make kind-down` for local Kubernetes on Kind
+- `make kind-deploy`, `make kind-status`, `make kind-smoke`, `make kind-down` for local Kubernetes on Kind
+- `make hybrid-up`, `make hybrid-status`, `make hybrid-down` for Kind plus Compose support services
 - `make run-wiki` to preview the local wiki site (default `WIKI_PORT=8000`)
 - `make validate` for end-to-end project validation
 - `make format` for repository formatting
+
+## <span style="color: #0ea5e9;">Current Implementation Snapshot</span>
+
+- CI and CD workflows are split into `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+- Local Kubernetes is supported with Kind using `k8s/kind/cluster-config.yaml`, `k8s/kind/stack.yaml`, `ops/deploy-kind.sh`, and `ops/kind-smoke.sh`.
+- Docker Compose runs two Postgres services: `postgres` (project data on `5432`) and `postgres-conduktor` (Conduktor metadata on `5433`).
+- Wiki docs are rendered through `devtools/serve_wiki.py` with Mermaid-compatible markdown rendering.
 
 ## <span style="color: #0ea5e9;">Documentation Hub</span>
 
@@ -664,13 +672,18 @@ flowchart LR
 ```
 modern-enterprise-data-stack/
   ├── README.md
+  ├── LOCAL_DEVELOPMENT.md
   ├── Makefile
   ├── .github/
+  │   └── workflows/
+  │       ├── ci.yml
+  │       └── cd.yml
   ├── .devcontainer/
   ├── docs/
   │   ├── QUICK_START.md
   │   ├── ARCHITECTURE.md
-  │   └── DEPLOYMENT.md
+  │   ├── DEPLOYMENT.md
+  │   └── ICEBERG.md
   ├── pipelines/
   │   ├── airflow/
   │   ├── spark/
@@ -687,15 +700,27 @@ modern-enterprise-data-stack/
   │   │   └── docker-compose.ci.yaml
   │   ├── dockerfiles/
   │   │   ├── airflow.Dockerfile
+  │   │   ├── sample_dotnet_backend.Dockerfile
   │   │   ├── spark.Dockerfile
   │   └── README.md
   ├── iac/
   ├── k8s/
+  │   ├── kind/
+  │   │   ├── cluster-config.yaml
+  │   │   ├── stack.yaml
+  │   │   └── README.md
+  │   ├── deployment.yaml
+  │   ├── services.yaml
+  │   ├── ingress.yaml
+  │   ├── rollout-blue-green.yaml
+  │   └── rollout-canary.yaml
   ├── ops/
   │   ├── deploy-blue-green.sh
   │   ├── deploy-canary.sh
+  │   ├── deploy-kind.sh
   │   ├── init_db.sql
-  │   ├── setup.sh
+  │   ├── setup-advanced-deployments.sh
+  │   ├── kind-smoke.sh
   │   └── operations/
   ├── java-api/
   ├── notebooks/

@@ -1,0 +1,55 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [PRIMARY_BRANCH]
+  pull_request:
+    branches: [PRIMARY_BRANCH]
+
+jobs:
+  validate-and-test:
+    name: Validate, Build, and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Install project tooling dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install black pyyaml nbformat
+          npm install --global prettier
+
+      - name: Run repository validation targets
+        run: |
+          make validate-compose
+          make validate-shell
+          make validate-python
+          make validate-json
+          make validate-yaml
+          make validate-notebook
+          make validate-format
+          make validate-terraform
+
+      - name: Build Java API
+        run: mvn -f java-api/pom.xml -DskipTests package

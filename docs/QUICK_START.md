@@ -2,11 +2,19 @@
 
 This guide provides fast commands for common advanced deployment operations.
 
+## <span style="color: #0ea5e9;">Current Project Layout Notes</span>
+
+- CI and CD workflows are split into `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+- Local Kubernetes assets are under `k8s/kind/` and operations scripts are under `ops/`.
+- Docker Compose remains the default integration runtime via `infra/compose/docker-compose.yaml`.
+- For full topology and component map, see `README.md` and `docs/ARCHITECTURE.md`.
+
 ## <span style="color: #0ea5e9;">Quick Command Matrix</span>
 
 | Goal                      | Command                                                     |
 | ------------------------- | ----------------------------------------------------------- |
 | Start stack               | `make up`                                                   |
+| Start hybrid local runtime | `make hybrid-up`                                           |
 | Run Blue/Green automation | `./ops/deploy-blue-green.sh airflow v1.0.0`                 |
 | Run Canary automation     | `./ops/deploy-canary.sh airflow v1.0.0`                     |
 | Watch rollout             | `kubectl argo rollouts get rollout airflow-rollout --watch` |
@@ -23,6 +31,13 @@ make kind-status
 make kind-smoke
 ```
 
+Use this when you want Kind plus non-conflicting Docker Compose support services (`postgres-conduktor`, `conduktor`):
+
+```bash
+make hybrid-up
+make hybrid-status
+```
+
 Default host endpoints via Kind port mappings:
 
 - Workflow API: `http://localhost:8081`
@@ -34,6 +49,7 @@ Cleanup:
 
 ```bash
 make kind-down
+make hybrid-down
 ```
 
 Implementation details: `k8s/kind/README.md`
@@ -108,7 +124,7 @@ sudo ./aws/install
 ```bash
 cd ops
 chmod +x *.sh
-./setup.sh
+./setup-advanced-deployments.sh
 ```
 
 ### <span style="color: #22c55e;">Provision Infrastructure (Optional)</span>
@@ -382,7 +398,7 @@ kubectl argo rollouts get rollout airflow-rollout
 | `k8s/ingress.yaml`            | Traffic routing rules             |
 | `ops/deploy-blue-green.sh`    | Interactive blue/green deployment |
 | `ops/deploy-canary.sh`        | Interactive canary deployment     |
-| `ops/setup.sh`                | Infrastructure setup              |
+| `ops/setup-advanced-deployments.sh` | Infrastructure setup       |
 
 ### <span style="color: #22c55e;">Tune Analysis Thresholds</span>
 

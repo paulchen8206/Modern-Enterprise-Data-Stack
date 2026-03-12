@@ -4,6 +4,13 @@
 
 This guide covers practical monitoring setup for Kafka, Spark, and Airflow using Prometheus + Grafana.
 
+## <span style="color: #0ea5e9;">Current Implementation References</span>
+
+- Compose runtime entrypoint: `infra/compose/docker-compose.yaml`
+- Local Kubernetes runtime: `k8s/kind/stack.yaml` with `ops/deploy-kind.sh`
+- API and pipeline orchestration references: `java-api/README.md` and `docs/ARCHITECTURE.md`
+- CI/CD workflow files: `.github/workflows/ci.yml` and `.github/workflows/cd.yml`
+
 ## <span style="color: #0ea5e9;">Component Procedure</span>
 
 ### <span style="color: #22c55e;">1. Bootstrap Observability Stack</span>

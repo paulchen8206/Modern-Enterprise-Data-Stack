@@ -10,6 +10,7 @@ KIND ?= kind
 KUBECTL ?= kubectl
 KIND_CLUSTER ?= modern-data-stack
 KIND_NAMESPACE ?= data-stack-local
+HYBRID_SUPPORT_SERVICES ?= postgres-conduktor conduktor
 PYTHON_SRC ?= pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
 TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
 YAML_FILE_TYPES ?= \( -name '*.yml' -o -name '*.yaml' \)
@@ -23,7 +24,8 @@ COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/ta
 	run-java-api-local run-java-api-compose run-java-api-local-safe \
 	build-java-api-container run-java-api-container stop-java-api-container logs-java-api-container \
 	run-wiki \
-	kind-up kind-deploy kind-status kind-smoke kind-down
+	kind-up kind-deploy kind-status kind-smoke kind-down \
+	hybrid-up hybrid-status hybrid-down
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; print "Available targets:"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-26s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -153,6 +155,19 @@ kind-smoke: ## Run local smoke checks for kind deployment
 	./ops/kind-smoke.sh
 
 kind-down: ## Delete local kind cluster
+	$(KIND) delete cluster --name $(KIND_CLUSTER)
+
+hybrid-up: ## Start compose support services and deploy local kind stack
+	$(COMPOSE_MAIN) up -d $(HYBRID_SUPPORT_SERVICES)
+	./ops/deploy-kind.sh
+
+hybrid-status: ## Show compose support services and kind namespace status
+	$(COMPOSE_MAIN) ps $(HYBRID_SUPPORT_SERVICES)
+	$(KUBECTL) -n $(KIND_NAMESPACE) get pods,svc
+
+hybrid-down: ## Stop hybrid compose support services and delete local kind cluster
+	$(COMPOSE_MAIN) stop $(HYBRID_SUPPORT_SERVICES)
+	$(COMPOSE_MAIN) rm -f $(HYBRID_SUPPORT_SERVICES)
 	$(KIND) delete cluster --name $(KIND_CLUSTER)
 
 run-kafka-producer: ## Run Kafka producer in compose stack
