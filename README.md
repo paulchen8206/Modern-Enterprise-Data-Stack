@@ -573,7 +573,6 @@ flowchart LR
 modern-enterprise-data-stack/
   ├── README.md
   ├── Makefile
-  ├── LICENSE
   ├── .github/
   ├── .devcontainer/
   ├── docs/
