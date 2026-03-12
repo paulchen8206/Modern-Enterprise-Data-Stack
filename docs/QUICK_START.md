@@ -2,6 +2,17 @@
 
 This guide provides fast commands for common advanced deployment operations.
 
+## <span style="color: #0ea5e9;">Quick Command Matrix</span>
+
+| Goal                      | Command                                                     |
+| ------------------------- | ----------------------------------------------------------- |
+| Start stack               | `make up`                                                   |
+| Run Blue/Green automation | `./ops/deploy-blue-green.sh airflow v1.0.0`                 |
+| Run Canary automation     | `./ops/deploy-canary.sh airflow v1.0.0`                     |
+| Watch rollout             | `kubectl argo rollouts get rollout airflow-rollout --watch` |
+| Promote rollout           | `kubectl argo rollouts promote airflow-rollout`             |
+| Abort rollout             | `kubectl argo rollouts abort airflow-rollout`               |
+
 ## <span style="color: #0ea5e9;">Prerequisites</span>
 
 ### <span style="color: #22c55e;">Install Required CLI Tools</span>
@@ -68,14 +79,20 @@ make terraform-validate
 ### <span style="color: #22c55e;">Manage Blue/Green Manually</span>
 
 ```bash
-# Deploy with progressive traffic shifting
-./ops/deploy-canary.sh airflow v1.0.0
+# Apply Blue/Green rollout manifest
+kubectl apply -f k8s/rollout-blue-green.yaml
 
-# The script will:
-# - Deploy canary version
-# - Progressively shift traffic (10% → 25% → 50% → 75% → 100%)
-# - Run automated analysis at each step
-# - Auto-rollback on failures
+# Watch rollout status
+kubectl argo rollouts get rollout airflow-rollout --watch
+
+# Access preview service for validation
+kubectl get svc airflow-preview-service
+
+# Promote preview to stable
+kubectl argo rollouts promote airflow-rollout
+
+# Undo if needed
+kubectl argo rollouts undo airflow-rollout
 ```
 
 ---

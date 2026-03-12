@@ -17,6 +17,13 @@ This guide covers advanced deployment strategies for the Modern Data Stack, incl
 
 ## <span style="color: #0ea5e9;">Overview</span>
 
+| Scenario                       | Recommended Strategy   | Why                                           |
+| ------------------------------ | ---------------------- | --------------------------------------------- |
+| Low-risk routine release       | Blue/Green             | Fast cutover and immediate rollback           |
+| High-risk or uncertain release | Canary                 | Progressive traffic shift with analysis gates |
+| Mission-critical API           | Canary + auto rollback | Reduces blast radius for regressions          |
+| Major platform migration       | Blue/Green + soak test | Parallel validation before full switch        |
+
 ### <span style="color: #22c55e;">What Is Included</span>
 
 This project now includes enterprise-grade deployment capabilities:

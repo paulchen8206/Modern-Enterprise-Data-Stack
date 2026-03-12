@@ -46,6 +46,16 @@ docker run -p 8080:80 --env-file .env data-pipeline-api
 
 ## Key endpoints
 
+| Area       | Endpoint                       | Purpose                                      |
+| ---------- | ------------------------------ | -------------------------------------------- |
+| Batch      | `POST /api/batch/ingest`       | Run batch ingestion and optional DAG trigger |
+| Streaming  | `POST /api/stream/produce`     | Publish event to Kafka                       |
+| Streaming  | `POST /api/stream/run`         | Trigger streaming DAG                        |
+| Governance | `POST /api/governance/lineage` | Register lineage payload                     |
+| ML         | `POST /api/ml/run`             | Start MLflow run                             |
+| CI/CD      | `POST /api/ci/trigger`         | Trigger GitHub Actions workflow              |
+| Health     | `GET /api/monitor/health`      | Aggregate dependency health                  |
+
 - `POST /api/batch/ingest` – body: `{ "sourceTable": "table", "destinationPrefix": "...", "limit": 100, "triggerAirflow": true, "runGreatExpectations": true }`
 - `POST /api/stream/produce` – body: `{ "partition": 0, "payload": { ... } }`
 - `POST /api/stream/run` – trigger streaming DAG

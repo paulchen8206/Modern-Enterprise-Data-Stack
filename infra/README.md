@@ -36,3 +36,23 @@ docker-compose --project-directory . -f infra/compose/docker-compose.yaml up --b
 - Build contexts are defined in `infra/compose/docker-compose.yaml` and point to canonical source locations under `pipelines/`.
 - Dockerfiles are intentionally separated from service code to keep image definitions centralized.
 - For local troubleshooting, run `make ps` and `make logs` before restarting services.
+
+## <span style="color: #0ea5e9;">Quick Verification</span>
+
+- Validate compose files:
+
+  ```bash
+  make validate-compose
+  ```
+
+- Check service state after startup:
+
+  ```bash
+  make ps
+  ```
+
+- Tail core logs for triage:
+
+  ```bash
+  make logs
+  ```

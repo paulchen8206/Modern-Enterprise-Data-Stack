@@ -17,6 +17,13 @@
 
 This document provides a comprehensive architectural overview of the Modern Data Stack system, designed to handle both batch and streaming data processing at scale. The architecture follows cloud-native principles, emphasizing scalability, reliability, and maintainability.
 
+### <span style="color: #22c55e;">How to Read This Document</span>
+
+- Start with `System Architecture` for high-level context.
+- Use `Component Architecture` and `Data Flow Architecture` for implementation-level understanding.
+- Review `Security`, `Scalability`, and `Disaster Recovery` sections before production rollout.
+- Use this document together with `docs/QUICK_START.md` and `docs/DEPLOYMENT_STRATEGIES.md` for execution details.
+
 ### <span style="color: #22c55e;">Architectural Principles</span>
 
 - **Microservices Architecture**: Loosely coupled services that can be developed, deployed, and scaled independently

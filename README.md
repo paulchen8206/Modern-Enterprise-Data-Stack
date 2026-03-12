@@ -26,6 +26,16 @@ Use `Makefile` targets to standardize daily operations:
 - `make validate` for end-to-end project validation
 - `make format` for repository formatting
 
+## <span style="color: #0ea5e9;">Documentation Hub</span>
+
+- Getting started: `docs/QUICK_START.md`
+- System design details: `docs/ARCHITECTURE.md`
+- Progressive delivery patterns: `docs/DEPLOYMENT_STRATEGIES.md`
+- Iceberg table format usage: `docs/ICEBERG.md`
+- Infra container layout: `infra/README.md`
+- .NET orchestration API: `dotnet-api/README.md`
+- Monitoring setup notes: `pipelines/monitoring/prometheus_grafana_setup.md`
+
 ## <span style="color: #0ea5e9;">High-Level Component Diagram</span>
 
 ```mermaid
@@ -131,7 +141,9 @@ make logs
 5. Run pipelines:
 
 - Enable `batch_ingestion_dag` in Airflow for batch execution.
+- Run `make run-batch-job` for ad hoc batch execution.
 - Run `make run-kafka-producer` and `make run-streaming-job` for streaming.
+- Run `make run-iceberg-demo` to write Spark batch output to Iceberg.
 
 6. Use the runbook:
 

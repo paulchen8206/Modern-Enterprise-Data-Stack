@@ -39,6 +39,22 @@ The job still writes CSV outputs as before, and additionally writes to Iceberg t
 
 - `local.analytics.orders`
 
+## <span style="color: #0ea5e9;">Validation Checklist</span>
+
+- Confirm demo command exits successfully:
+
+  ```bash
+  make run-iceberg-demo
+  ```
+
+- Confirm logs include:
+  - `Iceberg write complete: local.analytics.orders`
+  - `Batch ETL process completed successfully`
+
+- Confirm Spark image includes required jars:
+  - Iceberg runtime jar
+  - Hadoop AWS + AWS SDK bundle jars
+
 ## <span style="color: #0ea5e9;">Run Without Iceberg</span>
 
 To use legacy behavior (CSV outputs only):
@@ -51,3 +67,12 @@ make run-batch-job
 
 - Iceberg is implemented with Spark Catalog type `hadoop` and a local warehouse by default.
 - You can switch to object storage-backed warehouse paths by setting `ICEBERG_WAREHOUSE` and related Spark/Hadoop settings for your environment.
+
+## <span style="color: #0ea5e9;">Troubleshooting</span>
+
+- `spark-submit` not found:
+  - Use explicit binary path `/opt/spark/bin/spark-submit` in container commands.
+- `S3AFileSystem not found`:
+  - Ensure Spark image includes `hadoop-aws` and `aws-java-sdk-bundle` jars.
+- MinIO bucket not found:
+  - Ensure `raw-data` and `processed-data` buckets exist before running batch jobs.
