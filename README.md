@@ -1,4 +1,4 @@
-# 🚀 Modern Data Stack with Batch & Streaming Processing 🌈
+# 🚀 Modern Enterprise Data Stack 🌈
 
 This repository provides a production-ready data platform for both batch and streaming workloads.
 
@@ -570,7 +570,7 @@ flowchart LR
 ## <span style="color: #0ea5e9;">Directory Structure</span>
 
 ```
-modern-data-stack/
+modern-enterprise-data-stack/
   ├── README.md
   ├── Makefile
   ├── LICENSE
