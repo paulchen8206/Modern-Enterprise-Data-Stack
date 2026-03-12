@@ -9,6 +9,10 @@ RUN wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.
     -P $SPARK_HOME/jars
 RUN wget https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.5.1/kafka-clients-3.5.1.jar \
     -P $SPARK_HOME/jars
+RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar \
+    -P $SPARK_HOME/jars
+RUN wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar \
+    -P $SPARK_HOME/jars
 RUN wget https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-3.5_2.12/1.5.2/iceberg-spark-runtime-3.5_2.12-1.5.2.jar \
     -P $SPARK_HOME/jars
 

@@ -109,10 +109,10 @@ run-kafka-producer: ## Run Kafka producer in compose stack
 	$(COMPOSE_MAIN) exec kafka python /opt/spark_jobs/../kafka/producer.py
 
 run-streaming-job: ## Run Spark streaming job in compose stack
-	$(COMPOSE_MAIN) exec spark spark-submit --master local[2] /opt/spark_jobs/spark_streaming_job.py
+	$(COMPOSE_MAIN) exec spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_streaming_job.py
 
 run-batch-job: ## Run Spark batch job in compose stack
-	$(COMPOSE_MAIN) exec spark spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+	$(COMPOSE_MAIN) exec spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
 
 run-iceberg-demo: ## Run Spark batch job with Iceberg table write enabled
 	$(COMPOSE_MAIN) exec \
@@ -121,4 +121,4 @@ run-iceberg-demo: ## Run Spark batch job with Iceberg table write enabled
 		-e ICEBERG_NAMESPACE=analytics \
 		-e ICEBERG_TABLE=orders \
 		-e ICEBERG_WAREHOUSE=file:///tmp/iceberg_warehouse \
-		spark spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+		spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py

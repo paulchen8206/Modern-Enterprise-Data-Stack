@@ -3,7 +3,6 @@ import logging
 import glob
 import shutil
 import sys
-import great_expectations as ge
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
     current_timestamp,
@@ -85,34 +84,33 @@ def write_iceberg_table(spark, df):
 
 def validate_schema(df):
     """
-    Validate the schema of the incoming DataFrame using Great Expectations.
+    Validate the schema of the incoming DataFrame.
     Ensures:
       - 'order_id' is non-null and unique
       - 'customer_id' is non-null and positive
       - 'amount' is non-null and greater than zero
     """
-    logging.info("Validating schema using Great Expectations...")
+    logging.info("Validating schema with Spark-native checks...")
 
-    ge_df = ge.from_pandas(
-        df.toPandas()
-    )  # Convert Spark DataFrame to Pandas for GE validation
-
-    # Expect order_id to be unique and non-null
-    result_order_id = ge_df.expect_column_values_to_not_be_null("order_id")
-    if not result_order_id.success:
+    null_order_ids = df.filter(col("order_id").isNull()).count()
+    if null_order_ids > 0:
         raise ValueError("Validation failed: 'order_id' contains null values")
 
-    # Expect customer_id to be non-null and positive
-    result_customer_id = ge_df.expect_column_values_to_be_between(
-        "customer_id", min_value=1
+    duplicate_order_ids = (
+        df.groupBy("order_id").count().filter(col("count") > 1).count()
     )
-    if not result_customer_id.success:
-        raise ValueError("Validation failed: 'customer_id' is not positive")
+    if duplicate_order_ids > 0:
+        raise ValueError("Validation failed: 'order_id' contains duplicates")
 
-    # Expect amount to be non-null and greater than 0
-    result_amount = ge_df.expect_column_values_to_be_between("amount", min_value=0.01)
-    if not result_amount.success:
-        raise ValueError("Validation failed: 'amount' contains zero or negative values")
+    invalid_customer_ids = df.filter(
+        col("customer_id").isNull() | (col("customer_id") < 1)
+    ).count()
+    if invalid_customer_ids > 0:
+        raise ValueError("Validation failed: 'customer_id' is null or not positive")
+
+    invalid_amounts = df.filter(col("amount").isNull() | (col("amount") <= 0)).count()
+    if invalid_amounts > 0:
+        raise ValueError("Validation failed: 'amount' contains zero/negative/null values")
 
     logging.info("Schema validation passed.")
 
