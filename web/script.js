@@ -1,6 +1,10 @@
 // Initialize Mermaid
 mermaid.initialize({
-  startOnLoad: true,
+  startOnLoad: false,
+  securityLevel: "loose",
+  flowchart: {
+    htmlLabels: true,
+  },
   theme: "dark",
   themeVariables: {
     darkMode: true,
@@ -16,6 +20,14 @@ mermaid.initialize({
     textColor: "#f8fafc",
     fontSize: "14px",
   },
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await mermaid.run({ querySelector: ".mermaid" });
+  } catch (error) {
+    console.error("Mermaid render failed:", error);
+  }
 });
 
 // Header scroll effect and progress bar
@@ -286,29 +298,6 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
-// Performance optimization: Lazy load diagrams
-const diagramObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const diagram = entry.target;
-        if (
-          diagram.classList.contains("mermaid") &&
-          !diagram.dataset.processed
-        ) {
-          mermaid.init(undefined, diagram);
-          diagram.dataset.processed = "true";
-        }
-      }
-    });
-  },
-  { rootMargin: "100px" },
-);
-
-document.querySelectorAll(".mermaid").forEach((diagram) => {
-  diagramObserver.observe(diagram);
-});
 
 // Easter egg: Konami code
 let konamiCode = [];

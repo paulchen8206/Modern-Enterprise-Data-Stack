@@ -17,6 +17,7 @@ import socketserver
 import sys
 import os
 import webbrowser
+from urllib.parse import parse_qs, quote, unquote, urlparse
 from pathlib import Path
 
 
@@ -30,6 +31,141 @@ def serve_wiki(port=8000):
     # Create handler
     handler = http.server.SimpleHTTPRequestHandler
 
+    def build_markdown_viewer_html(doc_path):
+        safe_title = (
+            doc_path.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        )
+        encoded_doc = quote(doc_path)
+        return f"""<!doctype html>
+<html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\" />
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+        <title>{safe_title} - Local Wiki Viewer</title>
+        <style>
+            body {{
+                margin: 0;
+                font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+                background: #0f172a;
+                color: #e2e8f0;
+            }}
+            .topbar {{
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                padding: 0.75rem 1rem;
+                background: rgba(15, 23, 42, 0.96);
+                border-bottom: 1px solid #334155;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }}
+            .topbar a {{
+                color: #7dd3fc;
+                text-decoration: none;
+            }}
+            .container {{
+                max-width: 1100px;
+                margin: 1.5rem auto;
+                padding: 0 1rem 2rem;
+            }}
+            .markdown-body {{
+                line-height: 1.65;
+            }}
+            .markdown-body pre {{
+                background: #111827;
+                padding: 1rem;
+                border-radius: 8px;
+                overflow: auto;
+            }}
+            .markdown-body code {{
+                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            }}
+            .markdown-body table {{
+                width: 100%;
+                border-collapse: collapse;
+            }}
+            .markdown-body th,
+            .markdown-body td {{
+                border: 1px solid #334155;
+                padding: 0.5rem;
+            }}
+            .error {{
+                color: #fca5a5;
+                background: #3f1d1d;
+                border: 1px solid #7f1d1d;
+                padding: 1rem;
+                border-radius: 8px;
+            }}
+        </style>
+        <script src=\"https://cdn.jsdelivr.net/npm/marked/marked.min.js\"></script>
+        <script src=\"https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js\"></script>
+    </head>
+    <body>
+        <div class=\"topbar\">
+            <div>Local Doc: {safe_title}</div>
+            <div>
+                <a href=\"/web/index.html\">Wiki Home</a>
+            </div>
+        </div>
+        <div class=\"container\">
+            <article id=\"content\" class=\"markdown-body\"></article>
+        </div>
+        <script>
+            mermaid.initialize({{
+                startOnLoad: false,
+                securityLevel: "loose",
+                flowchart: {{ htmlLabels: true }}
+            }});
+
+            async function renderDoc() {{
+                const contentEl = document.getElementById("content");
+                try {{
+                    const response = await fetch("/{encoded_doc}");
+                    if (!response.ok) {{
+                        throw new Error(`Unable to load markdown (status: ${{response.status}})`);
+                    }}
+
+                    const markdown = await response.text();
+                    contentEl.innerHTML = marked.parse(markdown);
+
+                    document.querySelectorAll("pre code.language-mermaid").forEach((code) => {{
+                        const diagram = document.createElement("div");
+                        diagram.className = "mermaid";
+                        diagram.textContent = code.textContent;
+                        code.parentElement.replaceWith(diagram);
+                    }});
+
+                    await mermaid.run({{ querySelector: ".mermaid" }});
+                }} catch (error) {{
+                    contentEl.innerHTML = `<div class=\"error\">${{error.message}}</div>`;
+                    console.error(error);
+                }}
+            }}
+
+            renderDoc();
+        </script>
+    </body>
+</html>
+"""
+
+    def resolve_doc_path(raw_doc_path):
+        candidate = unquote(raw_doc_path).lstrip("/")
+        resolved = (project_dir / candidate).resolve()
+
+        # Prevent path traversal outside project root.
+        try:
+            resolved.relative_to(project_dir.resolve())
+        except ValueError:
+            return None
+
+        if not resolved.is_file() or resolved.suffix.lower() != ".md":
+            return None
+
+        return resolved.relative_to(project_dir).as_posix()
+
     # Handle default route to web/index.html
     class WikiHandler(handler):
         def end_headers(self):
@@ -40,8 +176,28 @@ def serve_wiki(port=8000):
             super().end_headers()
 
         def do_GET(self):
-            if self.path == "/":
+            parsed = urlparse(self.path)
+
+            if parsed.path == "/":
                 self.path = "/web/index.html"
+                return super().do_GET()
+
+            if parsed.path == "/wiki":
+                query = parse_qs(parsed.query)
+                requested_doc = query.get("doc", ["docs/ARCHITECTURE.MD"])[0]
+                resolved_doc = resolve_doc_path(requested_doc)
+                if not resolved_doc:
+                    self.send_error(404, "Markdown document not found")
+                    return
+
+                html = build_markdown_viewer_html(resolved_doc).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(html)))
+                self.end_headers()
+                self.wfile.write(html)
+                return
+
             return super().do_GET()
 
     try:

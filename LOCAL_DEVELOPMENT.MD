@@ -1,147 +1,160 @@
 # Local Development Procedure
 
-This guide defines the daily local workflow for container services and the Java API.
+This guide is optimized for fast, repeatable local development with minimal environment drift.
 
 For local documentation preview, run `make run-wiki` (override with `WIKI_PORT=<port>`).
 
 ## Scope
 
-Use this guide when you are developing locally and need:
+Use this guide when you need:
 
-- The platform services running in Docker Compose.
-- The Java API running either inside containers (service dependencies) or on your host machine.
+- Platform dependencies running in Docker Compose.
+- Java API running on host (recommended) or as a container.
+- Airflow, Kafka, MinIO, Postgres, and Conduktor integration available for end-to-end testing.
+
+## Architecture Notes (Local)
+
+This stack intentionally uses **two Postgres services**:
+
+- `postgres` on `localhost:5432`: main project database (`processed_db`).
+- `postgres-conduktor` on `localhost:5433`: Conduktor metadata database (`conduktor_db`).
+
+This separation prevents Conduktor schema/state from interfering with project data.
 
 ## Prerequisites
 
 1. Docker Desktop running.
 2. Docker Compose available.
 3. Java 17 and Maven installed on host.
-4. Optional Python venv for validation commands.
+4. Optional: Python environment for validation utilities.
 
-## 1. Start Local Container Platform
+## Quick Start (Recommended Daily Path)
 
-From repository root:
+Run these commands from repository root:
+
+```bash
+make up
+make ps
+make run-java-api-local-safe
+```
+
+In another terminal, validate readiness:
+
+```bash
+curl -sS http://localhost:8081/actuator/health
+curl -sS http://localhost:8081/api/monitor/health
+```
+
+If both checks are healthy, start testing API and pipeline flows.
+
+## 1. Start Platform Services
 
 ```bash
 make up
 ```
 
-Verify containers:
+Verify service state:
 
 ```bash
 make ps
 ```
 
-Check logs for core services:
+View logs when startup is slow or unhealthy:
 
 ```bash
 make logs
 ```
 
-## 2. Local Service Endpoints
+## 2. Local Endpoints and Credentials
 
-After startup, use these endpoints:
+Core endpoints:
 
 - Airflow UI: http://localhost:8080
-- Airflow API (internal from containers): http://airflow:8080/api/v1
 - Java API (host run): http://localhost:8081
 - MinIO API: http://localhost:9000
 - MinIO Console: http://localhost:9001
-- Conduktor (Kafka UI): http://localhost:8085/app
-- Conduktor Postgres: localhost:5433 (database: conduktor_db)
+- Conduktor UI: http://localhost:8085/app
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3000
 
-Airflow default local credentials:
+Database endpoints:
 
-- Username: airflow_user
-- Password: airflow_pass
+- Project Postgres: localhost:5432 (`processed_db`)
+- Conduktor Postgres: localhost:5433 (`conduktor_db`)
 
-Conduktor default local credentials:
+Default local credentials:
 
-- Username: admin@local.dev
-- Password: admin123
+- Airflow: `airflow_user` / `airflow_pass`
+- Conduktor: `admin@local.dev` / `admin123`
 
-## 3. Run Java API Locally (Recommended for Development)
+## 3. Run Java API (Profile Decision)
 
-Keep containers running, then start the API from repository root with the safe target:
+Use the correct profile based on where the API runs.
+
+- Host-run API: use `local` profile.
+- Container-run API: use `compose` profile.
+
+Recommended (safe host run):
 
 ```bash
 make run-java-api-local-safe
 ```
 
-This target automatically stops any process already using port 8081, then starts the API with the local profile.
+Why this is preferred:
 
-Alternative direct command (from java-api directory):
+- Automatically handles stale process conflicts on port `8081`.
+- Uses the right host networking assumptions for local development.
+- Reduces startup failures from manual process cleanup mistakes.
+
+Alternative commands:
+
+```bash
+make run-java-api-local
+make run-java-api-compose
+```
+
+Direct Maven command (host run):
 
 ```bash
 cd java-api
 mvn spring-boot:run -Dspring-boot.run.profiles=local -DskipTests
 ```
 
-Expected startup port: 8081.
-
-If you run the Java API in a containerized environment that resolves service names like kafka, mysql, and postgres, use:
-
-```bash
-cd java-api
-mvn spring-boot:run -Dspring-boot.run.profiles=compose -DskipTests
-```
-
-Equivalent root-level Makefile shortcuts:
-
-```bash
-make run-java-api-local
-make run-java-api-compose
-make run-java-api-local-safe
-```
-
-Run Java API as a container service (compose profile) from repository root:
+Run API as container service:
 
 ```bash
 make build-java-api-container
 make run-java-api-container
 ```
 
-Tail/stop containerized API:
+Container API logs and stop:
 
 ```bash
 make logs-java-api-container
 make stop-java-api-container
 ```
 
-Health check:
+## 4. Development Loop (Fast Iteration)
 
-```bash
-curl http://localhost:8081/actuator/health
-```
+1. Ensure `make up` is active.
+2. Start API with `make run-java-api-local-safe`.
+3. Execute API requests.
+4. Validate side effects in Airflow, Kafka, MinIO, and Postgres.
+5. Repeat after code changes.
 
-Then verify app dependency status:
+Common API endpoints:
 
-```bash
-curl http://localhost:8081/api/monitor/health
-```
+- `POST /api/batch/ingest`
+- `POST /api/stream/produce`
+- `POST /api/stream/run`
+- `POST /api/governance/lineage`
+- `POST /api/ml/run`
+- `POST /api/ci/trigger`
+- `GET /api/monitor/health`
 
-## 4. Java API Development Loop
+## 5. Pipeline and Data Commands (Container Side)
 
-1. Start or restart the API with make run-java-api-local-safe.
-2. Send requests to target endpoints.
-3. Validate effects in Airflow/MinIO/Kafka/Postgres.
-4. Stop API with Ctrl+C and repeat.
-
-Useful endpoints:
-
-- POST /api/batch/ingest
-- POST /api/stream/produce
-- POST /api/stream/run
-- POST /api/governance/lineage
-- POST /api/ml/run
-- POST /api/ci/trigger
-- GET /api/monitor/health
-
-## 5. Container-Only Pipeline Commands
-
-Run from repository root:
+From repository root:
 
 ```bash
 make run-kafka-producer
@@ -150,25 +163,23 @@ make run-batch-job
 make run-iceberg-demo
 ```
 
-Note:
+Behavior note:
 
-- run-batch-job and run-iceberg-demo auto-seed MinIO demo data using prepare-demo-data.
+- `run-batch-job` and `run-iceberg-demo` auto-seed demo data via `prepare-demo-data`.
 
-## 6. Validate Before Commit
-
-Run full project validation:
+## 6. Validation Before Commit
 
 ```bash
 make validate
 ```
 
-Optional formatting pass:
+Optional formatting:
 
 ```bash
 make format
 ```
 
-## 7. Stop and Clean Up
+## 7. Shutdown and Cleanup
 
 Stop services:
 
@@ -176,34 +187,82 @@ Stop services:
 make down
 ```
 
-Stop and remove volumes:
+Stop and remove containers plus volumes:
 
 ```bash
 make clean
 ```
 
-## Troubleshooting
+## Troubleshooting Matrix
 
-1. Containers not healthy:
+### A) Java API startup fails with exit code 1
+
+Likely causes:
+
+- Port `8081` already in use.
+- Wrong runtime profile for current network topology.
+
+Actions:
+
+```bash
+make run-java-api-local-safe
+lsof -nP -iTCP:8081 -sTCP:LISTEN
+```
+
+If running host-side API, ensure profile is `local`, not `compose`.
+
+### B) API is up but dependency health fails
+
+Actions:
 
 ```bash
 make ps
 make logs
+curl -sS http://localhost:8081/api/monitor/health
 ```
 
-2. Java API cannot connect to dependencies:
+Interpretation:
 
-- Confirm containers are up with make ps.
-- Confirm you are using the correct profile:
-  - local profile for host-run Java API.
-  - compose profile only when Java API runs in containerized network with service hostnames.
+- If dependencies show unavailable, confirm service containers are healthy before retrying API workflows.
 
-3. Java API start fails with Exit Code 1:
+### C) Airflow DAG not running
 
-- Common cause: port 8081 is already in use.
-- Use make run-java-api-local-safe instead of raw mvn command.
-- If needed, verify active process with lsof -nP -iTCP:8081 -sTCP:LISTEN.
+Likely causes:
 
-4. Iceberg demo fails on missing source object:
+- DAG is paused.
+- Task is retrying due to dependency errors.
 
-- Run make prepare-demo-data, then rerun make run-iceberg-demo.
+Actions:
+
+```bash
+docker-compose --project-directory . -f infra/compose/docker-compose.yaml exec -T airflow-webserver airflow dags list
+docker-compose --project-directory . -f infra/compose/docker-compose.yaml exec -T airflow-webserver airflow dags unpause batch_ingestion_dag
+docker-compose --project-directory . -f infra/compose/docker-compose.yaml exec -T airflow-webserver airflow dags trigger batch_ingestion_dag
+```
+
+### D) Conduktor cannot start or cannot persist state
+
+Checks:
+
+- Ensure `postgres-conduktor` is up on `5433`.
+- Ensure Conduktor points to `postgres-conduktor` in compose env.
+
+Actions:
+
+```bash
+docker-compose --project-directory . -f infra/compose/docker-compose.yaml ps postgres-conduktor conduktor
+docker-compose --project-directory . -f infra/compose/docker-compose.yaml logs conduktor
+```
+
+### E) Iceberg/batch demo missing source data
+
+```bash
+make prepare-demo-data
+make run-iceberg-demo
+```
+
+## Operational Tips
+
+- Keep one terminal for long-running services (`make up`, API run command).
+- Use a second terminal for `curl`, DAG triggers, and diagnostics.
+- Prefer Make targets over direct long commands to reduce local inconsistencies.

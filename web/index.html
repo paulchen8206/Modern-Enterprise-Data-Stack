@@ -250,14 +250,14 @@
         </h3>
         <div class="diagram-container">
           <div class="mermaid">
-            sequenceDiagram participant BS as Batch Source<br />(MySQL/Files)
+            sequenceDiagram participant BS as Batch Source (MySQL/Files)
             participant AF as Airflow DAG participant GE as Great Expectations
             participant MN as MinIO participant SP as Spark Batch participant PG
             as PostgreSQL participant MG as MongoDB participant PR as Prometheus
             BS->>AF: Trigger Batch Job AF->>BS: Extract Data AF->>GE: Validate
             Data Quality GE-->>AF: Validation Results AF->>MN: Upload Raw Data
             AF->>SP: Submit Spark Job SP->>MN: Read Raw Data SP->>SP: Transform
-            & Enrich SP->>PG: Write Processed Data SP->>MG: Write NoSQL Data
+            and Enrich SP->>PG: Write Processed Data SP->>MG: Write NoSQL Data
             SP->>PR: Send Metrics AF->>PR: Job Status Metrics
           </div>
         </div>
@@ -293,9 +293,9 @@
             end subgraph "Storage" MINIO[MinIO<br />API: 9000<br />Console:
             9001] PG[PostgreSQL<br />Port: 5432] end subgraph "Monitoring"
             PROM[Prometheus<br />Port: 9090] GRAF[Grafana<br />Port: 3000] end
-            KAFKA --> ZK AIR --> MYSQL AIR --> PG AIR --> SPARK SPARK --> MINIO
-            SPARK --> PG SPARK --> KAFKA PROM --> AIR PROM --> SPARK GRAF -->
-            PROM end
+            end KAFKA --> ZK AIR --> MYSQL AIR --> PG AIR --> SPARK SPARK -->
+            MINIO SPARK --> PG SPARK --> KAFKA PROM --> AIR PROM --> SPARK GRAF
+            --> PROM
           </div>
         </div>
       </div>
@@ -845,7 +845,7 @@ terraform apply</code></pre>
         <ul style="list-style: none; color: var(--text-secondary)">
           <li style="padding: 0.5rem 0">
             📖
-            <a href="../README.MD" style="color: var(--primary-color)"
+            <a href="/wiki?doc=README.MD" style="color: var(--primary-color)"
               >Comprehensive README</a
             >
             - Detailed documentation
@@ -853,7 +853,7 @@ terraform apply</code></pre>
           <li style="padding: 0.5rem 0">
             🏗️
             <a
-              href="../docs/ARCHITECTURE.MD"
+              href="/wiki?doc=docs/ARCHITECTURE.MD"
               style="color: var(--primary-color)"
               >Architecture Guide</a
             >
@@ -861,14 +861,18 @@ terraform apply</code></pre>
           </li>
           <li style="padding: 0.5rem 0">
             🚀
-            <a href="../docs/QUICK_START.MD" style="color: var(--primary-color)"
+            <a
+              href="/wiki?doc=docs/QUICK_START.MD"
+              style="color: var(--primary-color)"
               >Quick Start Guide</a
             >
             - Fast deployment commands
           </li>
           <li style="padding: 0.5rem 0">
             📋
-            <a href="../docs/DEPLOYMENT.MD" style="color: var(--primary-color)"
+            <a
+              href="/wiki?doc=docs/DEPLOYMENT.MD"
+              style="color: var(--primary-color)"
               >Deployment Strategies</a
             >
             - Blue/Green & Canary deployments
@@ -876,7 +880,7 @@ terraform apply</code></pre>
           <li style="padding: 0.5rem 0">
             📓
             <a
-              href="../notebooks/modern-data-stack.ipynb"
+              href="https://github.com/paulchen8206/Modern-Enterprise-Data-Stack/blob/main/notebooks/modern-data-stack.ipynb"
               style="color: var(--primary-color)"
               >Jupyter Notebook</a
             >
@@ -937,14 +941,21 @@ terraform apply</code></pre>
         <div class="footer-section">
           <h3>Documentation</h3>
           <ul class="footer-links">
-            <li><a href="../README.MD">README</a></li>
-            <li><a href="../docs/ARCHITECTURE.MD">Architecture Guide</a></li>
-            <li><a href="../docs/QUICK_START.MD">Quick Start</a></li>
             <li>
-              <a href="../docs/DEPLOYMENT.MD">Deployment Strategies</a>
+              <a href="/wiki?doc=README.MD">README</a>
             </li>
             <li>
-              <a href="../notebooks/modern-data-stack.ipynb"
+              <a href="/wiki?doc=docs/ARCHITECTURE.MD">Architecture Guide</a>
+            </li>
+            <li>
+              <a href="/wiki?doc=docs/QUICK_START.MD">Quick Start</a>
+            </li>
+            <li>
+              <a href="/wiki?doc=docs/DEPLOYMENT.MD">Deployment Strategies</a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/paulchen8206/Modern-Enterprise-Data-Stack/blob/main/notebooks/modern-data-stack.ipynb"
                 >Jupyter Notebook</a
               >
             </li>
