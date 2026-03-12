@@ -158,7 +158,7 @@ kind-down: ## Delete local kind cluster
 	$(KIND) delete cluster --name $(KIND_CLUSTER)
 
 hybrid-up: ## Start compose support services and deploy local kind stack
-	$(COMPOSE_MAIN) up -d $(HYBRID_SUPPORT_SERVICES)
+	$(COMPOSE_MAIN) up -d --no-deps $(HYBRID_SUPPORT_SERVICES)
 	./ops/deploy-kind.sh
 
 hybrid-status: ## Show compose support services and kind namespace status
