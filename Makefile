@@ -14,7 +14,7 @@ COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/ta
 	format format-python format-text terraform-fmt \
 	validate validate-compose validate-shell validate-python validate-json validate-yaml validate-notebook validate-format validate-terraform \
 	terraform-init terraform-validate \
-	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo
+	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo prepare-demo-data
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; print "Available targets:"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-26s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -103,7 +103,10 @@ run-streaming-job: ## Run Spark streaming job in compose stack
 run-batch-job: ## Run Spark batch job in compose stack
 	$(COMPOSE_MAIN) exec spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
 
-run-iceberg-demo: ## Run Spark batch job with Iceberg table write enabled
+prepare-demo-data: ## Ensure MinIO buckets and sample orders CSV exist for Spark batch demo
+	$(COMPOSE_MAIN) exec -T spark python3 -c "import boto3; s3=boto3.client('s3', endpoint_url='http://minio:9000', aws_access_key_id='minio', aws_secret_access_key='minio123'); data='order_id,customer_id,amount\\n1,1001,120.5\\n2,1002,75.0\\n3,1001,30.0\\n4,1003,200.0\\n'; exec(\"for b in ('raw-data','processed-data'):\\n    try:\\n        s3.head_bucket(Bucket=b)\\n    except Exception:\\n        s3.create_bucket(Bucket=b)\"); s3.put_object(Bucket='raw-data', Key='orders/orders.csv', Body=data.encode('utf-8')); print('Seeded MinIO demo data at s3://raw-data/orders/orders.csv')"
+
+run-iceberg-demo: prepare-demo-data ## Run Spark batch job with Iceberg table write enabled
 	$(COMPOSE_MAIN) exec \
 		-e ENABLE_ICEBERG=true \
 		-e ICEBERG_CATALOG=local \
