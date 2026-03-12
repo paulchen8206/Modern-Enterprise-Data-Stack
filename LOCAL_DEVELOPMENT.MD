@@ -2,6 +2,8 @@
 
 This guide defines the daily local workflow for container services and the Java API.
 
+For local documentation preview, run `make run-wiki` (override with `WIKI_PORT=<port>`).
+
 ## Scope
 
 Use this guide when you are developing locally and need:

@@ -5,6 +5,7 @@ COMPOSE_MAIN ?= docker-compose --project-directory . -f infra/compose/docker-com
 COMPOSE_CI ?= docker-compose --project-directory . -f infra/compose/docker-compose.ci.yaml
 TERRAFORM ?= terraform
 PRETTIER ?= prettier
+WIKI_PORT ?= 8000
 PYTHON_SRC ?= pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
 TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.MD' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
 YAML_FILE_TYPES ?= \( -name '*.yml' -o -name '*.yaml' \)
@@ -15,7 +16,8 @@ COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/ta
 	validate validate-compose validate-shell validate-python validate-json validate-yaml validate-notebook validate-format validate-terraform \
 	terraform-init terraform-validate \
 	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo prepare-demo-data \
-	run-java-api-local run-java-api-compose run-java-api-local-safe
+	run-java-api-local run-java-api-compose run-java-api-local-safe \
+	run-wiki
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; print "Available targets:"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-26s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -108,6 +110,9 @@ run-java-api-local-safe: ## Stop process on 8081, then run Java API local profil
 		sleep 1; \
 	fi
 	mvn -f java-api/pom.xml spring-boot:run -Dspring-boot.run.profiles=local -DskipTests
+
+run-wiki: ## Run local wiki server (override port: make run-wiki WIKI_PORT=3000)
+	$(PYTHON) devtools/serve_wiki.py $(WIKI_PORT)
 
 run-kafka-producer: ## Run Kafka producer in compose stack
 	$(COMPOSE_MAIN) exec -e KAFKA_TOPIC=events spark python3 /opt/kafka_jobs/producer.py

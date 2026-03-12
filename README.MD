@@ -23,6 +23,7 @@ Use `Makefile` targets to standardize daily operations:
 
 - `make help` to list all available commands
 - `make up`, `make ps`, `make logs`, `make down` for lifecycle operations
+- `make run-wiki` to preview the local wiki site (default `WIKI_PORT=8000`)
 - `make validate` for end-to-end project validation
 - `make format` for repository formatting
 
