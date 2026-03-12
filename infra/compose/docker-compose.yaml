@@ -71,6 +71,7 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://user:pass@postgres:5432/processed_db
       AIRFLOW_CONN_MYSQL_DEFAULT: mysql://user:pass@mysql:3306/source_db
       AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql://user:pass@postgres:5432/processed_db
@@ -104,6 +105,7 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://user:pass@postgres:5432/processed_db
       AIRFLOW_CONN_MYSQL_DEFAULT: mysql://user:pass@mysql:3306/source_db
       AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql://user:pass@postgres:5432/processed_db

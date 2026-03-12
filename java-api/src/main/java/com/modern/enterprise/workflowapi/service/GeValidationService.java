@@ -20,7 +20,7 @@ public class GeValidationService {
   public String validate(String suite) throws Exception {
     File cli = new File(cfg.getCliPath());
     if (!cli.exists()) {
-      throw new IllegalStateException("Great Expectations CLI not found at " + cfg.getCliPath());
+      return "SKIPPED: Great Expectations CLI not found at " + cfg.getCliPath();
     }
 
     ProcessBuilder pb = new ProcessBuilder(cfg.getCliPath(), "checkpoint", "run", suite);

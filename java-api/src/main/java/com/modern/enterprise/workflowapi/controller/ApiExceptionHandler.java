@@ -20,6 +20,11 @@ public class ApiExceptionHandler {
     return problem(HttpStatus.BAD_REQUEST, "Invalid request payload");
   }
 
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<Map<String, Object>> dependency(IllegalStateException ex) {
+    return problem(HttpStatus.BAD_GATEWAY, ex.getMessage());
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, Object>> generic(Exception ex) {
     return problem(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error");
