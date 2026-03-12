@@ -5,6 +5,10 @@ COMPOSE_MAIN ?= docker-compose --project-directory . -f infra/compose/docker-com
 COMPOSE_CI ?= docker-compose --project-directory . -f infra/compose/docker-compose.ci.yaml
 TERRAFORM ?= terraform
 PRETTIER ?= prettier
+PYTHON_SRC ?= pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
+TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
+YAML_FILE_TYPES ?= \( -name '*.yml' -o -name '*.yaml' \)
+COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/target/*'
 
 .PHONY: help up down restart ps logs clean \
 	format format-python format-text terraform-fmt \
@@ -36,15 +40,11 @@ clean: ## Stop containers and remove volumes
 format: format-python format-text terraform-fmt ## Run all formatters
 
 format-python: ## Format Python source files with Black
-	$(PYTHON) -m black pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
+	$(PYTHON) -m black $(PYTHON_SRC)
 
 format-text: ## Format markdown/yaml/json/js/css/html with Prettier
-	find . -type f \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \) \
-		! -path './.venv/*' \
-		! -path './.git/*' \
-		! -path './dotnet-api/src/DataPipelineApi/bin/*' \
-		! -path './dotnet-api/src/DataPipelineApi/obj/*' \
-		! -path './dotnet-api/nupkg/*' \
+	find . -type f $(TEXT_FILE_TYPES) \
+		$(COMMON_EXCLUDES) \
 		-print0 | xargs -0 $(PRETTIER) --write
 
 terraform-fmt: ## Format Terraform files
@@ -57,27 +57,20 @@ validate-compose: ## Validate docker-compose configuration files
 	$(COMPOSE_CI) config >/dev/null
 
 validate-shell: ## Validate shell script syntax
-	find . -type f -name '*.sh' ! -path './.venv/*' -print0 | xargs -0 -n1 bash -n
+	find . -type f -name '*.sh' $(COMMON_EXCLUDES) -print0 | xargs -0 -n1 bash -n
 
 validate-python: ## Validate Python syntax
-	$(PYTHON) -m compileall pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
+	$(PYTHON) -m compileall $(PYTHON_SRC)
 
 validate-json: ## Validate JSON files
 	@find . -type f -name '*.json' \
-		! -path './.venv/*' \
-		! -path './.git/*' \
-		! -path './dotnet-api/src/DataPipelineApi/bin/*' \
-		! -path './dotnet-api/src/DataPipelineApi/obj/*' \
+		$(COMMON_EXCLUDES) \
 		-print0 | xargs -0 -n1 $(PYTHON) -m json.tool >/dev/null
 	@echo "JSON validation passed."
 
 validate-yaml: ## Validate YAML files
-	@find . -type f \( -name '*.yml' -o -name '*.yaml' \) \
-		! -path './.venv/*' \
-		! -path './.git/*' \
-		! -path './dotnet-api/src/DataPipelineApi/bin/*' \
-		! -path './dotnet-api/src/DataPipelineApi/obj/*' \
-		! -path './dotnet-api/nupkg/*' \
+	@find . -type f $(YAML_FILE_TYPES) \
+		$(COMMON_EXCLUDES) \
 		-print0 | xargs -0 -n1 $(PYTHON) -c "import sys,yaml; list(yaml.safe_load_all(open(sys.argv[1], encoding='utf-8')))"
 	@echo "YAML validation passed."
 
@@ -85,12 +78,8 @@ validate-notebook: ## Validate notebook schema
 	@$(PYTHON) -c "import nbformat; nbformat.read(open('notebooks/modern-data-stack.ipynb','r',encoding='utf-8'), as_version=4); print('Notebook schema validation passed.')"
 
 validate-format: ## Check markdown/yaml/json/js/css/html formatting
-	find . -type f \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \) \
-		! -path './.venv/*' \
-		! -path './.git/*' \
-		! -path './dotnet-api/src/DataPipelineApi/bin/*' \
-		! -path './dotnet-api/src/DataPipelineApi/obj/*' \
-		! -path './dotnet-api/nupkg/*' \
+	find . -type f $(TEXT_FILE_TYPES) \
+		$(COMMON_EXCLUDES) \
 		-print0 | xargs -0 $(PRETTIER) --check
 
 validate-terraform: ## Validate Terraform formatting and configuration

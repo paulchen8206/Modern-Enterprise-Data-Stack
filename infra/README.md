@@ -10,7 +10,6 @@ This folder centralizes container definitions for the Modern Data Stack.
 - `dockerfiles/`
   - `airflow.Dockerfile`: Airflow image definition
   - `spark.Dockerfile`: Spark image definition
-  - `sample_dotnet_backend.Dockerfile`: .NET API sample image definition
 
 ## <span style="color: #0ea5e9;">Operational Workflow</span>
 

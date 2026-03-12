@@ -24,9 +24,8 @@ iac/override.tf.json
 iac/*_override.tf
 iac/*_override.tf.json
 
-# .NET build outputs
-dotnet-api/src/DataPipelineApi/bin/
-dotnet-api/src/DataPipelineApi/obj/
+# Java build outputs
+java-api/target/
 
 # Airflow runtime artifacts
 pipelines/airflow/logs/

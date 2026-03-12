@@ -4,6 +4,26 @@
 
 This guide covers practical monitoring setup for Kafka, Spark, and Airflow using Prometheus + Grafana.
 
+## <span style="color: #0ea5e9;">Component Procedure</span>
+
+### <span style="color: #22c55e;">1. Bootstrap Observability Stack</span>
+
+1. Start runtime stack with `make up`.
+2. Start or verify Prometheus (`:9090`) and Grafana (`:3000`).
+3. Confirm Prometheus data source is configured in Grafana.
+
+### <span style="color: #22c55e;">2. Instrument Core Components</span>
+
+1. Kafka: expose broker metrics via JMX exporter.
+2. Spark: expose driver/executor metrics via Prometheus sink or JMX.
+3. Airflow: export scheduler/webserver/task metrics (StatsD/exporter path).
+
+### <span style="color: #22c55e;">3. Verify and Alert</span>
+
+1. Validate all scrape targets are healthy.
+2. Import dashboards and verify key panels populate.
+3. Trigger a controlled failure and confirm alert routing.
+
 ## <span style="color: #0ea5e9;">Prometheus Configuration</span>
 
 - Create `prometheus.yml` with scrape jobs for:
@@ -58,6 +78,28 @@ alertmanager:
 - Confirm dashboards refresh in Grafana.
 - Verify critical alerts fire during controlled test failures.
 - Review dashboard and alert drift during each release cycle.
+
+## <span style="color: #0ea5e9;">Best Practices by Component</span>
+
+Kafka:
+
+- Track produce/consume throughput, lag, and broker availability as baseline SLOs.
+- Alert on sustained lag growth, not single-sample spikes.
+
+Spark:
+
+- Track batch duration, micro-batch latency, and failed stages.
+- Include executor memory/GC pressure in dashboards.
+
+Airflow:
+
+- Track DAG success rate, task retry counts, and scheduling delay.
+- Alert on repeated task failures and scheduler unavailability.
+
+Platform-wide:
+
+- Standardize labels (service, env, component) across all metrics.
+- Keep dashboard panels tied to runbooks and owner teams.
 
 ## <span style="color: #0ea5e9;">Troubleshooting</span>
 

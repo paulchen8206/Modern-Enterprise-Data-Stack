@@ -13,6 +13,52 @@ This guide provides fast commands for common advanced deployment operations.
 | Promote rollout           | `kubectl argo rollouts promote airflow-rollout`             |
 | Abort rollout             | `kubectl argo rollouts abort airflow-rollout`               |
 
+## <span style="color: #0ea5e9;">Component Quick Procedures</span>
+
+### <span style="color: #22c55e;">Orchestration (Airflow)</span>
+
+1. Start stack: `make up`
+2. Open UI: `http://localhost:8080`
+3. Enable and trigger `batch_ingestion_dag` once manually
+4. Confirm task logs and downstream writes before enabling schedule
+
+Best practices:
+
+- Keep first production run manual and observable.
+- Set explicit retries and task timeouts.
+
+### <span style="color: #22c55e;">Streaming (Kafka + Spark)</span>
+
+1. Start producer: `make run-kafka-producer`
+2. Start consumer pipeline: `make run-streaming-job`
+3. Validate throughput and lag in monitoring dashboards
+
+Best practices:
+
+- Use stable partitioning keys.
+- Make write path idempotent for retries.
+
+### <span style="color: #22c55e;">Storage and Quality</span>
+
+1. Verify `raw-data` and `processed-data` buckets in MinIO
+2. Verify transformed records in PostgreSQL
+3. Review Great Expectations validation outputs
+
+Best practices:
+
+- Retain immutable raw records for replay.
+- Treat critical expectation failures as release blockers.
+
+### <span style="color: #22c55e;">Governance and ML</span>
+
+1. Register lineage payloads after successful processing
+2. Create MLflow runs for each experiment change
+
+Best practices:
+
+- Attach dataset/version metadata to lineage and experiments.
+- Keep feature definitions and model metadata versioned.
+
 ## <span style="color: #0ea5e9;">Prerequisites</span>
 
 ### <span style="color: #22c55e;">Install Required CLI Tools</span>
@@ -37,7 +83,7 @@ sudo ./aws/install
 ```bash
 cd ops
 chmod +x *.sh
-./setup-advanced-deployments.sh
+./setup.sh
 ```
 
 ### <span style="color: #22c55e;">Provision Infrastructure (Optional)</span>
@@ -302,16 +348,16 @@ kubectl argo rollouts get rollout airflow-rollout
 
 ### <span style="color: #22c55e;">Key Configuration Files</span>
 
-| File                                | Purpose                           |
-| ----------------------------------- | --------------------------------- |
-| `k8s/rollout-blue-green.yaml`       | Blue/Green rollout definitions    |
-| `k8s/rollout-canary.yaml`           | Canary rollout definitions        |
-| `k8s/analysis-templates.yaml`       | Prometheus metrics analysis       |
-| `k8s/services.yaml`                 | Kubernetes services               |
-| `k8s/ingress.yaml`                  | Traffic routing rules             |
-| `ops/deploy-blue-green.sh`          | Interactive blue/green deployment |
-| `ops/deploy-canary.sh`              | Interactive canary deployment     |
-| `ops/setup-advanced-deployments.sh` | Infrastructure setup              |
+| File                          | Purpose                           |
+| ----------------------------- | --------------------------------- |
+| `k8s/rollout-blue-green.yaml` | Blue/Green rollout definitions    |
+| `k8s/rollout-canary.yaml`     | Canary rollout definitions        |
+| `k8s/analysis-templates.yaml` | Prometheus metrics analysis       |
+| `k8s/services.yaml`           | Kubernetes services               |
+| `k8s/ingress.yaml`            | Traffic routing rules             |
+| `ops/deploy-blue-green.sh`    | Interactive blue/green deployment |
+| `ops/deploy-canary.sh`        | Interactive canary deployment     |
+| `ops/setup.sh`                | Infrastructure setup              |
 
 ### <span style="color: #22c55e;">Tune Analysis Thresholds</span>
 

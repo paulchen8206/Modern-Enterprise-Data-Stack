@@ -1,0 +1,46 @@
+server:
+  port: 8081
+app:
+  connection-strings:
+    my-sql: "Server=mysql;Database=source_db;User=user;Password=pass;"
+    postgres: "Host=postgres;Database=processed_db;Username=user;Password=pass;"
+    command-timeout-seconds: 30
+  minio:
+    endpoint: "minio:9000"
+    access-key: "minio"
+    secret-key: "minio123"
+    bucket-raw: "raw-data"
+    bucket-processed: "processed-data"
+    max-upload-retries: 2
+  kafka:
+    bootstrap-servers: "kafka:9092"
+    topic: "events"
+    client-id: "workflow-api"
+    message-timeout-ms: 5000
+    producer-flush-seconds: 5
+  airflow:
+    base-url: "http://airflow:8080/api/v1"
+    username: "airflow_user"
+    password: "airflow_pass"
+    batch-dag-id: "batch_ingestion_dag"
+    streaming-dag-id: "streaming_monitoring_dag"
+    request-timeout-seconds: 30
+  great-expectations:
+    cli-path: "/app/ge/bin/great_expectations"
+    timeout-seconds: 300
+  atlas:
+    endpoint: "http://atlas:21000/api/atlas/v2"
+    username: "admin"
+    password: "admin"
+  mlflow:
+    tracking-uri: "http://mlflow:5000"
+    request-timeout-seconds: 30
+  github:
+    actions-api: "https://api.github.com/repos/paulchen8206/data-pipeline-api/actions/workflows"
+    token: ""
+    user-agent: "workflow-api"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

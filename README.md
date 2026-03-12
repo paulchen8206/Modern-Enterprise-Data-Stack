@@ -33,7 +33,7 @@ Use `Makefile` targets to standardize daily operations:
 - Progressive delivery patterns: `docs/DEPLOYMENT_STRATEGIES.md`
 - Iceberg table format usage: `docs/ICEBERG.md`
 - Infra container layout: `infra/README.md`
-- .NET orchestration API: `dotnet-api/README.md`
+- Java orchestration API: `java-api/README.md`
 - Monitoring setup notes: `pipelines/monitoring/prometheus_grafana_setup.md`
 
 ## <span style="color: #0ea5e9;">High-Level Component Diagram</span>
@@ -148,6 +148,95 @@ make logs
 6. Use the runbook:
 
 - See the `Operational Runbook` section for failure triage and recovery steps.
+
+## <span style="color: #0ea5e9;">Component Procedures & Best Practices</span>
+
+### <span style="color: #22c55e;">Airflow (Orchestration)</span>
+
+Procedure:
+
+1. Start platform with `make up`.
+2. Open Airflow at `http://localhost:8080`.
+3. Enable `batch_ingestion_dag` and `streaming_monitoring_dag`.
+4. Trigger runs manually first, then rely on schedule.
+5. Review task logs before promoting changes.
+
+Best practices:
+
+- Keep DAGs idempotent and parameter-driven.
+- Use retries with bounded backoff and clear timeout values.
+- Separate heavy compute from orchestration (Airflow coordinates; Spark computes).
+
+### <span style="color: #22c55e;">Kafka + Spark Streaming</span>
+
+Procedure:
+
+1. Start producer using `make run-kafka-producer`.
+2. Run streaming job using `make run-streaming-job`.
+3. Confirm records in downstream storage and monitoring dashboards.
+4. Stop producer first when testing controlled shutdown.
+
+Best practices:
+
+- Use explicit schemas and evolve them backward-compatibly.
+- Keep partition keys stable for ordering-sensitive workloads.
+- Make sinks idempotent to handle retries and restarts.
+
+### <span style="color: #22c55e;">Storage (MinIO + PostgreSQL)</span>
+
+Procedure:
+
+1. Validate MinIO buckets and PostgreSQL connectivity after startup.
+2. Persist raw payloads first, then transformed outputs.
+3. Verify object keys and table row counts after each run.
+
+Best practices:
+
+- Use deterministic object key prefixes by domain/date.
+- Retain raw immutable data for replay and audit.
+- Add retention policies for transient/intermediate datasets.
+
+### <span style="color: #22c55e;">Data Quality (Great Expectations)</span>
+
+Procedure:
+
+1. Run batch ingestion with `runGreatExpectations=true`.
+2. Review validation report and failed expectations.
+3. Block downstream publish when critical checks fail.
+
+Best practices:
+
+- Version expectation suites alongside pipeline code.
+- Distinguish warning checks from release-blocking checks.
+- Track quality drift over time, not only per-run pass/fail.
+
+### <span style="color: #22c55e;">Governance + ML (Atlas/MLflow/Feast)</span>
+
+Procedure:
+
+1. Register lineage after successful batch processing.
+2. Log MLflow runs for every experiment/config change.
+3. Update feature definitions only through reviewed changes.
+
+Best practices:
+
+- Tie lineage entities to stable dataset identifiers.
+- Record experiment metadata and data snapshot references.
+- Keep feature contracts explicit and backward-compatible.
+
+### <span style="color: #22c55e;">Platform Operations</span>
+
+Procedure:
+
+1. Run `make validate` before merge/deploy.
+2. Monitor `make logs` during rollout windows.
+3. Use rollback commands from `docs/QUICK_START.md` when health degrades.
+
+Best practices:
+
+- Prefer canary or blue/green for production risk control.
+- Maintain runbooks for top failure modes.
+- Treat observability and rollback readiness as release gates.
 
 ## <span style="color: #0ea5e9;">Table of Contents</span>
 
@@ -596,7 +685,6 @@ modern-enterprise-data-stack/
   │   ├── dockerfiles/
   │   │   ├── airflow.Dockerfile
   │   │   ├── spark.Dockerfile
-  │   │   └── sample_dotnet_backend.Dockerfile
   │   └── README.md
   ├── iac/
   ├── k8s/
@@ -604,9 +692,9 @@ modern-enterprise-data-stack/
   │   ├── deploy-blue-green.sh
   │   ├── deploy-canary.sh
   │   ├── init_db.sql
-  │   ├── setup-advanced-deployments.sh
+  │   ├── setup.sh
   │   └── operations/
-  ├── dotnet-api/
+  ├── java-api/
   ├── notebooks/
   │   └── modern-data-stack.ipynb
   ├── web/
@@ -679,10 +767,12 @@ This command will:
 
 - Build custom Docker images for Airflow and Spark.
 - Start MySQL, PostgreSQL, Kafka (with Zookeeper), MinIO, Prometheus, Grafana, and Airflow webserver.
+- Run Airflow DB migrations and create the Airflow UI admin user at startup (if missing).
 - Initialize the MySQL database with demo data (via `ops/init_db.sql`).
 
 3. **Access the Services**
    - **Airflow UI:** [http://localhost:8080](http://localhost:8080)  
+     Default login: `airflow_user` / `airflow_pass` (created automatically during `make up`)
      Set up connections:
      - `mysql_default` → Host: `mysql`, DB: `source_db`, User: `user`, Password: `pass`
      - `postgres_default` → Host: `postgres`, DB: `processed_db`, User: `user`, Password: `pass`
@@ -936,7 +1026,6 @@ Contributions, issues, and feature requests are welcome!
 ## <span style="color: #0ea5e9;">License</span>
 
 Copyright (c) 2023 paulchen8206@github
-
 
 ## <span style="color: #0ea5e9;">Final Notes</span>
 

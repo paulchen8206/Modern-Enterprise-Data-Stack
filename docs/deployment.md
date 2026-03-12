@@ -146,7 +146,7 @@ cd ops
 chmod +x *.sh
 
 # 3. Run setup script
-./setup-advanced-deployments.sh
+./setup.sh
 
 # 4. Verify installation
 kubectl get pods -n argo-rollouts
@@ -579,19 +579,19 @@ terraform output
 
 ### <span style="color: #22c55e;">Important Project Files</span>
 
-| File                                | Purpose                         |
-| ----------------------------------- | ------------------------------- |
-| `k8s/rollout-blue-green.yaml`       | Blue/Green deployment manifests |
-| `k8s/rollout-canary.yaml`           | Canary deployment manifests     |
-| `k8s/analysis-templates.yaml`       | Prometheus analysis templates   |
-| `k8s/services.yaml`                 | Kubernetes services             |
-| `k8s/ingress.yaml`                  | Ingress configurations          |
-| `k8s/servicemonitors.yaml`          | Prometheus ServiceMonitors      |
-| `ops/deploy-blue-green.sh`          | Blue/Green deployment script    |
-| `ops/deploy-canary.sh`              | Canary deployment script        |
-| `ops/setup-advanced-deployments.sh` | Infrastructure setup            |
-| `iac/load-balancer-controller.tf`   | AWS LB Controller               |
-| `iac/argo-rollouts.tf`              | Argo Rollouts infrastructure    |
+| File                              | Purpose                         |
+| --------------------------------- | ------------------------------- |
+| `k8s/rollout-blue-green.yaml`     | Blue/Green deployment manifests |
+| `k8s/rollout-canary.yaml`         | Canary deployment manifests     |
+| `k8s/analysis-templates.yaml`     | Prometheus analysis templates   |
+| `k8s/services.yaml`               | Kubernetes services             |
+| `k8s/ingress.yaml`                | Ingress configurations          |
+| `k8s/servicemonitors.yaml`        | Prometheus ServiceMonitors      |
+| `ops/deploy-blue-green.sh`        | Blue/Green deployment script    |
+| `ops/deploy-canary.sh`            | Canary deployment script        |
+| `ops/setup.sh`                    | Infrastructure setup            |
+| `iac/load-balancer-controller.tf` | AWS LB Controller               |
+| `iac/argo-rollouts.tf`            | Argo Rollouts infrastructure    |
 
 ---
 

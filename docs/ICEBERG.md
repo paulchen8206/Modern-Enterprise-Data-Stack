@@ -39,6 +39,22 @@ The job still writes CSV outputs as before, and additionally writes to Iceberg t
 
 - `local.analytics.orders`
 
+## <span style="color: #0ea5e9;">Production Procedure</span>
+
+1. Validate local run with `make run-iceberg-demo` and inspect Spark logs.
+2. Choose warehouse path strategy (`local` file path or object storage path).
+3. Define namespace/table naming convention by domain/environment.
+4. Validate read queries from downstream engines before rollout.
+5. Promote configuration to higher environments with the same table contract.
+
+## <span style="color: #0ea5e9;">Best Practices</span>
+
+- Use partitioning aligned to dominant query filters.
+- Keep schema evolution backward-compatible; avoid destructive column changes.
+- Use snapshot retention and compaction maintenance to control storage costs.
+- Separate dev/test/prod namespaces to avoid accidental cross-environment reads.
+- Capture table metadata checks in CI to prevent accidental contract breakage.
+
 ## <span style="color: #0ea5e9;">Validation Checklist</span>
 
 - Confirm demo command exits successfully:

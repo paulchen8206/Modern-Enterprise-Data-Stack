@@ -12,6 +12,7 @@
 8. [Scalability & Performance](#scalability--performance)
 9. [Monitoring & Observability](#monitoring--observability)
 10. [Disaster Recovery](#disaster-recovery)
+11. [Decision Records](#decision-records)
 
 ## <span style="color: #0ea5e9;">Overview</span>
 
@@ -241,6 +242,59 @@ graph TB
         S3 --> GLACIER
     end
 ```
+
+### <span style="color: #22c55e;">Operational Procedures by Component</span>
+
+Ingestion and orchestration:
+
+1. Start platform and verify source connectivity.
+2. Run one controlled DAG execution before enabling schedule.
+3. Confirm successful writes to raw and processed layers.
+
+Processing and quality:
+
+1. Execute batch and streaming jobs in isolation first.
+2. Validate Great Expectations results before publish.
+3. Capture run metadata for traceability and replay.
+
+Storage:
+
+1. Verify raw object creation and processed table updates.
+2. Check storage growth and retention policy adherence.
+3. Validate read-path latency for downstream consumers.
+
+Observability:
+
+1. Confirm metrics ingestion for Airflow, Kafka, Spark, and storage.
+2. Validate alert routes with controlled failure tests.
+3. Keep dashboards aligned with SLOs and release criteria.
+
+### <span style="color: #22c55e;">Best Practices by Component</span>
+
+Orchestration:
+
+- Keep DAGs idempotent and parameterized.
+- Push compute to Spark jobs, not DAG tasks.
+
+Streaming:
+
+- Enforce schema contracts and safe evolution.
+- Design for at-least-once processing with idempotent sinks.
+
+Data quality:
+
+- Separate warning-level checks from blocking checks.
+- Trend quality metrics over time to detect drift.
+
+Storage:
+
+- Keep raw immutable zone and curated modeled zone distinct.
+- Apply retention/compaction policies by data tier.
+
+Governance and ML:
+
+- Link lineage to stable dataset identifiers.
+- Track model runs with data snapshot and config metadata.
 
 ## <span style="color: #0ea5e9;">Data Flow Architecture</span>
 
@@ -1023,6 +1077,80 @@ sequenceDiagram
     Health->>DNS: Update DNS
     DNS->>DNS: Route to Primary
 ```
+
+## <span style="color: #0ea5e9;">Decision Records</span>
+
+Use architecture decision records (ADRs) to document why key technical choices were made, what alternatives were considered, and how to revisit those choices safely.
+
+### <span style="color: #22c55e;">When to Create an ADR</span>
+
+- Adopting or replacing a core component (for example Kafka, Airflow, Spark, storage engine).
+- Introducing a cross-cutting pattern (security, observability, deployment strategy).
+- Changing interfaces, data contracts, or persistence strategy with operational impact.
+
+### <span style="color: #22c55e;">ADR Workflow</span>
+
+1. Create one ADR per significant decision.
+2. Keep status explicit: `Proposed`, `Accepted`, `Superseded`, or `Rejected`.
+3. Link related runbooks, metrics, and rollback plans.
+4. Update or supersede ADRs instead of rewriting history.
+
+### <span style="color: #22c55e;">ADR Template</span>
+
+```md
+# ADR-00X: <Short Decision Title>
+
+- Date: YYYY-MM-DD
+- Status: Proposed | Accepted | Superseded | Rejected
+- Owners: <team/person>
+- Related Components: <airflow|kafka|spark|minio|postgres|monitoring|security>
+- Related Docs: <links>
+
+## Context
+
+What problem are we solving? What constraints apply (cost, latency, scale, compliance, team skills)?
+
+## Decision
+
+State the chosen approach clearly and specifically.
+
+## Alternatives Considered
+
+1. Option A: <summary, pros, cons>
+2. Option B: <summary, pros, cons>
+3. Option C: <summary, pros, cons>
+
+## Consequences
+
+- Positive: <benefits>
+- Negative: <trade-offs>
+- Operational Impact: <runbook/monitoring/SLO changes>
+
+## Rollout Plan
+
+1. <step>
+2. <step>
+3. <validation criteria>
+
+## Rollback Plan
+
+1. <trigger conditions>
+2. <rollback steps>
+3. <post-rollback verification>
+
+## Monitoring and Guardrails
+
+- Key metrics: <list>
+- Alert thresholds: <list>
+- Exit criteria: <what makes this successful>
+```
+
+### <span style="color: #22c55e;">Best Practices</span>
+
+- Prefer evidence-based decisions: include benchmark or incident data when possible.
+- Keep ADRs concise; link to detailed docs rather than duplicating them.
+- Make rollback criteria measurable and pre-agreed.
+- Revisit ADRs after incidents or major scale changes.
 
 ## <span style="color: #0ea5e9;">Key Takeaways and Next Steps</span>
 
