@@ -184,7 +184,7 @@ def serve_wiki(port=8000):
 
             if parsed.path == "/wiki":
                 query = parse_qs(parsed.query)
-                requested_doc = query.get("doc", ["docs/ARCHITECTURE.MD"])[0]
+                requested_doc = query.get("doc", ["docs/ARCHITECTURE.md"])[0]
                 resolved_doc = resolve_doc_path(requested_doc)
                 if not resolved_doc:
                     self.send_error(404, "Markdown document not found")

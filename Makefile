@@ -7,7 +7,7 @@ TERRAFORM ?= terraform
 PRETTIER ?= prettier
 WIKI_PORT ?= 8000
 PYTHON_SRC ?= pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
-TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.MD' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
+TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
 YAML_FILE_TYPES ?= \( -name '*.yml' -o -name '*.yaml' \)
 COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/target/*'
 

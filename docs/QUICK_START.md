@@ -452,7 +452,7 @@ count: 10       # 10 minutes total
 
 ## <span style="color: #0ea5e9;">Next Steps</span>
 
-1. Review [DEPLOYMENT.MD](./DEPLOYMENT.MD) for detailed documentation
+1. Review [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed documentation
 2. Customize analysis templates for your metrics
 3. Configure Slack notifications
 4. Set up custom dashboards in Grafana
