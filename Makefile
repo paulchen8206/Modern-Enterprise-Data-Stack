@@ -17,6 +17,7 @@ COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/ta
 	terraform-init terraform-validate \
 	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo prepare-demo-data \
 	run-java-api-local run-java-api-compose run-java-api-local-safe \
+	build-java-api-container run-java-api-container stop-java-api-container logs-java-api-container \
 	run-wiki
 
 help: ## Show available targets
@@ -111,6 +112,26 @@ run-java-api-local-safe: ## Stop process on 8081, then run Java API local profil
 	fi
 	mvn -f java-api/pom.xml spring-boot:run -Dspring-boot.run.profiles=local -DskipTests
 
+build-java-api-container: ## Build Java API container image
+	$(COMPOSE_MAIN) build workflow-api
+
+run-java-api-container: ## Run Java API as Docker Compose service on port 8081
+	@for pid in $$(lsof -ti tcp:8081 2>/dev/null); do \
+		cmd=$$(ps -p $$pid -o comm= | tr -d ' '); \
+		if [ "$$cmd" = "java" ]; then \
+			echo "Stopping Java process on port 8081 (pid=$$pid)..."; \
+			kill $$pid; \
+			sleep 1; \
+		fi; \
+	done
+	$(COMPOSE_MAIN) up -d --force-recreate workflow-api
+
+stop-java-api-container: ## Stop Java API Docker Compose service
+	$(COMPOSE_MAIN) stop workflow-api
+
+logs-java-api-container: ## Tail Java API container logs
+	$(COMPOSE_MAIN) logs --tail=200 -f workflow-api
+
 run-wiki: ## Run local wiki server (override port: make run-wiki WIKI_PORT=3000)
 	$(PYTHON) devtools/serve_wiki.py $(WIKI_PORT)
 
@@ -118,19 +139,21 @@ run-kafka-producer: ## Run Kafka producer in compose stack
 	$(COMPOSE_MAIN) exec -e KAFKA_TOPIC=events spark python3 /opt/kafka_jobs/producer.py
 
 run-streaming-job: ## Run Spark streaming job in compose stack
-	$(COMPOSE_MAIN) exec spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_streaming_job.py
+	$(COMPOSE_MAIN) exec -T spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_streaming_job.py
 
-run-batch-job: ## Run Spark batch job in compose stack
-	$(COMPOSE_MAIN) exec spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+run-batch-job: prepare-demo-data ## Run Spark batch job in compose stack
+	$(COMPOSE_MAIN) exec -T spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+	@echo "Batch job finished successfully. Output CSV: /tmp/transformed_orders.csv"
 
 prepare-demo-data: ## Ensure MinIO buckets and sample orders CSV exist for Spark batch demo
 	$(COMPOSE_MAIN) exec -T spark python3 -c "import boto3; s3=boto3.client('s3', endpoint_url='http://minio:9000', aws_access_key_id='minio', aws_secret_access_key='minio123'); data='order_id,customer_id,amount\\n1,1001,120.5\\n2,1002,75.0\\n3,1001,30.0\\n4,1003,200.0\\n'; exec(\"for b in ('raw-data','processed-data'):\\n    try:\\n        s3.head_bucket(Bucket=b)\\n    except Exception:\\n        s3.create_bucket(Bucket=b)\"); s3.put_object(Bucket='raw-data', Key='orders/orders.csv', Body=data.encode('utf-8')); print('Seeded MinIO demo data at s3://raw-data/orders/orders.csv')"
 
 run-iceberg-demo: prepare-demo-data ## Run Spark batch job with Iceberg table write enabled
-	$(COMPOSE_MAIN) exec \
+	$(COMPOSE_MAIN) exec -T \
 		-e ENABLE_ICEBERG=true \
 		-e ICEBERG_CATALOG=local \
 		-e ICEBERG_NAMESPACE=analytics \
 		-e ICEBERG_TABLE=orders \
 		-e ICEBERG_WAREHOUSE=file:///tmp/iceberg_warehouse \
 		spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+	@echo "Iceberg demo finished successfully. Table: local.analytics.orders (warehouse=file:///tmp/iceberg_warehouse)"

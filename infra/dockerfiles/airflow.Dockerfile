@@ -1,7 +1,7 @@
 FROM apache/airflow:2.5.0-python3.9
 
 USER root
-RUN apt-get update && apt-get install -y gcc libpq-dev
+RUN apt-get update && apt-get install -y gcc libpq-dev default-libmysqlclient-dev pkg-config
 
 USER airflow
 

@@ -47,6 +47,8 @@ After startup, use these endpoints:
 - Java API (host run): http://localhost:8081
 - MinIO API: http://localhost:9000
 - MinIO Console: http://localhost:9001
+- Conduktor (Kafka UI): http://localhost:8085/app
+- Conduktor Postgres: localhost:5433 (database: conduktor_db)
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3000
 
@@ -54,6 +56,11 @@ Airflow default local credentials:
 
 - Username: airflow_user
 - Password: airflow_pass
+
+Conduktor default local credentials:
+
+- Username: admin@local.dev
+- Password: admin123
 
 ## 3. Run Java API Locally (Recommended for Development)
 
@@ -87,6 +94,20 @@ Equivalent root-level Makefile shortcuts:
 make run-java-api-local
 make run-java-api-compose
 make run-java-api-local-safe
+```
+
+Run Java API as a container service (compose profile) from repository root:
+
+```bash
+make build-java-api-container
+make run-java-api-container
+```
+
+Tail/stop containerized API:
+
+```bash
+make logs-java-api-container
+make stop-java-api-container
 ```
 
 Health check:
@@ -131,7 +152,7 @@ make run-iceberg-demo
 
 Note:
 
-- run-iceberg-demo auto-seeds MinIO demo data using prepare-demo-data.
+- run-batch-job and run-iceberg-demo auto-seed MinIO demo data using prepare-demo-data.
 
 ## 6. Validate Before Commit
 

@@ -42,6 +42,20 @@ services:
       POSTGRES_PASSWORD: pass
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  postgres-conduktor:
+    image: postgres:14
+    container_name: postgres-conduktor
+    environment:
+      POSTGRES_DB: conduktor_db
+      POSTGRES_USER: conduktor
+      POSTGRES_PASSWORD: conduktor
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_conduktor_data:/var/lib/postgresql/data
 
   minio:
     image: minio/minio:latest
@@ -132,5 +146,44 @@ services:
       - ./pipelines/great_expectations:/opt/spark_jobs/great_expectations
     command: ["tail", "-f", "/dev/null"]
 
+  workflow-api:
+    build:
+      context: .
+      dockerfile: ./infra/dockerfiles/workflow-api.Dockerfile
+    container_name: workflow-api
+    depends_on:
+      - airflow-webserver
+      - kafka
+      - mysql
+      - postgres
+      - minio
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: compose
+    restart: unless-stopped
+
+  conduktor:
+    image: conduktor/conduktor-console:1.28.0
+    container_name: conduktor
+    depends_on:
+      - kafka
+      - zookeeper
+      - postgres-conduktor
+    ports:
+      - "8085:8080"
+    environment:
+      CDK_ORGANIZATION_NAME: "local"
+      CDK_ADMIN_EMAIL: "admin@local.dev"
+      CDK_ADMIN_PASSWORD: "admin123"
+      CDK_DATABASE_URL: "postgresql://conduktor:conduktor@postgres-conduktor:5432/conduktor_db"
+      CDK_CLUSTERS_0_ID: "local-kafka"
+      CDK_CLUSTERS_0_NAME: "local-kafka"
+      CDK_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
+      CDK_CLUSTERS_0_ZOOKEEPER: "zookeeper:2181"
+    restart: unless-stopped
+
 volumes:
   minio_data:
+  postgres_data:
+  postgres_conduktor_data:

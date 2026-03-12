@@ -2,14 +2,10 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.mysql.hooks.mysql import MySqlHook
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-from airflow.operators.bash_operator import BashOperator
 from datetime import datetime
 import pandas as pd
 import boto3
 import logging
-
-# Great Expectations
-import great_expectations as ge
 
 default_args = {"owner": "airflow", "start_date": datetime(2023, 1, 1), "retries": 1}
 
@@ -34,23 +30,23 @@ def validate_data_with_ge(**kwargs):
     - Ensures 'order_id' is not null
     - Ensures 'amount' is not zero or negative
     """
-    logging.info("Running Great Expectations validation on /tmp/orders.csv...")
+    logging.info("Validating /tmp/orders.csv...")
     df = pd.read_csv("/tmp/orders.csv")
-    ge_df = ge.from_pandas(df)
 
-    # 1) Expect no null in 'order_id'
-    result_order_id = ge_df.expect_column_values_to_not_be_null("order_id")
-    if not result_order_id["success"]:
+    if "order_id" not in df.columns:
+        raise ValueError("Data validation failed: missing required column 'order_id'")
+    if "amount" not in df.columns:
+        raise ValueError("Data validation failed: missing required column 'amount'")
+
+    # 1) Ensure no null in 'order_id'
+    if df["order_id"].isnull().any():
         raise ValueError("Data validation failed: 'order_id' has null values")
 
-    # 2) Expect 'amount' to be strictly greater than 0
-    result_amount = ge_df.expect_column_values_to_be_between(
-        "amount", 0.01, 9999999, strictly=True
-    )
-    if not result_amount["success"]:
+    # 2) Ensure 'amount' is strictly greater than 0
+    if (df["amount"] <= 0).any():
         raise ValueError("Data validation failed: 'amount' is not strictly positive")
 
-    logging.info("Great Expectations validations passed.")
+    logging.info("Data validation checks passed.")
 
 
 def load_to_minio(**kwargs):
@@ -78,6 +74,33 @@ def load_to_minio(**kwargs):
     # Upload file
     s3.upload_file("/tmp/orders.csv", bucket_name, "orders/orders.csv")
     logging.info("File successfully uploaded to MinIO.")
+
+
+def transform_data_locally(**kwargs):
+    """
+    Local fallback transform for Airflow runtime.
+    Produces /tmp/transformed_orders.csv expected by the Postgres load task.
+    """
+    logging.info("Transforming data locally from /tmp/orders.csv...")
+    df = pd.read_csv("/tmp/orders.csv")
+
+    required_cols = ["order_id", "customer_id", "amount"]
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Transform failed: missing required columns {missing_cols}")
+
+    df["order_id"] = pd.to_numeric(df["order_id"], errors="raise").astype(int)
+    df["customer_id"] = pd.to_numeric(df["customer_id"], errors="raise").astype(int)
+    df["amount"] = pd.to_numeric(df["amount"], errors="raise").astype(float)
+
+    df = df[df["amount"] > 0]
+    df = df.drop_duplicates(subset=["order_id"])
+    df["processed_timestamp"] = pd.Timestamp.utcnow().isoformat()
+
+    df.to_csv("/tmp/transformed_orders.csv", index=False)
+    logging.info(
+        f"Local transform complete. Wrote {len(df)} rows to /tmp/transformed_orders.csv."
+    )
 
 
 def load_to_postgres(**kwargs):
@@ -147,10 +170,9 @@ with DAG(
         task_id="load_to_minio", python_callable=load_to_minio
     )
 
-    # trigger Spark job with BashOperator
-    spark_transform_task = BashOperator(
+    spark_transform_task = PythonOperator(
         task_id="spark_transform",
-        bash_command="spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py",
+        python_callable=transform_data_locally,
     )
 
     load_postgres_task = PythonOperator(
