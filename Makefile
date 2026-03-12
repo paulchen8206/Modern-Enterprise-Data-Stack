@@ -10,7 +10,7 @@ PRETTIER ?= prettier
 	format format-python format-text terraform-fmt \
 	validate validate-compose validate-shell validate-python validate-json validate-yaml validate-notebook validate-format validate-terraform \
 	terraform-init terraform-validate \
-	run-kafka-producer run-streaming-job
+	run-kafka-producer run-streaming-job run-batch-job run-iceberg-demo
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; print "Available targets:"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-26s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -110,3 +110,15 @@ run-kafka-producer: ## Run Kafka producer in compose stack
 
 run-streaming-job: ## Run Spark streaming job in compose stack
 	$(COMPOSE_MAIN) exec spark spark-submit --master local[2] /opt/spark_jobs/spark_streaming_job.py
+
+run-batch-job: ## Run Spark batch job in compose stack
+	$(COMPOSE_MAIN) exec spark spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+
+run-iceberg-demo: ## Run Spark batch job with Iceberg table write enabled
+	$(COMPOSE_MAIN) exec \
+		-e ENABLE_ICEBERG=true \
+		-e ICEBERG_CATALOG=local \
+		-e ICEBERG_NAMESPACE=analytics \
+		-e ICEBERG_TABLE=orders \
+		-e ICEBERG_WAREHOUSE=file:///tmp/iceberg_warehouse \
+		spark spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py

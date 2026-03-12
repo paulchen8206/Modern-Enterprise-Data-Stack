@@ -7,12 +7,13 @@ What you get:
 - Batch ingestion with Airflow and Spark.
 - Streaming ingestion with Kafka and Spark Structured Streaming.
 - Data quality checks with Great Expectations.
+- Apache Iceberg table format for ACID analytics tables.
 - Storage in MinIO, PostgreSQL, MongoDB, InfluxDB, and optional AWS S3.
 - Monitoring with Prometheus and Grafana.
 - Governance and ML stubs (Apache Atlas/OpenMetadata, MLflow, Feast).
 - Deployment paths for Docker Compose, Kubernetes, and Terraform.
 
-Core stack: Python, SQL, Bash, Docker, Kubernetes, Airflow, Spark, Flink, Kafka, Hadoop, PostgreSQL, MySQL, MongoDB, InfluxDB, MinIO, Prometheus, Grafana, MLflow, Feast, Great Expectations, Terraform.
+Core stack: Python, SQL, Bash, Docker, Kubernetes, Airflow, Spark, Flink, Kafka, Hadoop, Iceberg, PostgreSQL, MySQL, MongoDB, InfluxDB, MinIO, Prometheus, Grafana, MLflow, Feast, Great Expectations, Terraform.
 
 For a fast setup path, see `docs/QUICK_START.md`. Use this README for full architecture and customization details.
 
@@ -153,6 +154,7 @@ make logs
 13. [Contributing](#contributing)
 14. [License](#license)
 15. [Final Notes](#final-notes)
+16. [Iceberg Tables Guide](docs/ICEBERG.md)
 
 ## <span style="color: #0ea5e9;">Make Procedures</span>
 
@@ -239,9 +241,11 @@ Use these targets after Terraform changes and before committing infrastructure u
 ```bash
 make run-kafka-producer
 make run-streaming-job
+make run-batch-job
+make run-iceberg-demo
 ```
 
-These targets run the producer and streaming Spark job inside the compose stack.
+These targets run producer/batch/streaming Spark jobs inside the compose stack.
 
 ### <span style="color: #22c55e;">Legacy Command Mapping</span>
 

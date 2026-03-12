@@ -27,9 +27,60 @@ MINIO_SECRET_KEY = "minio123"
 RAW_DATA_PATH = "s3a://raw-data/orders/orders.csv"
 PROCESSED_DATA_PATH = "s3a://processed-data/orders_transformed.csv"
 
+# Iceberg Configuration (optional)
+ENABLE_ICEBERG = os.getenv("ENABLE_ICEBERG", "false").lower() == "true"
+ICEBERG_CATALOG = os.getenv("ICEBERG_CATALOG", "local")
+ICEBERG_NAMESPACE = os.getenv("ICEBERG_NAMESPACE", "analytics")
+ICEBERG_TABLE = os.getenv("ICEBERG_TABLE", "orders")
+ICEBERG_WAREHOUSE = os.getenv("ICEBERG_WAREHOUSE", "file:///tmp/iceberg_warehouse")
+
 # Local file output path
 LOCAL_OUTPUT_DIR = "/tmp/transformed_orders"
 LOCAL_OUTPUT_FILE = "/tmp/transformed_orders.csv"
+
+
+def build_spark_session():
+    """Build Spark session with optional Iceberg catalog support."""
+    builder = SparkSession.builder.appName("BatchETL")
+
+    if ENABLE_ICEBERG:
+        builder = (
+            builder.config(
+                "spark.sql.extensions",
+                "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
+            )
+            .config(
+                f"spark.sql.catalog.{ICEBERG_CATALOG}",
+                "org.apache.iceberg.spark.SparkCatalog",
+            )
+            .config(f"spark.sql.catalog.{ICEBERG_CATALOG}.type", "hadoop")
+            .config(
+                f"spark.sql.catalog.{ICEBERG_CATALOG}.warehouse", ICEBERG_WAREHOUSE
+            )
+        )
+
+    return builder.getOrCreate()
+
+
+def write_iceberg_table(spark, df):
+    """Write transformed dataset to an Iceberg table when enabled."""
+    full_table_name = f"{ICEBERG_CATALOG}.{ICEBERG_NAMESPACE}.{ICEBERG_TABLE}"
+    logging.info(f"Writing transformed data to Iceberg table: {full_table_name}")
+
+    spark.sql(
+        f"CREATE NAMESPACE IF NOT EXISTS {ICEBERG_CATALOG}.{ICEBERG_NAMESPACE}"
+    )
+
+    (
+        df.writeTo(full_table_name)
+        .using("iceberg")
+        .tableProperty("format-version", "2")
+        .createOrReplace()
+    )
+
+    logging.info(
+        f"Iceberg write complete: {full_table_name} (warehouse={ICEBERG_WAREHOUSE})"
+    )
 
 
 def validate_schema(df):
@@ -80,7 +131,7 @@ def main():
     """
     try:
         # Initialize Spark session
-        spark = SparkSession.builder.appName("BatchETL").getOrCreate()
+        spark = build_spark_session()
 
         # Configure Spark to access MinIO using s3a
         spark._jsc.hadoopConfiguration().set("fs.s3a.endpoint", MINIO_ENDPOINT)
@@ -152,6 +203,9 @@ def main():
             )
         else:
             logging.warning("No CSV files found after transformation.")
+
+        if ENABLE_ICEBERG:
+            write_iceberg_table(spark, df_transformed)
 
         # Stop Spark session
         spark.stop()
