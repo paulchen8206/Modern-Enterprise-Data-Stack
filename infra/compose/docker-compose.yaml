@@ -126,6 +126,7 @@ services:
       - postgres
     volumes:
       - ./pipelines/spark:/opt/spark_jobs
+      - ./pipelines/kafka:/opt/kafka_jobs
       - ./pipelines/great_expectations:/opt/spark_jobs/great_expectations
     command: ["tail", "-f", "/dev/null"]
 

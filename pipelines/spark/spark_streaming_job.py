@@ -2,8 +2,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col, when, lit
 from pyspark.sql.types import StructType, StructField, StringType, LongType, DoubleType
 import logging
-import great_expectations as ge
-import psycopg2
 import os
 
 # Logging Configuration
@@ -13,7 +11,7 @@ logging.basicConfig(
 
 # Kafka Configuration
 KAFKA_BROKER = "kafka:9092"
-KAFKA_TOPIC = "sensor_readings"
+KAFKA_TOPIC = "events"
 CONSUMER_GROUP = "sensor_readings_consumer"
 
 # MinIO (S3-Compatible Storage) Configuration
@@ -43,47 +41,30 @@ schema = StructType(
 
 def validate_schema(df):
     """
-    Validate the schema of the incoming streaming DataFrame using Great Expectations.
-    Ensures:
-      - 'event_id' is non-null and unique
-      - 'timestamp' is non-null and positive
-      - 'device_id' is non-null and positive
-      - 'reading_value' is non-null and within expected ranges (0-100)
+    Validate that the parsed streaming DataFrame has the expected columns and types.
+    Content-level checks are enforced later using DataFrame filters.
     """
-    logging.info("Validating streaming data schema with Great Expectations...")
+    logging.info("Validating streaming schema...")
+    expected = {
+        "event_id": StringType,
+        "timestamp": LongType,
+        "device_id": LongType,
+        "reading_value": DoubleType,
+    }
+    actual = {field.name: type(field.dataType) for field in df.schema.fields}
 
-    ge_df = ge.from_pandas(
-        df.toPandas()
-    )  # Convert Spark DataFrame to Pandas for validation
+    missing = [name for name in expected if name not in actual]
+    if missing:
+        raise ValueError(f"Validation failed: missing columns: {missing}")
 
-    # Expect event_id to be unique and non-null
-    result_event_id = ge_df.expect_column_values_to_not_be_null("event_id")
-    if not result_event_id.success:
-        raise ValueError("Validation failed: 'event_id' contains null values")
-
-    # Expect timestamp to be non-null and positive
-    result_timestamp = ge_df.expect_column_values_to_be_between(
-        "timestamp", min_value=1
-    )
-    if not result_timestamp.success:
+    type_errors = [
+        f"{name}: expected {expected[name].__name__}, got {actual[name].__name__}"
+        for name in expected
+        if actual[name] is not expected[name]
+    ]
+    if type_errors:
         raise ValueError(
-            "Validation failed: 'timestamp' contains negative or null values"
-        )
-
-    # Expect device_id to be non-null and positive
-    result_device_id = ge_df.expect_column_values_to_be_between(
-        "device_id", min_value=1
-    )
-    if not result_device_id.success:
-        raise ValueError("Validation failed: 'device_id' contains negative values")
-
-    # Expect reading_value to be between 0 and 100 (sensor range)
-    result_reading_value = ge_df.expect_column_values_to_be_between(
-        "reading_value", min_value=0, max_value=100
-    )
-    if not result_reading_value.success:
-        raise ValueError(
-            "Validation failed: 'reading_value' is outside the expected range"
+            "Validation failed: column type mismatch: " + "; ".join(type_errors)
         )
 
     logging.info("Schema validation passed.")

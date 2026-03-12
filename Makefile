@@ -110,7 +110,7 @@ run-java-api-local-safe: ## Stop process on 8081, then run Java API local profil
 	mvn -f java-api/pom.xml spring-boot:run -Dspring-boot.run.profiles=local -DskipTests
 
 run-kafka-producer: ## Run Kafka producer in compose stack
-	$(COMPOSE_MAIN) exec kafka python /opt/spark_jobs/../kafka/producer.py
+	$(COMPOSE_MAIN) exec -e KAFKA_TOPIC=events spark python3 /opt/kafka_jobs/producer.py
 
 run-streaming-job: ## Run Spark streaming job in compose stack
 	$(COMPOSE_MAIN) exec spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_streaming_job.py

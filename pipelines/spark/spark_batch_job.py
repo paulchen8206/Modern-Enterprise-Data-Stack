@@ -53,9 +53,7 @@ def build_spark_session():
                 "org.apache.iceberg.spark.SparkCatalog",
             )
             .config(f"spark.sql.catalog.{ICEBERG_CATALOG}.type", "hadoop")
-            .config(
-                f"spark.sql.catalog.{ICEBERG_CATALOG}.warehouse", ICEBERG_WAREHOUSE
-            )
+            .config(f"spark.sql.catalog.{ICEBERG_CATALOG}.warehouse", ICEBERG_WAREHOUSE)
         )
 
     return builder.getOrCreate()
@@ -66,9 +64,7 @@ def write_iceberg_table(spark, df):
     full_table_name = f"{ICEBERG_CATALOG}.{ICEBERG_NAMESPACE}.{ICEBERG_TABLE}"
     logging.info(f"Writing transformed data to Iceberg table: {full_table_name}")
 
-    spark.sql(
-        f"CREATE NAMESPACE IF NOT EXISTS {ICEBERG_CATALOG}.{ICEBERG_NAMESPACE}"
-    )
+    spark.sql(f"CREATE NAMESPACE IF NOT EXISTS {ICEBERG_CATALOG}.{ICEBERG_NAMESPACE}")
 
     (
         df.writeTo(full_table_name)
@@ -110,7 +106,9 @@ def validate_schema(df):
 
     invalid_amounts = df.filter(col("amount").isNull() | (col("amount") <= 0)).count()
     if invalid_amounts > 0:
-        raise ValueError("Validation failed: 'amount' contains zero/negative/null values")
+        raise ValueError(
+            "Validation failed: 'amount' contains zero/negative/null values"
+        )
 
     logging.info("Schema validation passed.")
 

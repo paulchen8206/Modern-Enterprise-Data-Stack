@@ -95,11 +95,13 @@ def load_to_postgres(**kwargs):
     pg_hook = PostgresHook(postgres_conn_id="postgres_default")
     df = pd.read_csv("/tmp/transformed_orders.csv")
 
-    pg_hook.run("CREATE TABLE IF NOT EXISTS orders_transformed ( \
+    pg_hook.run(
+        "CREATE TABLE IF NOT EXISTS orders_transformed ( \
         order_id INT, \
         customer_id INT, \
         amount DECIMAL(10,2), \
-        processed_timestamp TIMESTAMP );")
+        processed_timestamp TIMESTAMP );"
+    )
 
     # Clear table before load
     pg_hook.run("TRUNCATE TABLE orders_transformed;")
