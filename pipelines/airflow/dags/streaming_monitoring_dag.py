@@ -1,3 +1,9 @@
+"""Streaming monitoring DAG.
+
+Runs scheduled Kafka consumer-lag checks and emits warnings when lag crosses
+the configured threshold.
+"""
+
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime
@@ -21,7 +27,7 @@ def check_kafka_consumer_lag():
     try:
         logging.info(f"Connecting to Kafka broker: {KAFKA_BROKER}")
 
-        # Initialize Kafka Admin Client
+        # Admin API gives consumer group metadata without consuming records.
         admin_client = KafkaAdminClient(bootstrap_servers=KAFKA_BROKER)
 
         # Fetch Consumer Group Offsets
@@ -66,7 +72,7 @@ def check_kafka_consumer_lag():
                     f"Partition {partition}: Latest Offset = {latest_offset}, Consumer Lag = {lag}"
                 )
 
-                # Raise alert if lag exceeds threshold
+                # Emit warnings rather than failing the DAG to keep observability continuous.
                 if lag > LAG_THRESHOLD:
                     logging.warning(
                         f"ALERT! Consumer lag detected on {topic_partition}. Lag: {lag}"

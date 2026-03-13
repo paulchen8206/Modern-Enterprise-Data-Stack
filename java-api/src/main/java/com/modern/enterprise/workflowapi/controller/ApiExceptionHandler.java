@@ -22,6 +22,7 @@ public class ApiExceptionHandler {
 
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<Map<String, Object>> dependency(IllegalStateException ex) {
+    // Dependency failures are surfaced as 502 to distinguish them from API bugs.
     return problem(HttpStatus.BAD_GATEWAY, ex.getMessage());
   }
 
@@ -31,6 +32,7 @@ public class ApiExceptionHandler {
   }
 
   private ResponseEntity<Map<String, Object>> problem(HttpStatus status, String detail) {
+    // Use a stable response shape similar to RFC 7807 for client-side handling.
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("status", status.value());
     body.put("title", status.getReasonPhrase());

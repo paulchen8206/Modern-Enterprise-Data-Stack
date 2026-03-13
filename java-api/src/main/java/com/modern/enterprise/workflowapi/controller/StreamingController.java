@@ -29,6 +29,7 @@ public class StreamingController {
 
   @PostMapping("/produce")
   public ResponseEntity<Map<String, String>> produce(@Valid @RequestBody StreamingRequest req) throws Exception {
+    // Wrap payload with metadata so downstream consumers can debug provenance.
     Map<String, Object> msg = new LinkedHashMap<>();
     msg.put("ts", Instant.now().toString());
     msg.put("partition", req.getPartition());
@@ -39,6 +40,7 @@ public class StreamingController {
 
   @PostMapping("/run")
   public ResponseEntity<StreamingResponse> run() throws Exception {
+    // Delegate long-running processing to Airflow rather than blocking the API.
     String runId = airflowService.triggerStreaming();
     return ResponseEntity.ok(new StreamingResponse(runId, "scheduled"));
   }

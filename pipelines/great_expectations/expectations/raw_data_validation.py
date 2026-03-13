@@ -1,3 +1,5 @@
+"""Great Expectations validation entrypoint for raw batch CSV files."""
+
 import great_expectations as ge
 import pandas as pd
 
@@ -12,12 +14,12 @@ def validate_csv(path_to_csv):
     df = pd.read_csv(path_to_csv)
     ge_df = ge.from_pandas(df)
 
-    # Expect order_id to not be null
+    # Identity key must always be present for downstream dedup/joins.
     result_order_id = ge_df.expect_column_values_to_not_be_null("order_id")
     if not result_order_id.success:
         raise ValueError("Validation failed: Found null values in 'order_id'")
 
-    # Expect amount to be > 0
+    # Reject zero/negative amounts to avoid invalid financial aggregates.
     result_amount = ge_df.expect_column_values_to_be_between(
         "amount", 0.01, 9999999, strictly=True
     )

@@ -1,3 +1,8 @@
+"""Apache Atlas lineage registration stub.
+
+Provides simple existence checks and lineage registration calls for local demos.
+"""
+
 import json
 import logging
 import os
@@ -61,6 +66,7 @@ def register_dataset_lineage(source_name, target_name, extra_info=None):
         logging.error(f"Cannot register lineage: One or both datasets do not exist.")
         return
 
+    # Keep payload minimal and attach optional metadata in relationship attributes.
     lineage_payload = {
         "guidEntityMap": {},
         "relations": [
@@ -95,6 +101,7 @@ def register_dataset_lineage(source_name, target_name, extra_info=None):
 
 
 if __name__ == "__main__":
+    # Example lineage edge used during local smoke runs.
     register_dataset_lineage(
         "mysql.orders",
         "minio.raw-data.orders",

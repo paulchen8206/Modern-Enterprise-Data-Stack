@@ -20,9 +20,11 @@ public class GeValidationService {
   public String validate(String suite) throws Exception {
     File cli = new File(cfg.getCliPath());
     if (!cli.exists()) {
+      // Local/dev environments may not include GE CLI; callers can decide how to handle skip.
       return "SKIPPED: Great Expectations CLI not found at " + cfg.getCliPath();
     }
 
+    // Invoke GE as an external process to avoid embedding Python runtime in the JVM service.
     ProcessBuilder pb = new ProcessBuilder(cfg.getCliPath(), "checkpoint", "run", suite);
     Process p = pb.start();
     boolean ok = p.waitFor(Duration.ofSeconds(cfg.getTimeoutSeconds()).toMillis(), TimeUnit.MILLISECONDS);

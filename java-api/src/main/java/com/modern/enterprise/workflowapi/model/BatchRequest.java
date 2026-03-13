@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class BatchRequest {
+  // Source table name is constrained to simple identifiers for safe SQL composition.
   @Pattern(regexp = "^[A-Za-z0-9_]+$")
   private String sourceTable;
 
@@ -14,6 +15,7 @@ public class BatchRequest {
 
   @Min(1)
   @Max(100000)
+  // Optional upper bound to prevent accidental full-table pulls from the API.
   private Integer limit;
 
   private boolean triggerAirflow = true;

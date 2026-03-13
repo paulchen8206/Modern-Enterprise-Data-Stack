@@ -1,3 +1,8 @@
+"""Feature store streaming stub.
+
+Consumes Kafka sensor events and maintains lightweight online aggregates in Feast.
+"""
+
 import os
 import feast
 import pandas as pd
@@ -18,7 +23,7 @@ store = FeatureStore(repo_path=FEAST_REPO_PATH)
 KAFKA_BROKER = os.getenv("KAFKA_BROKER", "kafka:9092")
 KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "sensor_readings")
 
-# Initialize Spark Session
+# Spark session is kept for parity with broader pipeline tooling in this project.
 spark = SparkSession.builder.appName("StreamingFeatureProcessing").getOrCreate()
 
 # Define Schema for incoming JSON sensor readings
@@ -70,7 +75,7 @@ def consume_stream_and_store_features():
         if device_id is None or reading_value is None:
             continue  # Skip malformed data
 
-        # Fetch existing features from Feast for incremental updates
+        # Read current online features so we can maintain rolling aggregates.
         existing_features = store.get_online_features(
             features=["device_features:avg_reading", "device_features:max_reading"],
             entity_rows=[{"device_id": device_id}],
@@ -115,7 +120,7 @@ def get_features(device_ids):
         "device_features:timestamp",
     ]
 
-    # Fetch real-time features for the given devices
+    # Batch fetch keeps API calls compact when querying multiple entities.
     feature_vector = store.get_online_features(
         features=feature_refs,
         entity_rows=[{"device_id": device_id} for device_id in device_ids],

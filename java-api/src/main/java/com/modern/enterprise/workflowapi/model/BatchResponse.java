@@ -1,8 +1,11 @@
 package com.modern.enterprise.workflowapi.model;
 
 public class BatchResponse {
+  // Object storage path where ingested snapshot was written.
   private String objectKey;
+  // Optional Airflow run ID when orchestration trigger is enabled.
   private String runId;
+  // Optional validation output when Great Expectations is enabled.
   private String geReport;
 
   public BatchResponse() {}

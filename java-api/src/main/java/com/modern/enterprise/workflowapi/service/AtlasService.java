@@ -21,6 +21,7 @@ public class AtlasService {
   }
 
   public String registerLineage(String payload) throws Exception {
+    // Atlas lineage endpoint is called directly so orchestration layers can stay thin.
     HttpRequest req = HttpRequest.newBuilder()
         .uri(URI.create(cfg.getEndpoint() + "/lineage"))
         .header("Authorization", basicAuth())
@@ -30,6 +31,7 @@ public class AtlasService {
         .build();
     HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
     if (resp.statusCode() >= 300) {
+      // Bubble up response details for easier operator troubleshooting.
       throw new IllegalStateException("Atlas request failed: " + resp.statusCode() + " " + resp.body());
     }
     return resp.body();

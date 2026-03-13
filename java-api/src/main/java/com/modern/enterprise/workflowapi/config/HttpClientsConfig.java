@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class HttpClientsConfig {
   @Bean
   public HttpClient httpClient() {
+    // Shared JDK client keeps transport setup centralized for all outbound services.
     return HttpClient.newBuilder().build();
   }
 }

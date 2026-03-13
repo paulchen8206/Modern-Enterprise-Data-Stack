@@ -122,7 +122,7 @@ def main():
             f"Starting Spark Structured Streaming from Kafka topic: {KAFKA_TOPIC}"
         )
 
-        # Read stream from Kafka
+        # Subscribe to the event topic as an unbounded source.
         df_raw = (
             spark.readStream.format("kafka")
             .option("kafka.bootstrap.servers", KAFKA_BROKER)
@@ -150,7 +150,8 @@ def main():
         # Detect anomalies where reading_value > 70
         df_anomalies = df_clean.filter(col("reading_value") > 70.0)
 
-        # Write raw streaming data to MinIO (S3)
+        # Each sink uses an isolated checkpoint to maintain its own offset/state progress.
+        # This avoids cross-sink corruption during restart/recovery.
         df_clean.writeStream.format("parquet").option(
             "checkpointLocation", "/tmp/spark-checkpoints/raw"
         ).option("path", RAW_DATA_PATH).outputMode("append").start()
@@ -160,7 +161,7 @@ def main():
             "checkpointLocation", "/tmp/spark-checkpoints/anomalies"
         ).option("path", ANOMALY_DATA_PATH).outputMode("append").start()
 
-        # Write anomalies to PostgreSQL
+        # foreachBatch keeps JDBC writes in micro-batch mode for better reliability.
         df_anomalies.writeStream.foreachBatch(
             lambda batch_df, batch_id: save_to_postgres(batch_df, "anomalies_stream")
         ).outputMode("append").start()

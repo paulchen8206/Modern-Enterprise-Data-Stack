@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/batch")
 public class BatchController {
+  // Timestamped object keys keep each ingestion request immutable and traceable.
   private static final DateTimeFormatter KEY_FMT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
 
   private final DbService dbService;
@@ -43,11 +44,13 @@ public class BatchController {
 
   @PostMapping("/ingest")
   public ResponseEntity<BatchResponse> ingest(@Valid @RequestBody BatchRequest req) throws Exception {
+    // Pull a bounded source snapshot from MySQL for deterministic batch ingestion.
     List<Map<String, Object>> rows = dbService.readMySqlTable(req.getSourceTable(), req.getLimit());
     String prefix = (req.getDestinationPrefix() == null || req.getDestinationPrefix().isBlank())
         ? req.getSourceTable()
         : req.getDestinationPrefix().replaceAll("^/+|/+$", "");
     if (prefix.contains("..")) {
+      // Prevent path traversal style keys in object storage.
       throw new IllegalArgumentException("destinationPrefix cannot contain path traversal sequences");
     }
 
@@ -56,6 +59,7 @@ public class BatchController {
 
     String geReport = null;
     if (req.isRunGreatExpectations()) {
+      // Validation is optional to support faster local test runs.
       geReport = geValidationService.validate("great_expectations/expectations");
     }
 

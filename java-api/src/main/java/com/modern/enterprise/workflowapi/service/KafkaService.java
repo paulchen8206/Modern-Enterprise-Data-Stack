@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaService {
   private final AppConfigProperties.Kafka cfg;
+  // Keep a single producer instance to reuse TCP connections and internal buffers.
   private KafkaProducer<String, String> producer;
 
   public KafkaService(AppConfigProperties props) {
@@ -27,6 +28,7 @@ public class KafkaService {
     Properties p = new Properties();
     p.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, cfg.getBootstrapServers());
     p.put(ProducerConfig.CLIENT_ID_CONFIG, cfg.getClientId());
+    // Idempotence + all acks reduce duplicate/lost messages for API-triggered events.
     p.put(ProducerConfig.ACKS_CONFIG, "all");
     p.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
     p.put(ProducerConfig.RETRIES_CONFIG, 3);
@@ -40,6 +42,7 @@ public class KafkaService {
   public void produce(String message, int partition) throws Exception {
     KafkaProducer<String, String> activeProducer = getOrCreateProducer();
     ProducerRecord<String, String> rec = new ProducerRecord<>(cfg.getTopic(), partition, null, message);
+    // Use synchronous ack so callers only return success after broker confirmation.
     activeProducer.send(rec).get();
   }
 

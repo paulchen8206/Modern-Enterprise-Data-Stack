@@ -43,6 +43,7 @@ def build_spark_session():
     builder = SparkSession.builder.appName("BatchETL")
 
     if ENABLE_ICEBERG:
+        # Enable Iceberg extensions only when requested so the default path stays lightweight.
         builder = (
             builder.config(
                 "spark.sql.extensions",
@@ -129,7 +130,7 @@ def main():
         # Initialize Spark session
         spark = build_spark_session()
 
-        # Configure Spark to access MinIO using s3a
+        # S3A settings let Spark read/write MinIO using S3-compatible APIs.
         spark._jsc.hadoopConfiguration().set("fs.s3a.endpoint", MINIO_ENDPOINT)
         spark._jsc.hadoopConfiguration().set("fs.s3a.access.key", MINIO_ACCESS_KEY)
         spark._jsc.hadoopConfiguration().set("fs.s3a.secret.key", MINIO_SECRET_KEY)
@@ -154,7 +155,7 @@ def main():
         # Validate schema
         validate_schema(df)
 
-        # Print number of records before transformation
+        # Materialize a baseline count for observability in logs.
         initial_record_count = df.count()
         logging.info(f"Initial record count: {initial_record_count}")
 
@@ -172,7 +173,7 @@ def main():
             spark_sum("amount").alias("total_spent"), count("*").alias("order_count")
         )
 
-        # Print number of records after transformation
+        # Capture output cardinality so pipeline regressions are easier to detect.
         final_record_count = df_transformed.count()
         logging.info(f"Final record count: {final_record_count}")
 

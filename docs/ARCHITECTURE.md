@@ -22,8 +22,8 @@ This document provides a comprehensive architectural overview of the Modern Data
 
 - GitHub Actions are separated into CI (`.github/workflows/ci.yml`) and CD (`.github/workflows/cd.yml`).
 - Local runtime has two supported paths:
-    - Docker Compose (`infra/compose/docker-compose.yaml`) for integrated service development.
-    - Kind (`k8s/kind/stack.yaml`) for local Kubernetes validation.
+  - Docker Compose (`infra/compose/docker-compose.yaml`) for integrated service development.
+  - Kind (`k8s/kind/stack.yaml`) for local Kubernetes validation.
 - Compose data layer intentionally separates project and Conduktor metadata into two Postgres services (`postgres` and `postgres-conduktor`).
 - Local deployment and verification scripts are standardized in `ops/deploy-kind.sh` and `ops/kind-smoke.sh`.
 

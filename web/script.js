@@ -1,3 +1,5 @@
+// Interactive behavior layer for the project wiki page (navigation, animations, metrics, and UX helpers).
+
 // Initialize Mermaid
 mermaid.initialize({
   startOnLoad: false,

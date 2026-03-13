@@ -22,7 +22,7 @@ MESSAGE_FREQUENCY = float(
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", 10))  # Number of messages per batch
 ACKS_MODE = os.getenv("ACKS_MODE", "all")  # Kafka acknowledgments ("all", "1", or "0")
 
-# Kafka Producer Initialization
+# Create producer once at module load to avoid reconnect overhead in the loop.
 producer = KafkaProducer(
     bootstrap_servers=[KAFKA_BROKER],
     value_serializer=lambda v: json.dumps(v).encode("utf-8"),
@@ -35,6 +35,7 @@ def create_kafka_topic(topic_name):
     Creates a Kafka topic if it does not exist.
     """
     try:
+        # Topic bootstrap is idempotent: create if missing, otherwise continue.
         admin_client = KafkaAdminClient(bootstrap_servers=KAFKA_BROKER)
         existing_topics = admin_client.list_topics()
 
@@ -75,7 +76,7 @@ def produce_messages():
             event = generate_event()
             batch.append(event)
 
-            # Send batch if batch size is reached
+            # Send records in groups to reduce request overhead and improve throughput.
             if len(batch) >= BATCH_SIZE:
                 for msg in batch:
                     producer.send(KAFKA_TOPIC, msg)

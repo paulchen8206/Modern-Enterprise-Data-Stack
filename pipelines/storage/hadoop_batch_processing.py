@@ -1,3 +1,5 @@
+"""MongoDB-to-HDFS batch export helper for local demos."""
+
 import os
 import pandas as pd
 from pymongo import MongoClient
@@ -49,6 +51,7 @@ def extract_from_mongodb_to_hdfs():
     df.to_csv(csv_filename, index=False)
     print(f"✅ Extracted data from MongoDB and saved as {csv_filename}")
 
+    # Also stream directly to HDFS for distributed processing jobs.
     # Upload CSV to HDFS
     hdfs_file_path = f"{HDFS_PATH}/{csv_filename}"
     with hdfs_client.write(hdfs_file_path, encoding="utf-8") as writer:

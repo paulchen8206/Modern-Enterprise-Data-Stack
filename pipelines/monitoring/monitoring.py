@@ -1,3 +1,8 @@
+"""Prometheus/Grafana local bootstrap helper.
+
+Starts both services and configures Grafana datasource/dashboard resources.
+"""
+
 import os
 import json
 import subprocess
@@ -55,6 +60,7 @@ def wait_for_grafana():
     Waits until Grafana API is responsive before proceeding.
     """
     logging.info("Waiting for Grafana to be ready...")
+    # Poll health endpoint to avoid race conditions during first-time startup.
     for _ in range(30):  # Wait for up to 30 seconds
         try:
             response = requests.get(f"{GRAFANA_API_URL}/health")
@@ -103,6 +109,7 @@ def import_grafana_dashboards():
         logging.warning(f"Dashboard directory not found: {DASHBOARDS_PATH}")
         return
 
+    # Import every JSON dashboard in the configured directory.
     for dashboard_file in os.listdir(DASHBOARDS_PATH):
         if dashboard_file.endswith(".json"):
             dashboard_path = os.path.join(DASHBOARDS_PATH, dashboard_file)

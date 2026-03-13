@@ -18,6 +18,7 @@ public class MonitoringController {
 
   @GetMapping("/health")
   public ResponseEntity<Map<String, String>> health() {
+    // Returns per-dependency status plus an aggregated overall state.
     return ResponseEntity.ok(monitoringService.health());
   }
 }

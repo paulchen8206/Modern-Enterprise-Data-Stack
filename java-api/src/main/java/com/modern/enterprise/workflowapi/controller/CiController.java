@@ -19,6 +19,7 @@ public class CiController {
 
   @PostMapping("/trigger")
   public ResponseEntity<Map<String, String>> trigger(@RequestParam String wf, @RequestParam String branch) throws Exception {
+    // `wf` maps to workflow file name (or workflow id) under GitHub Actions.
     String res = ciService.triggerWorkflow(wf, branch);
     return ResponseEntity.ok(Map.of("result", res));
   }

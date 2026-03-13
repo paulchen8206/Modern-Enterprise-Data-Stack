@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 public class WorkflowApiApplication {
   public static void main(String[] args) {
+    // Entrypoint for local run, tests, and container startup.
     SpringApplication.run(WorkflowApiApplication.class, args);
   }
 }

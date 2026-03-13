@@ -1,3 +1,9 @@
+"""BI export and upload helpers.
+
+This script exports transformed Postgres data to CSV and demonstrates upload
+flows for Tableau, Looker, and Power BI APIs.
+"""
+
 import os
 import pandas as pd
 import psycopg2
@@ -38,6 +44,7 @@ def fetch_data():
         engine = create_engine(
             f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
         )
+        # Keep extract query simple to produce a portable CSV baseline for BI tools.
         query = "SELECT * FROM orders_transformed;"
         df = pd.read_sql(query, con=engine)
 
@@ -68,7 +75,7 @@ def upload_to_tableau():
         auth_response.raise_for_status()
         token = auth_response.json()["credentials"]["token"]
 
-        # Upload CSV file to Tableau
+        # Upload the generated CSV as a datasource artifact.
         with open("bi_data/orders_transformed.csv", "rb") as f:
             response = requests.post(
                 f"{TABLEAU_SERVER}/api/3.9/sites/{TABLEAU_PROJECT_ID}/datasources",
@@ -133,7 +140,7 @@ def upload_to_power_bi():
             ],
         }
 
-        # Create dataset
+        # Provision dataset schema before data push (stub flow).
         headers = {
             "Authorization": f"Bearer {POWER_BI_ACCESS_TOKEN}",
             "Content-Type": "application/json",

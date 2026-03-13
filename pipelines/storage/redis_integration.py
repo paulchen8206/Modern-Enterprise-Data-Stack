@@ -1,3 +1,5 @@
+"""Redis feature cache and processed-queue integration for streaming events."""
+
 import os
 import json
 import redis
@@ -64,6 +66,7 @@ def get_features_from_feast(device_id):
         "max_reading": feature_vector["device_features:max_reading"][0],
     }
 
+    # Cache with TTL to reduce Feast calls while keeping features reasonably fresh.
     # Store in Redis cache (expires in 1 hour)
     redis_client.setex(cache_key, 3600, json.dumps(features))
     print(
@@ -109,6 +112,7 @@ def process_streaming_data():
             "avg_reading": features["avg_reading"],
         }
 
+        # Push to queue for decoupled consumers (dashboards, alerts, batch drains).
         # Store in Redis Queue (List)
         redis_client.lpush("processed_queue", json.dumps(processed_data))
         print(f"✅ Stored in Redis Queue: {processed_data}")

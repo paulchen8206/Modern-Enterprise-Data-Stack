@@ -1,7 +1,9 @@
 package com.modern.enterprise.workflowapi.model;
 
 public class StreamingResponse {
+  // Airflow DAG run identifier created for the streaming pipeline.
   private String runId;
+  // Human-readable lifecycle state returned by the API.
   private String status;
 
   public StreamingResponse() {}

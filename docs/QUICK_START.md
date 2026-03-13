@@ -11,15 +11,15 @@ This guide provides fast commands for common advanced deployment operations.
 
 ## <span style="color: #0ea5e9;">Quick Command Matrix</span>
 
-| Goal                      | Command                                                     |
-| ------------------------- | ----------------------------------------------------------- |
-| Start stack               | `make up`                                                   |
-| Start hybrid local runtime | `make hybrid-up`                                           |
-| Run Blue/Green automation | `./ops/deploy-blue-green.sh airflow v1.0.0`                 |
-| Run Canary automation     | `./ops/deploy-canary.sh airflow v1.0.0`                     |
-| Watch rollout             | `kubectl argo rollouts get rollout airflow-rollout --watch` |
-| Promote rollout           | `kubectl argo rollouts promote airflow-rollout`             |
-| Abort rollout             | `kubectl argo rollouts abort airflow-rollout`               |
+| Goal                       | Command                                                     |
+| -------------------------- | ----------------------------------------------------------- |
+| Start stack                | `make up`                                                   |
+| Start hybrid local runtime | `make hybrid-up`                                            |
+| Run Blue/Green automation  | `./ops/deploy-blue-green.sh airflow v1.0.0`                 |
+| Run Canary automation      | `./ops/deploy-canary.sh airflow v1.0.0`                     |
+| Watch rollout              | `kubectl argo rollouts get rollout airflow-rollout --watch` |
+| Promote rollout            | `kubectl argo rollouts promote airflow-rollout`             |
+| Abort rollout              | `kubectl argo rollouts abort airflow-rollout`               |
 
 ## <span style="color: #0ea5e9;">Local Kubernetes (Kind) Quick Path</span>
 
@@ -389,16 +389,16 @@ kubectl argo rollouts get rollout airflow-rollout
 
 ### <span style="color: #22c55e;">Key Configuration Files</span>
 
-| File                          | Purpose                           |
-| ----------------------------- | --------------------------------- |
-| `k8s/rollout-blue-green.yaml` | Blue/Green rollout definitions    |
-| `k8s/rollout-canary.yaml`     | Canary rollout definitions        |
-| `k8s/analysis-templates.yaml` | Prometheus metrics analysis       |
-| `k8s/services.yaml`           | Kubernetes services               |
-| `k8s/ingress.yaml`            | Traffic routing rules             |
-| `ops/deploy-blue-green.sh`    | Interactive blue/green deployment |
-| `ops/deploy-canary.sh`        | Interactive canary deployment     |
-| `ops/setup-advanced-deployments.sh` | Infrastructure setup       |
+| File                                | Purpose                           |
+| ----------------------------------- | --------------------------------- |
+| `k8s/rollout-blue-green.yaml`       | Blue/Green rollout definitions    |
+| `k8s/rollout-canary.yaml`           | Canary rollout definitions        |
+| `k8s/analysis-templates.yaml`       | Prometheus metrics analysis       |
+| `k8s/services.yaml`                 | Kubernetes services               |
+| `k8s/ingress.yaml`                  | Traffic routing rules             |
+| `ops/deploy-blue-green.sh`          | Interactive blue/green deployment |
+| `ops/deploy-canary.sh`              | Interactive canary deployment     |
+| `ops/setup-advanced-deployments.sh` | Infrastructure setup              |
 
 ### <span style="color: #22c55e;">Tune Analysis Thresholds</span>
 

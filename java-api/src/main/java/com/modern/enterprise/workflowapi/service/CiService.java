@@ -23,6 +23,7 @@ public class CiService {
   }
 
   public String triggerWorkflow(String wf, String branch) throws Exception {
+    // Normalize base URL once to avoid malformed URLs when config omits trailing slash.
     String base = cfg.getActionsApi().endsWith("/") ? cfg.getActionsApi() : cfg.getActionsApi() + "/";
     String body = mapper.writeValueAsString(Map.of("ref", branch));
     HttpRequest req = HttpRequest.newBuilder()
@@ -35,6 +36,7 @@ public class CiService {
         .build();
     HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
     if (resp.statusCode() >= 300) {
+      // Preserve upstream body for GitHub API diagnostics (permissions, workflow name, branch).
       throw new IllegalStateException("GitHub workflow trigger failed: " + resp.statusCode() + " " + resp.body());
     }
     return resp.body();

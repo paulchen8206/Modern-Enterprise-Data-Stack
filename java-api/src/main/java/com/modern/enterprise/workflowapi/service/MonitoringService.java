@@ -26,6 +26,7 @@ public class MonitoringService {
   }
 
   public Map<String, String> health() {
+    // LinkedHashMap keeps response order stable for UI rendering and quick scans.
     Map<String, String> res = new LinkedHashMap<>();
     res.put("mysql", dbService.canConnectMySql() ? "UP" : "DOWN");
     res.put("postgres", dbService.canConnectPostgres() ? "UP" : "DOWN");
@@ -33,6 +34,7 @@ public class MonitoringService {
     res.put("kafka", kafkaService.canReachKafka() ? "UP" : "DOWN");
     res.put("airflow", airflowService.canReachAirflow() ? "UP" : "DOWN");
     res.put("mlflow", mlflowService.canReachMlflow() ? "UP" : "DOWN");
+    // "DEGRADED" indicates partial availability instead of complete outage.
     boolean overall = res.values().stream().allMatch("UP"::equals);
     res.put("overall", overall ? "UP" : "DEGRADED");
     return res;

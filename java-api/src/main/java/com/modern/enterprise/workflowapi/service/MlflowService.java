@@ -23,6 +23,7 @@ public class MlflowService {
   }
 
   public String createRun(String experimentId, String runName) throws Exception {
+    // Keep payload minimal; additional tags/params can be logged later via MLflow APIs.
     String body = mapper.writeValueAsString(Map.of("experiment_id", experimentId, "run_name", runName));
     HttpRequest req = HttpRequest.newBuilder()
         .uri(URI.create(cfg.getTrackingUri() + "/api/2.0/mlflow/runs/create"))
@@ -39,6 +40,7 @@ public class MlflowService {
 
   public boolean canReachMlflow() {
     try {
+      // Base tracking URI is sufficient for liveness checks in local deployments.
       HttpRequest req = HttpRequest.newBuilder().uri(URI.create(cfg.getTrackingUri()))
           .timeout(Duration.ofSeconds(cfg.getRequestTimeoutSeconds())).GET().build();
       HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());

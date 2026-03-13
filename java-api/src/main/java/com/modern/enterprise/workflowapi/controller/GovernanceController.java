@@ -21,6 +21,7 @@ public class GovernanceController {
 
   @PostMapping("/lineage")
   public ResponseEntity<Map<String, String>> lineage(@RequestBody Object payload) throws Exception {
+    // Keep payload schema-flexible so Atlas contract changes do not require API redeploys.
     String res = atlasService.registerLineage(mapper.writeValueAsString(payload));
     return ResponseEntity.ok(Map.of("result", res));
   }

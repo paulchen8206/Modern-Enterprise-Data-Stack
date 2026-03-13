@@ -4,6 +4,7 @@ public final class StringConverters {
   private StringConverters() {}
 
   public static String adoMysqlToJdbc(String source) {
+    // Accept ADO-style key/value format used by existing config files.
     String host = findValue(source, "Server", "localhost");
     String db = findValue(source, "Database", "");
     String user = findValue(source, "User", "root");
@@ -20,6 +21,7 @@ public final class StringConverters {
   }
 
   private static String findValue(String source, String key, String fallback) {
+    // Parsing is intentionally permissive to tolerate reordered or partial strings.
     String[] parts = source.split(";");
     for (String p : parts) {
       String[] kv = p.split("=", 2);

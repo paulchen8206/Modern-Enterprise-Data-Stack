@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AirflowService {
+  // UTC timestamp keeps run IDs stable across developer machines and CI agents.
   private static final DateTimeFormatter ID_FMT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
   private final AppConfigProperties.Airflow cfg;
   private final HttpClient httpClient;
@@ -28,6 +29,7 @@ public class AirflowService {
   }
 
   public String triggerBatch() throws Exception {
+    // Prefixes make it easy to identify DAG runs created by each API endpoint.
     String id = "batch_" + ID_FMT.format(Instant.now());
     postDagRun(cfg.getBatchDagId(), id);
     return id;
@@ -41,6 +43,8 @@ public class AirflowService {
 
   public boolean canReachAirflow() {
     try {
+      // Health endpoint returns 200 in the normal case, but auth/network intermediaries
+      // can still prove basic reachability with non-5xx status codes.
       HttpRequest req = HttpRequest.newBuilder()
           .uri(URI.create(cfg.getBaseUrl() + "/health"))
           .header("Authorization", basicAuth())
@@ -55,6 +59,7 @@ public class AirflowService {
   }
 
   private void postDagRun(String dagId, String runId) throws Exception {
+    // Airflow requires dag_run_id in the request body for explicit run tracking.
     String body = mapper.writeValueAsString(Map.of("dag_run_id", runId));
     HttpRequest req = HttpRequest.newBuilder()
         .uri(URI.create(cfg.getBaseUrl() + "/dags/" + dagId + "/dagRuns"))

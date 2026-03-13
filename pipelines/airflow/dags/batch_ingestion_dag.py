@@ -1,3 +1,10 @@
+"""Batch ingestion DAG.
+
+This DAG extracts orders from MySQL, performs lightweight validation,
+publishes raw data to MinIO, applies a local transform fallback, and then
+loads the final dataset into Postgres.
+"""
+
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.providers.mysql.hooks.mysql import MySqlHook
@@ -158,6 +165,8 @@ with DAG(
     schedule_interval="@daily",
     catchup=False,
 ) as dag:
+    # The transform task is intentionally local so the DAG can run even when
+    # Spark infrastructure is unavailable in lightweight environments.
     extract_task = PythonOperator(
         task_id="extract_mysql", python_callable=extract_data_from_mysql
     )

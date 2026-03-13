@@ -1,3 +1,8 @@
+"""Streaming-to-time-series plus batch-archive storage stub.
+
+Consumes Kafka events into InfluxDB and periodically exports recent data to S3.
+"""
+
 import os
 import json
 import boto3
@@ -70,7 +75,7 @@ def consume_kafka_to_influx():
         if device_id is None or reading_value is None:
             continue  # Ignore malformed messages
 
-        # Create InfluxDB Point
+        # Store each reading as a tagged point for fast time-series queries.
         point = (
             Point("sensor_readings")
             .tag("device_id", str(device_id))
@@ -101,6 +106,7 @@ def extract_from_influx_and_upload_s3():
     query_api = influx_client.query_api()
     tables = query_api.query(query, org=INFLUXDB_ORG)
 
+    # Flatten Flux query output into a tabular file for downstream analytics.
     # Convert query results to DataFrame
     data = []
     for table in tables:

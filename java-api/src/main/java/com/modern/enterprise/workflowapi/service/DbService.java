@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DbService {
+  // Restrict table names to a safe identifier subset to prevent SQL injection.
   private static final Pattern TABLE = Pattern.compile("^[A-Za-z0-9_]+$");
   private final AppConfigProperties.ConnectionStrings cfg;
 
@@ -28,6 +29,7 @@ public class DbService {
       throw new IllegalArgumentException("Only alphanumeric and underscore table names are allowed");
     }
     String jdbc = StringConverters.adoMysqlToJdbc(cfg.getMySql());
+    // Table name is validated above, so string composition is safe here.
     String sql = limit == null ? "SELECT * FROM `" + table + "`" : "SELECT * FROM `" + table + "` LIMIT " + limit;
 
     try (Connection conn = DriverManager.getConnection(jdbc);
@@ -38,6 +40,7 @@ public class DbService {
       int cols = md.getColumnCount();
       List<Map<String, Object>> rows = new ArrayList<>();
       while (rs.next()) {
+        // Preserve column order for predictable API payloads.
         Map<String, Object> row = new LinkedHashMap<>();
         for (int i = 1; i <= cols; i++) {
           row.put(md.getColumnLabel(i), rs.getObject(i));

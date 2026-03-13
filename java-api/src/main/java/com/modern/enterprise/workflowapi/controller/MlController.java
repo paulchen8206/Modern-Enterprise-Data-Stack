@@ -19,6 +19,7 @@ public class MlController {
 
   @PostMapping("/run")
   public ResponseEntity<Map<String, String>> run(@RequestParam String expId, @RequestParam String name) throws Exception {
+    // Creates an MLflow run entry and returns the upstream API response body.
     String res = mlflowService.createRun(expId, name);
     return ResponseEntity.ok(Map.of("result", res));
   }

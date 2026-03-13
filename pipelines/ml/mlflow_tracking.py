@@ -1,3 +1,9 @@
+"""ML training and tracking stub.
+
+Consumes feature updates, trains a simple regression model, and logs artifacts
+to MLflow for experiment tracking.
+"""
+
 import mlflow
 import mlflow.sklearn
 import feast
@@ -64,7 +70,7 @@ def consume_kafka_and_store_features():
         if device_id is None or reading_value is None:
             continue  # Ignore malformed messages
 
-        # Fetch existing features to maintain historical aggregates
+        # Pull current online features to update rolling statistics incrementally.
         existing_features = store.get_online_features(
             features=["device_features:avg_reading", "device_features:max_reading"],
             entity_rows=[{"device_id": device_id}],
@@ -138,7 +144,7 @@ def train_and_log_model():
         )
         return
 
-    # Generate a real target variable (simulate real-world labels)
+    # Synthetic target keeps this demo self-contained without labeled ground truth.
     y = (
         2.5 * features_df["avg_reading"]
         + 1.8 * features_df["max_reading"]

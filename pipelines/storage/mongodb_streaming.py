@@ -1,3 +1,5 @@
+"""Kafka-to-MongoDB streaming sink for raw sensor events."""
+
 import os
 import json
 from kafka import KafkaConsumer
@@ -46,6 +48,7 @@ def consume_kafka_to_mongodb():
         if device_id is None or reading_value is None:
             continue  # Ignore malformed messages
 
+        # Persist raw records first; enrichment can happen in downstream jobs.
         # Insert into MongoDB
         collection.insert_one(
             {

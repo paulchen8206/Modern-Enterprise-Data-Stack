@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app")
 public class AppConfigProperties {
+  // Group external dependency settings under `app.*` for type-safe injection.
   private ConnectionStrings connectionStrings = new ConnectionStrings();
   private Minio minio = new Minio();
   private Kafka kafka = new Kafka();
@@ -35,6 +36,7 @@ public class AppConfigProperties {
   public void setGithub(Github github) { this.github = github; }
 
   public static class ConnectionStrings {
+    // Legacy ADO-style connection strings are converted to JDBC at runtime.
     @NotBlank private String mySql = "";
     @NotBlank private String postgres = "";
     @Min(5) private int commandTimeoutSeconds = 30;
@@ -47,6 +49,7 @@ public class AppConfigProperties {
   }
 
   public static class Minio {
+    // Endpoint omits protocol in app config; service layer applies scheme.
     @NotBlank private String endpoint = "";
     @NotBlank private String accessKey = "";
     @NotBlank private String secretKey = "";
