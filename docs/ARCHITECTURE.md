@@ -21,6 +21,8 @@ This document provides a comprehensive architectural overview of the Modern Data
 ### <span style="color: #22c55e;">Current Implementation Update</span>
 
 - GitHub Actions are separated into CI (`.github/workflows/ci.yml`) and CD (`.github/workflows/cd.yml`).
+- Branch and environment flow is standardized: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
+- Kubernetes packaging is standardized through `helm/modern-data-stack` with base values and per-environment overlays.
 - Local runtime has two supported paths:
   - Docker Compose (`infra/compose/docker-compose.yaml`) for integrated service development.
   - Kind (`k8s/kind/stack.yaml`) for local Kubernetes validation.

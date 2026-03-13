@@ -2,9 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [PRIMARY_BRANCH]
+    branches: [dev]
   pull_request:
-    branches: [PRIMARY_BRANCH]
+    branches: [qa, stg, prd]
 
 jobs:
   validate-and-test:
@@ -34,6 +34,9 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
       - name: Install project tooling dependencies
         run: |
           python -m pip install --upgrade pip
@@ -53,3 +56,39 @@ jobs:
 
       - name: Build Java API
         run: mvn -f java-api/pom.xml -DskipTests package
+
+      - name: Validate Helm chart base
+        run: |
+          helm lint ./helm/modern-data-stack
+
+      - name: Validate Helm chart for dev
+        if: ${{ github.event_name == 'push' && github.ref_name == 'dev' }}
+        run: |
+          helm template modern-data-stack-dev ./helm/modern-data-stack \
+            --namespace data-stack-dev \
+            -f ./helm/modern-data-stack/values.yaml \
+            -f ./helm/modern-data-stack/values-dev.yaml >/dev/null
+
+      - name: Validate Helm chart for qa
+        if: ${{ github.event_name == 'pull_request' && github.base_ref == 'qa' }}
+        run: |
+          helm template modern-data-stack-qa ./helm/modern-data-stack \
+            --namespace data-stack-qa \
+            -f ./helm/modern-data-stack/values.yaml \
+            -f ./helm/modern-data-stack/values-qa.yaml >/dev/null
+
+      - name: Validate Helm chart for stg
+        if: ${{ github.event_name == 'pull_request' && github.base_ref == 'stg' }}
+        run: |
+          helm template modern-data-stack-stg ./helm/modern-data-stack \
+            --namespace data-stack-stg \
+            -f ./helm/modern-data-stack/values.yaml \
+            -f ./helm/modern-data-stack/values-stg.yaml >/dev/null
+
+      - name: Validate Helm chart for prd
+        if: ${{ github.event_name == 'pull_request' && github.base_ref == 'prd' }}
+        run: |
+          helm template modern-data-stack-prd ./helm/modern-data-stack \
+            --namespace data-stack-prd \
+            -f ./helm/modern-data-stack/values.yaml \
+            -f ./helm/modern-data-stack/values-prd.yaml >/dev/null

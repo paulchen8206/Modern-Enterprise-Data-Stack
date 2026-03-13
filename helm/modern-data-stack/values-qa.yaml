@@ -1,0 +1,20 @@
+environment:
+  name: qa
+namespace: data-stack-qa
+deployment:
+  replicas: 2
+images:
+  airflow: myrepo/airflow-pipeline:qa
+  kafka: myrepo/kafka-pipeline:qa
+  spark: myrepo/spark-pipeline:qa
+  hadoop: myrepo/hadoop-pipeline:qa
+ingress:
+  alb:
+    airflowHost: airflow-qa.yourdomain.com
+    sparkHost: spark-qa.yourdomain.com
+    grafanaHost: grafana-qa.yourdomain.com
+  nginx:
+    airflowHost: airflow-qa.yourdomain.com
+    sparkHost: spark-qa.yourdomain.com
+    grafanaHost: grafana-qa.yourdomain.com
+    tlsSecretName: pipeline-qa-tls-secret

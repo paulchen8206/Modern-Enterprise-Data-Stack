@@ -1,0 +1,20 @@
+environment:
+  name: dev
+namespace: data-stack-dev
+deployment:
+  replicas: 1
+images:
+  airflow: myrepo/airflow-pipeline:dev
+  kafka: myrepo/kafka-pipeline:dev
+  spark: myrepo/spark-pipeline:dev
+  hadoop: myrepo/hadoop-pipeline:dev
+ingress:
+  alb:
+    airflowHost: airflow-dev.yourdomain.com
+    sparkHost: spark-dev.yourdomain.com
+    grafanaHost: grafana-dev.yourdomain.com
+  nginx:
+    airflowHost: airflow-dev.yourdomain.com
+    sparkHost: spark-dev.yourdomain.com
+    grafanaHost: grafana-dev.yourdomain.com
+    tlsSecretName: pipeline-dev-tls-secret

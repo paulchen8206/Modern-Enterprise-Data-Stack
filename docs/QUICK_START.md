@@ -5,6 +5,8 @@ This guide provides fast commands for common advanced deployment operations.
 ## <span style="color: #0ea5e9;">Current Project Layout Notes</span>
 
 - CI and CD workflows are split into `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+- Branch and environment flow: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
+- Helm deploy source of truth: `helm/modern-data-stack` with `values.yaml` plus env overlays (`values-dev.yaml`, `values-qa.yaml`, `values-stg.yaml`, `values-prd.yaml`).
 - Local Kubernetes assets are under `k8s/kind/` and operations scripts are under `ops/`.
 - Docker Compose remains the default integration runtime via `infra/compose/docker-compose.yaml`.
 - For full topology and component map, see `README.md` and `docs/ARCHITECTURE.md`.

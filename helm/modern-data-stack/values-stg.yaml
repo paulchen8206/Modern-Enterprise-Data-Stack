@@ -1,0 +1,20 @@
+environment:
+  name: stg
+namespace: data-stack-stg
+deployment:
+  replicas: 2
+images:
+  airflow: myrepo/airflow-pipeline:stg
+  kafka: myrepo/kafka-pipeline:stg
+  spark: myrepo/spark-pipeline:stg
+  hadoop: myrepo/hadoop-pipeline:stg
+ingress:
+  alb:
+    airflowHost: airflow-stg.yourdomain.com
+    sparkHost: spark-stg.yourdomain.com
+    grafanaHost: grafana-stg.yourdomain.com
+  nginx:
+    airflowHost: airflow-stg.yourdomain.com
+    sparkHost: spark-stg.yourdomain.com
+    grafanaHost: grafana-stg.yourdomain.com
+    tlsSecretName: pipeline-stg-tls-secret

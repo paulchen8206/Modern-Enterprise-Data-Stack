@@ -293,6 +293,75 @@ kubectl apply -f servicemonitors.yaml
 kubectl apply -f ingress.yaml
 ```
 
+### <span style="color: #22c55e;">Helm Usage (Environment-Based Deployments)</span>
+
+Use the in-repo chart at `helm/modern-data-stack` with layered values:
+
+- Base values: `helm/modern-data-stack/values.yaml`
+- Environment values: `values-dev.yaml`, `values-qa.yaml`, `values-stg.yaml`, `values-prd.yaml`
+
+#### Validate Chart
+
+```bash
+helm lint helm/modern-data-stack
+```
+
+#### Render Per Environment (Dry Run)
+
+```bash
+helm template modern-data-stack-dev helm/modern-data-stack \
+  --namespace data-stack-dev \
+  -f helm/modern-data-stack/values.yaml \
+  -f helm/modern-data-stack/values-dev.yaml
+
+helm template modern-data-stack-qa helm/modern-data-stack \
+  --namespace data-stack-qa \
+  -f helm/modern-data-stack/values.yaml \
+  -f helm/modern-data-stack/values-qa.yaml
+
+helm template modern-data-stack-stg helm/modern-data-stack \
+  --namespace data-stack-stg \
+  -f helm/modern-data-stack/values.yaml \
+  -f helm/modern-data-stack/values-stg.yaml
+
+helm template modern-data-stack-prd helm/modern-data-stack \
+  --namespace data-stack-prd \
+  -f helm/modern-data-stack/values.yaml \
+  -f helm/modern-data-stack/values-prd.yaml
+```
+
+#### Deploy / Upgrade Per Environment
+
+```bash
+helm upgrade --install modern-data-stack-qa helm/modern-data-stack \
+  --namespace data-stack-qa \
+  --create-namespace \
+  -f helm/modern-data-stack/values.yaml \
+  -f helm/modern-data-stack/values-qa.yaml \
+  --wait --timeout 10m
+
+helm upgrade --install modern-data-stack-stg helm/modern-data-stack \
+  --namespace data-stack-stg \
+  --create-namespace \
+  -f helm/modern-data-stack/values.yaml \
+  -f helm/modern-data-stack/values-stg.yaml \
+  --wait --timeout 10m
+
+helm upgrade --install modern-data-stack-prd helm/modern-data-stack \
+  --namespace data-stack-prd \
+  --create-namespace \
+  -f helm/modern-data-stack/values.yaml \
+  -f helm/modern-data-stack/values-prd.yaml \
+  --wait --timeout 10m
+```
+
+#### CI/CD Branch-to-Environment Mapping
+
+- Push to `dev` branch: CI validation and `dev` Helm render checks.
+- PR to `qa` branch: CI `qa` render checks and CD deploy to `qa`.
+- PR to `stg` branch: CI `stg` render checks and CD deploy to `stg`.
+- PR to `prd` branch: CI `prd` render checks and CD deploy to `prd`.
+
 ---
 
 ## <span style="color: #0ea5e9;">Deployment Strategies</span>

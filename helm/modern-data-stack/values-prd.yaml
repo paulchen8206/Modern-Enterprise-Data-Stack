@@ -1,0 +1,20 @@
+environment:
+  name: prd
+namespace: data-stack-prd
+deployment:
+  replicas: 3
+images:
+  airflow: myrepo/airflow-pipeline:prd
+  kafka: myrepo/kafka-pipeline:prd
+  spark: myrepo/spark-pipeline:prd
+  hadoop: myrepo/hadoop-pipeline:prd
+ingress:
+  alb:
+    airflowHost: airflow.yourdomain.com
+    sparkHost: spark.yourdomain.com
+    grafanaHost: grafana.yourdomain.com
+  nginx:
+    airflowHost: airflow.yourdomain.com
+    sparkHost: spark.yourdomain.com
+    grafanaHost: grafana.yourdomain.com
+    tlsSecretName: pipeline-prd-tls-secret

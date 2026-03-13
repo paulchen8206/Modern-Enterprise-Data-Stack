@@ -26,6 +26,7 @@ This separation prevents Conduktor metadata from interfering with project data.
 
 - CI workflow: `.github/workflows/ci.yml`
 - CD workflow: `.github/workflows/cd.yml`
+- Branch and environment flow: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
 - Kind assets: `k8s/kind/cluster-config.yaml`, `k8s/kind/stack.yaml`, `k8s/kind/README.md`
 - Kind operations: `ops/deploy-kind.sh`, `ops/kind-smoke.sh`
 - Local docs viewer: `devtools/serve_wiki.py` (route `/wiki?doc=<path>`)

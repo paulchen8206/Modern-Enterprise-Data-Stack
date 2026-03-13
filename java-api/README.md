@@ -7,6 +7,7 @@ Spring Boot implementation of the orchestration API.
 - Compose integration profile uses hostnames and services from `infra/compose/docker-compose.yaml`.
 - Local Kubernetes profile validation runs through `k8s/kind/stack.yaml` and `ops/deploy-kind.sh`.
 - Repository automation is split into `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+- Branch and environment flow is standardized: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
 
 ## Run
 

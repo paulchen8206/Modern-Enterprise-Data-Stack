@@ -10,6 +10,7 @@ This guide covers practical monitoring setup for Kafka, Spark, and Airflow using
 - Local Kubernetes runtime: `k8s/kind/stack.yaml` with `ops/deploy-kind.sh`
 - API and pipeline orchestration references: `java-api/README.md` and `docs/ARCHITECTURE.md`
 - CI/CD workflow files: `.github/workflows/ci.yml` and `.github/workflows/cd.yml`
+- Branch and environment flow: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
 
 ## <span style="color: #0ea5e9;">Component Procedure</span>
 

@@ -8,6 +8,7 @@ This directory contains manifests and cluster configuration for running a local 
 - Post-deploy checks: `ops/kind-smoke.sh`
 - Related quick usage: `docs/QUICK_START.md`
 - CI/CD definitions: `.github/workflows/ci.yml` and `.github/workflows/cd.yml`
+- Branch and environment flow: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
 
 ## What It Deploys
 

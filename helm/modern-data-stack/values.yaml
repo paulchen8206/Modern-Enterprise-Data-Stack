@@ -1,0 +1,25 @@
+environment:
+  name: local
+namespace: default
+deployment:
+  replicas: 3
+images:
+  airflow: myrepo/airflow-pipeline:latest
+  kafka: myrepo/kafka-pipeline:latest
+  spark: myrepo/spark-pipeline:latest
+  mongodb: mongo:latest
+  hadoop: myrepo/hadoop-pipeline:latest
+  influxdb: influxdb:latest
+ingress:
+  alb:
+    enabled: true
+    airflowHost: airflow.yourdomain.com
+    sparkHost: spark.yourdomain.com
+    grafanaHost: grafana.yourdomain.com
+    securityGroups: pipeline-ingress-sg
+  nginx:
+    enabled: true
+    airflowHost: airflow.yourdomain.com
+    sparkHost: spark.yourdomain.com
+    grafanaHost: grafana.yourdomain.com
+    tlsSecretName: pipeline-tls-secret

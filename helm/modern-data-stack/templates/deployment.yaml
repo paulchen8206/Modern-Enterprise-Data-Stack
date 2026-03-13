@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: end-to-end-pipeline
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: modern-data-stack
+    app.kubernetes.io/environment: {{ .Values.environment.name | quote }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: pipeline
+  template:
+    metadata:
+      labels:
+        app: pipeline
+        app.kubernetes.io/environment: {{ .Values.environment.name | quote }}
+    spec:
+      containers:
+        - name: airflow
+          image: {{ .Values.images.airflow }}
+          ports:
+            - containerPort: 8080
+
+        - name: kafka
+          image: {{ .Values.images.kafka }}
+          ports:
+            - containerPort: 9092
+
+        - name: spark
+          image: {{ .Values.images.spark }}
+          ports:
+            - containerPort: 4040
+
+        - name: mongodb
+          image: {{ .Values.images.mongodb }}
+          ports:
+            - containerPort: 27017
+
+        - name: hadoop
+          image: {{ .Values.images.hadoop }}
+          ports:
+            - containerPort: 50070
+
+        - name: influxdb
+          image: {{ .Values.images.influxdb }}
+          ports:
+            - containerPort: 8086

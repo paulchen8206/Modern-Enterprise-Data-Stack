@@ -19,6 +19,7 @@ This folder centralizes container definitions for the Modern Data Stack.
   - `postgres` on `5432` for project data.
   - `postgres-conduktor` on `5433` for Conduktor metadata.
 - CI-focused stack overlays are defined in `compose/docker-compose.ci.yaml`.
+- Branch and environment flow is standardized: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
 
 ## <span style="color: #0ea5e9;">Operational Workflow</span>
 

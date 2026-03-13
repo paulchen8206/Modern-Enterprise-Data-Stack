@@ -32,6 +32,7 @@ Use `Makefile` targets to standardize daily operations:
 ## <span style="color: #0ea5e9;">Current Implementation Snapshot</span>
 
 - CI and CD workflows are split into `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
+- Branch and environment flow is standardized: push `dev` for CI + dev checks, PR to `qa`/`stg`/`prd` for environment-specific CI checks and Helm CD deployment.
 - Local Kubernetes is supported with Kind using `k8s/kind/cluster-config.yaml`, `k8s/kind/stack.yaml`, `ops/deploy-kind.sh`, and `ops/kind-smoke.sh`.
 - Docker Compose runs two Postgres services: `postgres` (project data on `5432`) and `postgres-conduktor` (Conduktor metadata on `5433`).
 - Wiki docs are rendered through `devtools/serve_wiki.py` with Mermaid-compatible markdown rendering.
@@ -1049,7 +1050,7 @@ Contributions, issues, and feature requests are welcome!
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-6. We will review your changes and merge them into the main branch upon approval.
+6. We will review your changes and merge according to the promotion flow (`dev` -> `qa` -> `stg` -> `prd`).
 
 ## <span style="color: #0ea5e9;">License</span>
 
