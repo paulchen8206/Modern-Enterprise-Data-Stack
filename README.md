@@ -44,6 +44,7 @@ Use `Makefile` targets to standardize daily operations:
 - System design details: `docs/ARCHITECTURE.md`
 - Progressive delivery patterns: `docs/DEPLOYMENT.md`
 - Iceberg table format usage: `docs/ICEBERG.md`
+- AWS Well-Architected best practices: `docs/AWS_WELL_ARCHITECTED.md`
 - Infra container layout: `infra/README.md`
 - Java orchestration API: `java-api/README.md`
 - Monitoring setup notes: `pipelines/monitoring/PROMETHEUS_GRAFANA_SETUP.md`

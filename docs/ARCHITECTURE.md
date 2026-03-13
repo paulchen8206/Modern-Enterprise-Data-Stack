@@ -12,7 +12,8 @@
 8. [Scalability & Performance](#scalability--performance)
 9. [Monitoring & Observability](#monitoring--observability)
 10. [Disaster Recovery](#disaster-recovery)
-11. [Decision Records](#decision-records)
+11. [AWS Well-Architected Design Alignment](#aws-well-architected-design-alignment)
+12. [Decision Records](#decision-records)
 
 ## <span style="color: #0ea5e9;">Overview</span>
 
@@ -43,6 +44,14 @@ This document provides a comprehensive architectural overview of the Modern Data
 - **Data Mesh Principles**: Decentralized data ownership with federated governance
 - **Cloud-Native Design**: Containerized workloads orchestrated by Kubernetes
 - **Infrastructure as Code**: Declarative infrastructure management using Terraform
+
+### <span style="color: #22c55e;">AWS Well-Architected Design Alignment</span>
+
+Project design considerations are aligned with AWS Well-Architected Framework best practices and documented in `docs/AWS_WELL_ARCHITECTED.md`.
+
+Reference:
+
+- AWS Well-Architected Framework: https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html
 
 ## <span style="color: #0ea5e9;">System Architecture</span>
 
