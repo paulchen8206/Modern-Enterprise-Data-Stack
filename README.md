@@ -150,33 +150,33 @@ Use this section when you want to deploy, verify health, and monitor the stack q
 make up
 ```
 
-1. Verify core services are running:
+2. Verify core services are running:
 
 ```bash
 make ps
 ```
 
-1. Verify service endpoints:
+3. Verify service endpoints:
 
 - Airflow: [http://localhost:8080](http://localhost:8080)
 - Grafana: [http://localhost:3000](http://localhost:3000)
 - Prometheus: [http://localhost:9090](http://localhost:9090)
 - MinIO Console: [http://localhost:9001](http://localhost:9001)
 
-1. Check logs for failed services:
+4. Check logs for failed services:
 
 ```bash
 make logs
 ```
 
-1. Run pipelines:
+5. Run pipelines:
 
 - Enable `batch_ingestion_dag` in Airflow for batch execution.
 - Run `make run-batch-job` for ad hoc batch execution.
 - Run `make run-kafka-producer` and `make run-streaming-job` for streaming.
 - Run `make run-iceberg-demo` to write Spark batch output to Iceberg.
 
-1. Use the runbook:
+6. Use the runbook:
 
 - See the `Operational Runbook` section for failure triage and recovery steps.
 
