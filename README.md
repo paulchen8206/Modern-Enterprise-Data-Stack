@@ -2,6 +2,8 @@
 
 This repository provides a production-ready data platform for both batch and streaming workloads.
 
+This is a complex, enterprise-grade implementation that reflects leading modern data domain trends: lakehouse architecture with Apache Iceberg, unified batch + streaming processing, built-in data quality gates, cloud-native deployment with Kubernetes and Terraform, progressive delivery patterns, and observability-first operations. It is designed as a realistic platform blueprint rather than a minimal demo.
+
 What you get:
 
 - Batch ingestion with Airflow and Spark.
