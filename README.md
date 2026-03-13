@@ -1,4 +1,4 @@
-# 🚀 Modern Enterprise Data Stack with Airflow, Spark, and Iceberg 🌈
+# 🚀 Modern Enterprise Data Stack: Enterprise Lakehouse & Streaming Platform 🌈
 
 This repository provides a production-ready data platform for both batch and streaming workloads.
 
