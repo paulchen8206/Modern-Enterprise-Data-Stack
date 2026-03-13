@@ -10,6 +10,8 @@ KIND ?= kind
 KUBECTL ?= kubectl
 KIND_CLUSTER ?= modern-data-stack
 KIND_NAMESPACE ?= data-stack-local
+WORKFLOW_API_PORT_START ?= 8081
+WORKFLOW_API_PORT_END ?= 8099
 HYBRID_SUPPORT_SERVICES ?= postgres-conduktor conduktor
 PYTHON_SRC ?= pipelines/airflow pipelines/bi_dashboards pipelines/governance pipelines/great_expectations pipelines/kafka pipelines/ml pipelines/monitoring pipelines/spark pipelines/storage devtools/serve_wiki.py
 TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
@@ -134,15 +136,15 @@ run-java-api-container: ## Run Java API as Docker Compose service on port 8081
 			sleep 1; \
 		fi; \
 	done
-	@PORT=8081; \
-	if lsof -ti tcp:$$PORT >/dev/null 2>&1; then \
-		PORT=8082; \
-	fi; \
-	if lsof -ti tcp:$$PORT >/dev/null 2>&1; then \
-		PORT=8083; \
-	fi; \
-	if lsof -ti tcp:$$PORT >/dev/null 2>&1; then \
-		echo "Ports 8081, 8082, and 8083 are all busy. Free one and retry."; \
+	@PORT=""; \
+	for p in $$(seq $(WORKFLOW_API_PORT_START) $(WORKFLOW_API_PORT_END)); do \
+		if ! lsof -ti tcp:$$p >/dev/null 2>&1; then \
+			PORT=$$p; \
+			break; \
+		fi; \
+	done; \
+	if [ -z "$$PORT" ]; then \
+		echo "No free port found in range $(WORKFLOW_API_PORT_START)-$(WORKFLOW_API_PORT_END)."; \
 		exit 1; \
 	fi; \
 	echo "Starting workflow-api on $$PORT."; \
