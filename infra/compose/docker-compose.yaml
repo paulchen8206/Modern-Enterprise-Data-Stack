@@ -158,7 +158,7 @@ services:
       - postgres
       - minio
     ports:
-      - "8081:8081"
+      - "${WORKFLOW_API_PORT:-8081}:8081"
     environment:
       SPRING_PROFILES_ACTIVE: compose
     restart: unless-stopped

@@ -134,7 +134,20 @@ run-java-api-container: ## Run Java API as Docker Compose service on port 8081
 			sleep 1; \
 		fi; \
 	done
-	$(COMPOSE_MAIN) up -d --force-recreate workflow-api
+	@PORT=8081; \
+	if lsof -ti tcp:$$PORT >/dev/null 2>&1; then \
+		PORT=8082; \
+	fi; \
+	if lsof -ti tcp:$$PORT >/dev/null 2>&1; then \
+		PORT=8083; \
+	fi; \
+	if lsof -ti tcp:$$PORT >/dev/null 2>&1; then \
+		echo "Ports 8081, 8082, and 8083 are all busy. Free one and retry."; \
+		exit 1; \
+	fi; \
+	echo "Starting workflow-api on $$PORT."; \
+	WORKFLOW_API_PORT=$$PORT $(COMPOSE_MAIN) up -d --force-recreate --no-deps workflow-api || exit $$?; \
+	echo "workflow-api container is available at http://localhost:$$PORT"
 
 stop-java-api-container: ## Stop Java API Docker Compose service
 	$(COMPOSE_MAIN) stop workflow-api
