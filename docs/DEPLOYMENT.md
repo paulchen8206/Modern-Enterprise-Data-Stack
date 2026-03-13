@@ -80,6 +80,86 @@ graph TB
     DE --> AM
 ```
 
+### <span style="color: #22c55e;">Local Runtime Configuration Diagrams</span>
+
+#### Pure Docker Compose (All Services in Compose)
+
+```mermaid
+graph LR
+  Host[Host Machine] --> API[workflow-api container]
+  Host --> AF[airflow-webserver]
+  Host --> K[kafka]
+  Host --> M[minio]
+  Host --> PG[postgres]
+  Host --> MY[mysql]
+  Host --> CDK[conduktor]
+
+  API --> AF
+  API --> K
+  API --> M
+  API --> PG
+  API --> MY
+```
+
+#### Kind-Only Local Kubernetes
+
+```mermaid
+graph LR
+  Host[Host Machine] --> Kind[Kind Cluster]
+
+  subgraph Kind
+    K8sAPI[workflow-api pod]
+    K8sAF[airflow-webserver pod]
+    K8sK[kafka pod]
+    K8sM[minio pod]
+    K8sPG[postgres pod]
+    K8sMY[mysql pod]
+  end
+
+  K8sAPI --> K8sAF
+  K8sAPI --> K8sK
+  K8sAPI --> K8sM
+  K8sAPI --> K8sPG
+  K8sAPI --> K8sMY
+```
+
+#### Hybrid (Kind App Stack + Compose Support Services)
+
+```mermaid
+graph LR
+  Host[Host Machine] --> Kind[Kind Cluster]
+  Host --> CPG[postgres-conduktor container]
+  Host --> CUI[conduktor container]
+
+  subgraph Kind
+    HAPI[workflow-api pod]
+    HAF[airflow-webserver pod]
+    HK[kafka pod]
+    HM[minio pod]
+    HPG[postgres pod]
+    HMY[mysql pod]
+  end
+
+  CUI --> CPG
+  CUI --> HK
+  HAPI --> HAF
+  HAPI --> HK
+  HAPI --> HM
+  HAPI --> HPG
+  HAPI --> HMY
+```
+
+#### Java API Runtime Options
+
+```mermaid
+graph TD
+  A[Java API Host Run\nmake run-java-api-local-safe] --> B[Connect to Compose or Kind endpoints]
+  C[Java API Container Run\nmake run-java-api-container] --> D[Compose profile inside workflow-api container]
+
+  B --> E[Best for fast code iteration]
+  D --> F[Best for container parity testing]
+```
+
 ### <span style="color: #22c55e;">Deployment Flow Diagrams</span>
 
 #### Blue/Green Deployment

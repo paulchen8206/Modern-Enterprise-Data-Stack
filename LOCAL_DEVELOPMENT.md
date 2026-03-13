@@ -1,6 +1,6 @@
 # Local Development Procedure
 
-This guide is optimized for fast, repeatable local development with minimal environment drift.
+Use this guide for a repeatable local setup across Docker Compose, host-run Java API, and optional Kind validation.
 
 For local documentation preview, run `make run-wiki` (override with `WIKI_PORT=<port>`).
 
@@ -20,7 +20,7 @@ This stack intentionally uses **two Postgres services**:
 - `postgres` on `localhost:5432`: main project database (`processed_db`).
 - `postgres-conduktor` on `localhost:5433`: Conduktor metadata database (`conduktor_db`).
 
-This separation prevents Conduktor schema/state from interfering with project data.
+This separation prevents Conduktor metadata from interfering with project data.
 
 ## Current Repository Snapshot
 
@@ -45,6 +45,8 @@ Use these docs for implementation context:
 
 ## Quick Start (Recommended Daily Path)
 
+Use this path for day-to-day local development with Compose services and host-run API.
+
 Run these commands from repository root:
 
 ```bash
@@ -60,18 +62,20 @@ curl -sS http://localhost:8081/actuator/health
 curl -sS http://localhost:8081/api/monitor/health
 ```
 
-If both checks are healthy, start testing API and pipeline flows.
+If both checks are healthy, proceed with API and pipeline tests.
 
 ## Quick Start (Local Kubernetes with Kind)
 
-Use this path when you want to validate Kubernetes manifests and container behavior locally:
+Use this path when you need Kubernetes manifest and container-runtime validation locally.
+
+Kind-only deployment:
 
 ```bash
 make kind-deploy
 make kind-status
 ```
 
-Use this path when you want Kind plus local Docker support services (`postgres-conduktor`, `conduktor`) in one flow:
+Hybrid deployment (Kind + local support services):
 
 ```bash
 make hybrid-up
@@ -98,7 +102,282 @@ Destroy hybrid runtime (Kind + support services):
 make hybrid-down
 ```
 
+## Deployment Diagrams by Configuration
+
+Use these diagrams to choose the right local runtime mode before executing procedures.
+
+### 1. Pure Docker Compose (All Services in Compose)
+
+```mermaid
+graph LR
+		Host[Host Machine] --> API[workflow-api container]
+		Host --> AF[airflow-webserver]
+		Host --> K[kafka]
+		Host --> M[minio]
+		Host --> PG[postgres]
+		Host --> MY[mysql]
+		Host --> CDK[conduktor]
+
+		API --> AF
+		API --> K
+		API --> M
+		API --> PG
+		API --> MY
+```
+
+### 2. Kind-Only Local Kubernetes
+
+```mermaid
+graph LR
+		Host[Host Machine] --> Kind[Kind Cluster]
+
+		subgraph Kind
+			K8sAPI[workflow-api pod]
+			K8sAF[airflow-webserver pod]
+			K8sK[kafka pod]
+			K8sM[minio pod]
+			K8sPG[postgres pod]
+			K8sMY[mysql pod]
+		end
+
+		K8sAPI --> K8sAF
+		K8sAPI --> K8sK
+		K8sAPI --> K8sM
+		K8sAPI --> K8sPG
+		K8sAPI --> K8sMY
+```
+
+### 3. Hybrid (Kind App Stack + Compose Support Services)
+
+```mermaid
+graph LR
+		Host[Host Machine] --> Kind[Kind Cluster]
+		Host --> CPG[postgres-conduktor container]
+		Host --> CUI[conduktor container]
+
+		subgraph Kind
+			HAPI[workflow-api pod]
+			HAF[airflow-webserver pod]
+			HK[kafka pod]
+			HM[minio pod]
+			HPG[postgres pod]
+			HMY[mysql pod]
+		end
+
+		CUI --> CPG
+		CUI --> HK
+		HAPI --> HAF
+		HAPI --> HK
+		HAPI --> HM
+		HAPI --> HPG
+		HAPI --> HMY
+```
+
+### 4. Java API Runtime Options
+
+```mermaid
+graph TD
+		A[Java API Host Run\nmake run-java-api-local-safe] --> B[Connect to Compose or Kind endpoints]
+		C[Java API Container Run\nmake run-java-api-container] --> D[Compose profile inside workflow-api container]
+
+		B --> E[Best for fast code iteration]
+		D --> F[Best for container parity testing]
+```
+
+## K8s in Docker (Kind) End-to-End Runbook
+
+Use this procedure when you want a full local Kubernetes validation cycle on Docker.
+
+1. Move to repository root.
+
+```bash
+cd /Users/pchen/mygithub/Modern-Enterprise-Data-Stack
+```
+
+2. Clean old runtime state (safe reset).
+
+```bash
+make down
+make kind-down
+```
+
+3. Create and deploy local Kind stack.
+
+```bash
+make kind-up
+make kind-deploy
+```
+
+4. Verify workload status.
+
+```bash
+make kind-status
+```
+
+5. Run smoke checks.
+
+```bash
+make kind-smoke
+```
+
+6. Optional hybrid mode (Kind + Compose support services only).
+
+```bash
+make hybrid-up
+make hybrid-status
+```
+
+7. Optional API container startup (auto port selection if 8081 is busy).
+
+```bash
+make run-java-api-container
+```
+
+8. Tear down when done.
+
+```bash
+make kind-down
+make down
+```
+
+## Pure Docker Compose End-to-End Runbook
+
+Use this procedure when you want local development without Kind.
+
+1. Move to repository root.
+
+```bash
+cd /Users/pchen/mygithub/Modern-Enterprise-Data-Stack
+```
+
+2. Clean old runtime state.
+
+```bash
+make kind-down
+make down
+```
+
+3. Start full Compose stack.
+
+```bash
+make up
+make ps
+```
+
+4. Start Java API on host (recommended for fast iteration).
+
+```bash
+make run-java-api-local-safe
+```
+
+5. Validate readiness.
+
+```bash
+curl -sS http://localhost:8081/actuator/health
+curl -sS http://localhost:8081/api/monitor/health
+```
+
+6. Optional API container mode (Compose profile).
+
+```bash
+make build-java-api-container
+make run-java-api-container
+```
+
+7. Optional pipeline execution checks.
+
+```bash
+make run-kafka-producer
+make run-batch-job
+make run-iceberg-demo
+```
+
+8. Validate before commit.
+
+```bash
+make validate
+```
+
+9. Tear down when done.
+
+```bash
+make down
+```
+
+10. Full cleanup (including volumes).
+
+```bash
+make clean
+```
+
+## Java API Procedure (Separate Flow)
+
+Use this section when you only want to start, verify, and stop the Java API.
+
+### Java API Flow A: Host Run (Recommended)
+
+1. Start required dependencies.
+
+```bash
+make up
+```
+
+2. Start API with local profile.
+
+```bash
+make run-java-api-local-safe
+```
+
+3. Verify health and dependency visibility.
+
+```bash
+curl -sS http://localhost:8081/actuator/health
+curl -sS http://localhost:8081/api/monitor/health
+```
+
+4. Run API smoke requests.
+
+```bash
+curl -sS -X POST http://localhost:8081/api/batch/ingest -H 'Content-Type: application/json' -d '{"sourceTable":"orders","runGreatExpectations":false,"triggerAirflow":false}'
+curl -sS -X POST http://localhost:8081/api/stream/produce -H 'Content-Type: application/json' -d '{"partition":0,"payload":{"device_id":1001,"reading_value":72.5}}'
+```
+
+### Java API Flow B: Container Run (Compose Profile)
+
+1. Start API container (with build).
+
+```bash
+make build-java-api-container
+make run-java-api-container
+```
+
+2. Read the printed URL and verify health.
+
+```bash
+curl -sS http://localhost:8081/actuator/health
+```
+
+Note: if 8081 is busy, `make run-java-api-container` auto-selects another host port in the configured range and prints it.
+
+3. Inspect logs when troubleshooting startup.
+
+```bash
+make logs-java-api-container
+```
+
+4. Stop container when done.
+
+```bash
+make stop-java-api-container
+```
+
+## Procedure
+
+Follow these steps in order for a consistent local workflow.
+
 ## 1. Start Platform Services
+
+Start baseline Compose dependencies before running APIs or pipeline commands.
 
 ```bash
 make up
@@ -117,6 +396,8 @@ make logs
 ```
 
 ## 2. Local Endpoints and Credentials
+
+Use these endpoints and defaults for local smoke tests and manual verification.
 
 Core endpoints:
 
@@ -139,6 +420,8 @@ Default local credentials:
 - Conduktor: `admin@local.dev` / `admin123`
 
 ## 3. Run Java API (Profile Decision)
+
+Choose profile by runtime location to avoid networking mismatch errors.
 
 Use the correct profile based on where the API runs.
 
@@ -187,6 +470,8 @@ make stop-java-api-container
 
 ## 4. Development Loop (Fast Iteration)
 
+Use this loop for quick code-test-debug cycles.
+
 1. Ensure `make up` is active.
 2. Start API with `make run-java-api-local-safe`.
 3. Execute API requests.
@@ -205,6 +490,8 @@ Common API endpoints:
 
 ## 5. Pipeline and Data Commands (Container Side)
 
+Run these targets to exercise Kafka, Spark, and storage paths end to end.
+
 From repository root:
 
 ```bash
@@ -220,6 +507,8 @@ Behavior note:
 
 ## 6. Validation Before Commit
 
+Run validation before opening a PR or merging local changes.
+
 ```bash
 make validate
 ```
@@ -231,6 +520,8 @@ make format
 ```
 
 ## 7. Shutdown and Cleanup
+
+Use `down` for normal stop; use `clean` when you need a full reset.
 
 Stop services:
 
@@ -245,6 +536,8 @@ make clean
 ```
 
 ## Troubleshooting Matrix
+
+Use this section to diagnose the most common local runtime failures.
 
 ### A) Java API startup fails with exit code 1
 
