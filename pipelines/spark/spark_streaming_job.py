@@ -10,23 +10,23 @@ logging.basicConfig(
 )
 
 # Kafka Configuration
-KAFKA_BROKER = "kafka:9092"
-KAFKA_TOPIC = "events"
-CONSUMER_GROUP = "sensor_readings_consumer"
+KAFKA_BROKER = os.getenv("KAFKA_BROKER", "kafka:9092")
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "events")
+CONSUMER_GROUP = os.getenv("CONSUMER_GROUP", "sensor_readings_consumer")
 
 # MinIO (S3-Compatible Storage) Configuration
-MINIO_ENDPOINT = "http://minio:9000"
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "http://minio:9000")
 MINIO_ACCESS_KEY = "minio"
 MINIO_SECRET_KEY = "minio123"
 RAW_DATA_PATH = "s3a://raw-data/streaming_raw/"
 ANOMALY_DATA_PATH = "s3a://processed-data/streaming_anomalies/"
 
 # PostgreSQL Configuration
-POSTGRES_HOST = "postgres"
-POSTGRES_PORT = "5432"
-POSTGRES_DB = "processed_db"
-POSTGRES_USER = "user"
-POSTGRES_PASSWORD = "pass"
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "postgres")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "processed_db")
+POSTGRES_USER = os.getenv("POSTGRES_USER", "user")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "pass")
 
 # Define schema for incoming JSON
 schema = StructType(

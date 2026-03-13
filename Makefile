@@ -15,6 +15,9 @@ PYTHON_SRC ?= pipelines/airflow pipelines/bi_dashboards pipelines/governance pip
 TEXT_FILE_TYPES ?= \( -name '*.md' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.js' -o -name '*.css' -o -name '*.html' \)
 YAML_FILE_TYPES ?= \( -name '*.yml' -o -name '*.yaml' \)
 COMMON_EXCLUDES ?= ! -path './.venv/*' ! -path './.git/*' ! -path './java-api/target/*'
+SPARK_SERVICE_RUNNING ?= $(COMPOSE_MAIN) ps --services --filter status=running | grep -qx spark
+SPARK_SUBMIT_BASE ?= /opt/spark/bin/spark-submit --master local[2]
+SEED_DEMO_DATA_PY ?= import os,boto3; endpoint=os.getenv("MINIO_ENDPOINT","http://minio:9000"); s3=boto3.client("s3", endpoint_url=endpoint, aws_access_key_id="minio", aws_secret_access_key="minio123"); existing={b["Name"] for b in s3.list_buckets().get("Buckets", [])}; [s3.create_bucket(Bucket=b) for b in ("raw-data","processed-data") if b not in existing]; data="order_id,customer_id,amount\n1,1001,120.5\n2,1002,75.0\n3,1001,30.0\n4,1003,200.0\n"; s3.put_object(Bucket="raw-data", Key="orders/orders.csv", Body=data.encode("utf-8")); print("Seeded MinIO demo data at s3://raw-data/orders/orders.csv via " + endpoint)
 
 .PHONY: help up down restart ps logs clean \
 	format format-python format-text terraform-fmt \
@@ -171,24 +174,81 @@ hybrid-down: ## Stop hybrid compose support services and delete local kind clust
 	$(KIND) delete cluster --name $(KIND_CLUSTER)
 
 run-kafka-producer: ## Run Kafka producer in compose stack
-	$(COMPOSE_MAIN) exec -e KAFKA_TOPIC=events spark python3 /opt/kafka_jobs/producer.py
+	@if $(SPARK_SERVICE_RUNNING); then \
+		echo "Running producer in compose spark service..."; \
+		$(COMPOSE_MAIN) exec -e KAFKA_TOPIC=events spark python3 /opt/kafka_jobs/producer.py; \
+	else \
+		echo "Compose spark service is not running. Using one-off spark container against host Kafka (hybrid mode)..."; \
+		$(COMPOSE_MAIN) run --rm --no-deps \
+			-e KAFKA_TOPIC=events \
+			-e KAFKA_BROKER=host.docker.internal:9092 \
+			spark python3 /opt/kafka_jobs/producer.py; \
+	fi
 
 run-streaming-job: ## Run Spark streaming job in compose stack
-	$(COMPOSE_MAIN) exec -T spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_streaming_job.py
+	@if $(SPARK_SERVICE_RUNNING); then \
+		echo "Running streaming job in compose spark service..."; \
+		MINIO_ENDPOINT=$$(if $(COMPOSE_MAIN) ps --services --filter status=running | grep -qx minio; then echo http://minio:9000; else echo http://host.docker.internal:9000; fi); \
+		$(COMPOSE_MAIN) exec -T -e MINIO_ENDPOINT=$$MINIO_ENDPOINT spark $(SPARK_SUBMIT_BASE) --driver-memory 1g /opt/spark_jobs/spark_streaming_job.py; \
+	else \
+		echo "Compose spark service is not running. Using one-off spark container against host Kafka/MinIO (hybrid mode)..."; \
+		$(COMPOSE_MAIN) run --rm --no-deps \
+			-e KAFKA_BROKER=host.docker.internal:9092 \
+			-e MINIO_ENDPOINT=http://host.docker.internal:9000 \
+			-e POSTGRES_HOST=host.docker.internal \
+			spark $(SPARK_SUBMIT_BASE) --driver-memory 1g /opt/spark_jobs/spark_streaming_job.py; \
+	fi
 
 run-batch-job: prepare-demo-data ## Run Spark batch job in compose stack
-	$(COMPOSE_MAIN) exec -T spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+	@if $(SPARK_SERVICE_RUNNING); then \
+		echo "Running batch job in compose spark service..."; \
+		MINIO_ENDPOINT=$$(if $(COMPOSE_MAIN) ps --services --filter status=running | grep -qx minio; then echo http://minio:9000; else echo http://host.docker.internal:9000; fi); \
+		$(COMPOSE_MAIN) exec -T -e MINIO_ENDPOINT=$$MINIO_ENDPOINT spark $(SPARK_SUBMIT_BASE) /opt/spark_jobs/spark_batch_job.py; \
+	else \
+		echo "Compose spark service is not running. Using one-off spark container against host MinIO (hybrid mode)..."; \
+		$(COMPOSE_MAIN) run --rm --no-deps \
+			-e MINIO_ENDPOINT=http://host.docker.internal:9000 \
+			spark $(SPARK_SUBMIT_BASE) /opt/spark_jobs/spark_batch_job.py; \
+	fi
 	@echo "Batch job finished successfully. Output CSV: /tmp/transformed_orders.csv"
 
 prepare-demo-data: ## Ensure MinIO buckets and sample orders CSV exist for Spark batch demo
-	$(COMPOSE_MAIN) exec -T spark python3 -c "import boto3; s3=boto3.client('s3', endpoint_url='http://minio:9000', aws_access_key_id='minio', aws_secret_access_key='minio123'); data='order_id,customer_id,amount\\n1,1001,120.5\\n2,1002,75.0\\n3,1001,30.0\\n4,1003,200.0\\n'; exec(\"for b in ('raw-data','processed-data'):\\n    try:\\n        s3.head_bucket(Bucket=b)\\n    except Exception:\\n        s3.create_bucket(Bucket=b)\"); s3.put_object(Bucket='raw-data', Key='orders/orders.csv', Body=data.encode('utf-8')); print('Seeded MinIO demo data at s3://raw-data/orders/orders.csv')"
+	@if $(SPARK_SERVICE_RUNNING); then \
+		echo "Seeding demo data using compose spark service..."; \
+		MINIO_ENDPOINT=$$(if $(COMPOSE_MAIN) ps --services --filter status=running | grep -qx minio; then echo http://minio:9000; else echo http://host.docker.internal:9000; fi); \
+		$(COMPOSE_MAIN) exec -T -e MINIO_ENDPOINT=$$MINIO_ENDPOINT spark python3 -c '$(SEED_DEMO_DATA_PY)'; \
+	else \
+		if $(KUBECTL) -n $(KIND_NAMESPACE) get deployment airflow-webserver >/dev/null 2>&1; then \
+			echo "Compose spark service is not running. Seeding demo data via airflow pod in kind namespace..."; \
+			AIRFLOW_POD=$$($(KUBECTL) -n $(KIND_NAMESPACE) get pod -l app=airflow-webserver -o jsonpath='{.items[0].metadata.name}'); \
+			$(KUBECTL) -n $(KIND_NAMESPACE) exec $$AIRFLOW_POD -- env MINIO_ENDPOINT=http://minio:9000 python3 -c '$(SEED_DEMO_DATA_PY)'; \
+		else \
+			echo "Compose spark service is not running. Using one-off spark container against host MinIO (hybrid mode)..."; \
+			$(COMPOSE_MAIN) run --rm --no-deps -e MINIO_ENDPOINT=http://host.docker.internal:9000 spark python3 -c '$(SEED_DEMO_DATA_PY)'; \
+		fi; \
+	fi
 
 run-iceberg-demo: prepare-demo-data ## Run Spark batch job with Iceberg table write enabled
-	$(COMPOSE_MAIN) exec -T \
-		-e ENABLE_ICEBERG=true \
-		-e ICEBERG_CATALOG=local \
-		-e ICEBERG_NAMESPACE=analytics \
-		-e ICEBERG_TABLE=orders \
-		-e ICEBERG_WAREHOUSE=file:///tmp/iceberg_warehouse \
-		spark /opt/spark/bin/spark-submit --master local[2] /opt/spark_jobs/spark_batch_job.py
+	@if $(SPARK_SERVICE_RUNNING); then \
+		echo "Running Iceberg demo in compose spark service..."; \
+		MINIO_ENDPOINT=$$(if $(COMPOSE_MAIN) ps --services --filter status=running | grep -qx minio; then echo http://minio:9000; else echo http://host.docker.internal:9000; fi); \
+		$(COMPOSE_MAIN) exec -T \
+			-e MINIO_ENDPOINT=$$MINIO_ENDPOINT \
+			-e ENABLE_ICEBERG=true \
+			-e ICEBERG_CATALOG=local \
+			-e ICEBERG_NAMESPACE=analytics \
+			-e ICEBERG_TABLE=orders \
+			-e ICEBERG_WAREHOUSE=file:///tmp/iceberg_warehouse \
+			spark $(SPARK_SUBMIT_BASE) /opt/spark_jobs/spark_batch_job.py; \
+	else \
+		echo "Compose spark service is not running. Using one-off spark container for Iceberg demo (hybrid mode)..."; \
+		$(COMPOSE_MAIN) run --rm --no-deps \
+			-e MINIO_ENDPOINT=http://host.docker.internal:9000 \
+			-e ENABLE_ICEBERG=true \
+			-e ICEBERG_CATALOG=local \
+			-e ICEBERG_NAMESPACE=analytics \
+			-e ICEBERG_TABLE=orders \
+			-e ICEBERG_WAREHOUSE=file:///tmp/iceberg_warehouse \
+			spark $(SPARK_SUBMIT_BASE) /opt/spark_jobs/spark_batch_job.py; \
+	fi
 	@echo "Iceberg demo finished successfully. Table: local.analytics.orders (warehouse=file:///tmp/iceberg_warehouse)"

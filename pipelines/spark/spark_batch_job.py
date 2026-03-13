@@ -20,7 +20,7 @@ logging.basicConfig(
 )
 
 # MinIO (S3-compatible) Configuration (Replace with your own settings)
-MINIO_ENDPOINT = "http://minio:9000"
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "http://minio:9000")
 MINIO_ACCESS_KEY = "minio"
 MINIO_SECRET_KEY = "minio123"
 RAW_DATA_PATH = "s3a://raw-data/orders/orders.csv"
