@@ -13,7 +13,7 @@ What you get:
 - Governance and ML stubs (Apache Atlas/OpenMetadata, MLflow, Feast).
 - Deployment paths for Docker Compose, Kubernetes, and Terraform.
 
-Core stack: Python, SQL, Bash, Docker, Kubernetes, Airflow, Spark, Flink, Kafka, Hadoop, Iceberg, PostgreSQL, MySQL, MongoDB, InfluxDB, MinIO, Prometheus, Grafana, MLflow, Feast, Great Expectations, Terraform.
+Core stack (ordered by implementation importance): Docker, Kubernetes, Terraform, Python, SQL, Airflow, Spark, Kafka, PostgreSQL, MySQL, MinIO, Apache Iceberg, Great Expectations, Prometheus, Grafana, Bash, Java (Spring Boot workflow API), MongoDB (optional), InfluxDB (optional), Hadoop (optional), MLflow (stub), Feast (stub).
 
 For a fast setup path, see `docs/QUICK_START.md`. Use this README for full architecture and customization details.
 
