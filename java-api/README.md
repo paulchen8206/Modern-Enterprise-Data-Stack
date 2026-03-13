@@ -45,8 +45,8 @@ mvn clean package
 ### Batch component
 
 1. Call `POST /api/batch/ingest` with `sourceTable` and optional `limit`.
-2. Verify response includes `objectKey` and optional `runId`.
-3. Confirm raw object in MinIO and transformed records downstream.
+1. Verify response includes `objectKey` and optional `runId`.
+1. Confirm raw object in MinIO and transformed records downstream.
 
 Best practices:
 
@@ -56,8 +56,8 @@ Best practices:
 ### Streaming component
 
 1. Call `POST /api/stream/produce` with `partition` and `payload`.
-2. Trigger orchestration via `POST /api/stream/run`.
-3. Validate consumer lag and sink write success.
+1. Trigger orchestration via `POST /api/stream/run`.
+1. Validate consumer lag and sink write success.
 
 Best practices:
 
@@ -67,8 +67,8 @@ Best practices:
 ### Governance and ML components
 
 1. Register lineage via `POST /api/governance/lineage` after data publish.
-2. Start experiment run with `POST /api/ml/run`.
-3. Trigger CI workflow with `POST /api/ci/trigger` for release automation.
+1. Start experiment run with `POST /api/ml/run`.
+1. Trigger CI workflow with `POST /api/ci/trigger` for release automation.
 
 Best practices:
 
@@ -78,7 +78,7 @@ Best practices:
 ### Monitoring component
 
 1. Poll `GET /api/monitor/health` as readiness signal.
-2. Wire health status into dashboards and alerting.
+1. Wire health status into dashboards and alerting.
 
 Best practices:
 

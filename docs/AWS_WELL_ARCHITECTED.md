@@ -4,8 +4,8 @@ This reference maps AWS Well-Architected best practices to the project design an
 
 Primary sources:
 
-- AWS Well-Architected Framework: https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html
-- AWS Well-Architected Tool: https://aws.amazon.com/well-architected-tool/
+- AWS Well-Architected Framework: <https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html>
+- AWS Well-Architected Tool: <https://aws.amazon.com/well-architected-tool/>
 
 ## Design Mapping By Pillar
 

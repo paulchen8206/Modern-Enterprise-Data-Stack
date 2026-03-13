@@ -2,26 +2,26 @@
 
 This guide covers advanced deployment strategies for the Modern Data Stack, including Blue/Green, Canary, and progressive delivery patterns.
 
-## <span style="color: #0ea5e9;">Current Implementation Baseline</span>
+## Current Implementation Baseline
 
 - CI/CD automation is represented by `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
 - Local Kubernetes validation is implemented under `k8s/kind/` with automation scripts in `ops/deploy-kind.sh` and `ops/kind-smoke.sh`.
 - Compose-based local runtime remains available under `infra/compose/docker-compose.yaml` for service-level integration tests before rollout.
 
-## <span style="color: #0ea5e9;">Table of Contents</span>
+## Table of Contents
 
 1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [Prerequisites](#prerequisites)
-4. [Installation](#installation)
-5. [Deployment Strategies](#deployment-strategies)
-6. [Monitoring & Observability](#monitoring--observability)
-7. [Troubleshooting](#troubleshooting)
-8. [Best Practices](#best-practices)
+1. [Architecture](#architecture)
+1. [Prerequisites](#prerequisites)
+1. [Installation](#installation)
+1. [Deployment Strategies](#deployment-strategies)
+1. [Monitoring & Observability](#monitoring--observability)
+1. [Troubleshooting](#troubleshooting)
+1. [Best Practices](#best-practices)
 
 ---
 
-## <span style="color: #0ea5e9;">Overview</span>
+## Overview
 
 | Scenario                       | Recommended Strategy   | Why                                           |
 | ------------------------------ | ---------------------- | --------------------------------------------- |
@@ -30,7 +30,7 @@ This guide covers advanced deployment strategies for the Modern Data Stack, incl
 | Mission-critical API           | Canary + auto rollback | Reduces blast radius for regressions          |
 | Major platform migration       | Blue/Green + soak test | Parallel validation before full switch        |
 
-### <span style="color: #22c55e;">What Is Included</span>
+### What Is Included
 
 This project now includes enterprise-grade deployment capabilities:
 
@@ -41,7 +41,7 @@ This project now includes enterprise-grade deployment capabilities:
 - **Monitoring**: Real-time deployment metrics and dashboards
 - **GitOps Integration**: Argo CD with Argo Rollouts for continuous delivery
 
-### <span style="color: #22c55e;">Key Benefits</span>
+### Key Benefits
 
 - **Zero Downtime**: All deployment strategies ensure no service interruption
 - **Risk Mitigation**: Progressive rollouts and automated rollbacks reduce deployment risk
@@ -51,9 +51,9 @@ This project now includes enterprise-grade deployment capabilities:
 
 ---
 
-## <span style="color: #0ea5e9;">Architecture</span>
+## Architecture
 
-### <span style="color: #22c55e;">System Architecture Diagram</span>
+### System Architecture Diagram
 
 ```mermaid
 graph TB
@@ -80,7 +80,7 @@ graph TB
     DE --> AM
 ```
 
-### <span style="color: #22c55e;">Local Runtime Configuration Diagrams</span>
+### Local Runtime Configuration Diagrams
 
 #### Pure Docker Compose (All Services in Compose)
 
@@ -160,7 +160,7 @@ graph TD
   D --> F[Best for container parity testing]
 ```
 
-### <span style="color: #22c55e;">Deployment Flow Diagrams</span>
+### Deployment Flow Diagrams
 
 #### Blue/Green Deployment
 
@@ -194,9 +194,9 @@ graph TD
 
 ---
 
-## <span style="color: #0ea5e9;">Prerequisites</span>
+## Prerequisites
 
-### <span style="color: #22c55e;">Required Tools</span>
+### Required Tools
 
 - **kubectl** (v1.24+)
 - **helm** (v3.10+)
@@ -204,14 +204,14 @@ graph TD
 - **eksctl** (optional) - for EKS management
 - **jq** (optional) - for JSON parsing
 
-### <span style="color: #22c55e;">Infrastructure Requirements</span>
+### Infrastructure Requirements
 
 - **Kubernetes**: v1.24+
 - **Minimum Nodes**: 3
 - **Node Size**: t3.medium or larger
 - **Storage**: Support for dynamic PVC provisioning
 
-### <span style="color: #22c55e;">AWS Components (Optional)</span>
+### AWS Components (Optional)
 
 - EKS Cluster
 - VPC with public/private subnets
@@ -220,9 +220,9 @@ graph TD
 
 ---
 
-## <span style="color: #0ea5e9;">Installation</span>
+## Installation
 
-### <span style="color: #22c55e;">Quick Installation Commands</span>
+### Quick Installation Commands
 
 ```bash
 # 1. Navigate to ops directory
@@ -239,7 +239,7 @@ kubectl get pods -n argo-rollouts
 kubectl get pods -n monitoring
 ```
 
-### <span style="color: #22c55e;">Detailed Installation Steps</span>
+### Detailed Installation Steps
 
 #### 1. Install Argo Rollouts
 
@@ -293,7 +293,7 @@ kubectl apply -f servicemonitors.yaml
 kubectl apply -f ingress.yaml
 ```
 
-### <span style="color: #22c55e;">Helm Usage (Environment-Based Deployments)</span>
+### Helm Usage (Environment-Based Deployments)
 
 Use the in-repo chart at `helm/modern-data-stack` with layered values:
 
@@ -364,9 +364,9 @@ helm upgrade --install modern-data-stack-prd helm/modern-data-stack \
 
 ---
 
-## <span style="color: #0ea5e9;">Deployment Strategies</span>
+## Deployment Strategies
 
-### <span style="color: #22c55e;">Blue/Green Deployment</span>
+### Blue/Green Deployment
 
 #### Deploy with Script
 
@@ -406,7 +406,7 @@ kubectl port-forward svc/airflow-webserver-preview 8081:8080
 curl http://localhost:8081/health
 ```
 
-### <span style="color: #22c55e;">Canary Deployment</span>
+### Canary Deployment
 
 #### Deploy with Script
 
@@ -447,7 +447,7 @@ The default canary strategy uses progressive traffic shifting:
 
 Each step includes automated analysis. Deployment auto-aborts on analysis failure.
 
-### <span style="color: #22c55e;">Rollout Management Commands</span>
+### Rollout Management Commands
 
 ```bash
 # Apply header-based canary
@@ -462,9 +462,9 @@ curl http://your-domain.com
 
 ---
 
-## <span style="color: #0ea5e9;">Monitoring & Observability</span>
+## Monitoring & Observability
 
-### <span style="color: #22c55e;">Dashboards and UIs</span>
+### Dashboards and UIs
 
 #### Argo Rollouts Dashboard
 
@@ -489,7 +489,7 @@ kubectl port-forward -n monitoring svc/kube-prometheus-prometheus 9090:9090
 # Open: http://localhost:9090
 ```
 
-### <span style="color: #22c55e;">Prometheus Alerts and Rules</span>
+### Prometheus Alerts and Rules
 
 ```bash
 # The dashboard is located at: monitoring/grafana-deployment-dashboards.json
@@ -502,7 +502,7 @@ kubectl port-forward -n monitoring svc/kube-prometheus-prometheus 9090:9090
 # 5. Click Import
 ```
 
-### <span style="color: #22c55e;">Key Metrics to Track</span>
+### Key Metrics to Track
 
 #### Success Rate
 
@@ -526,7 +526,7 @@ histogram_quantile(0.95,
 )
 ```
 
-### <span style="color: #22c55e;">Recommended Alert Policies</span>
+### Recommended Alert Policies
 
 Alerts are automatically configured for:
 
@@ -542,9 +542,9 @@ Configure Slack notifications in `k8s/argo-rollouts-install.yaml`.
 
 ---
 
-## <span style="color: #0ea5e9;">Troubleshooting</span>
+## Troubleshooting
 
-### <span style="color: #22c55e;">Rollout Issues</span>
+### Rollout Issues
 
 ```bash
 # Check rollout status
@@ -563,7 +563,7 @@ kubectl get pods -l app=pipeline
 kubectl logs <pod-name>
 ```
 
-### <span style="color: #22c55e;">Monitoring Issues</span>
+### Monitoring Issues
 
 ```bash
 # Check Prometheus connectivity
@@ -580,7 +580,7 @@ kubectl get servicemonitors
 kubectl get analysistemplate <template-name> -o yaml
 ```
 
-### <span style="color: #22c55e;">Ingress and Networking Issues</span>
+### Ingress and Networking Issues
 
 ```bash
 # Check services
@@ -597,7 +597,7 @@ kubectl get svc <canary-service> -o yaml
 kubectl get pods --show-labels
 ```
 
-### <span style="color: #22c55e;">Rollback Issues</span>
+### Rollback Issues
 
 ```bash
 # Abort current rollout
@@ -612,9 +612,9 @@ kubectl argo rollouts undo <rollout-name> --to-revision=2
 
 ---
 
-## <span style="color: #0ea5e9;">Best Practices</span>
+## Best Practices
 
-### <span style="color: #22c55e;">Strategy Selection Guide</span>
+### Strategy Selection Guide
 
 | Scenario                    | Recommended Strategy       |
 | --------------------------- | -------------------------- |
@@ -625,39 +625,39 @@ kubectl argo rollouts undo <rollout-name> --to-revision=2
 | Quick iterations            | Canary                     |
 | Stateful applications       | Blue/Green                 |
 
-### <span style="color: #22c55e;">Analysis Configuration Tips</span>
+### Analysis Configuration Tips
 
 1. **Set appropriate thresholds**: Don't make them too strict or too loose
-2. **Use multiple metrics**: Success rate + latency + errors
-3. **Set failure limits**: Allow 2-3 failures before aborting
-4. **Adjust intervals**: 30s for high-traffic, 60s for low-traffic
+1. **Use multiple metrics**: Success rate + latency + errors
+1. **Set failure limits**: Allow 2-3 failures before aborting
+1. **Adjust intervals**: 30s for high-traffic, 60s for low-traffic
 
-### <span style="color: #22c55e;">Canary Rollout Tips</span>
+### Canary Rollout Tips
 
 1. **Start with small percentages**: 10% for initial canary
-2. **Increase gradually**: 10% → 25% → 50% → 75% → 100%
-3. **Allow soak time**: Minimum 2-5 minutes per step
-4. **Monitor continuously**: Watch metrics during traffic shifts
+1. **Increase gradually**: 10% → 25% → 50% → 75% → 100%
+1. **Allow soak time**: Minimum 2-5 minutes per step
+1. **Monitor continuously**: Watch metrics during traffic shifts
 
-### <span style="color: #22c55e;">Rollback Best Practices</span>
+### Rollback Best Practices
 
 1. **Set auto-rollback**: Configure analysis to auto-abort on failures
-2. **Keep blue/green environments**: Maintain for quick rollback
-3. **Test rollback procedures**: Practice rollbacks regularly
-4. **Document rollback playbooks**: Clear steps for emergencies
+1. **Keep blue/green environments**: Maintain for quick rollback
+1. **Test rollback procedures**: Practice rollbacks regularly
+1. **Document rollback playbooks**: Clear steps for emergencies
 
-### <span style="color: #22c55e;">Security and Access Control</span>
+### Security and Access Control
 
 1. **Use RBAC**: Limit who can promote deployments
-2. **Require approvals**: Manual gates for production
-3. **Audit trails**: Track all deployment actions
-4. **Network policies**: Isolate preview environments
+1. **Require approvals**: Manual gates for production
+1. **Audit trails**: Track all deployment actions
+1. **Network policies**: Isolate preview environments
 
 ---
 
-## <span style="color: #0ea5e9;">Advanced Configurations</span>
+## Advanced Configurations
 
-### <span style="color: #22c55e;">A/B and Experimentation Support</span>
+### A/B and Experimentation Support
 
 Test multiple versions simultaneously:
 
@@ -674,7 +674,7 @@ experiments:
     duration: 10m
 ```
 
-### <span style="color: #22c55e;">External Integrations</span>
+### External Integrations
 
 Beyond Prometheus, support for:
 
@@ -683,7 +683,7 @@ Beyond Prometheus, support for:
 - CloudWatch
 - Custom webhooks
 
-### <span style="color: #22c55e;">Notification Channels</span>
+### Notification Channels
 
 Configure in `k8s/argo-rollouts-install.yaml`:
 
@@ -694,9 +694,9 @@ Configure in `k8s/argo-rollouts-install.yaml`:
 
 ---
 
-## <span style="color: #0ea5e9;">Integration with Existing Infrastructure</span>
+## Integration with Existing Infrastructure
 
-### <span style="color: #22c55e;">Terraform Integration</span>
+### Terraform Integration
 
 ```bash
 cd iac
@@ -714,7 +714,7 @@ terraform apply
 terraform output
 ```
 
-### <span style="color: #22c55e;">Infrastructure Mapping</span>
+### Infrastructure Mapping
 
 - **EKS Cluster**: `eks.tf`
 - **Load Balancer Controller**: `load-balancer-controller.tf`
@@ -723,16 +723,16 @@ terraform output
 
 ---
 
-## <span style="color: #0ea5e9;">Additional Resources</span>
+## Additional Resources
 
-### <span style="color: #22c55e;">Reference Documentation</span>
+### Reference Documentation
 
 - [Argo Rollouts](https://argoproj.github.io/argo-rollouts/)
 - [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/)
 - [Prometheus Operator](https://prometheus-operator.dev/)
 - [Grafana](https://grafana.com/docs/)
 
-### <span style="color: #22c55e;">Important Project Files</span>
+### Important Project Files
 
 | File                              | Purpose                         |
 | --------------------------------- | ------------------------------- |
@@ -750,14 +750,14 @@ terraform output
 
 ---
 
-## <span style="color: #0ea5e9;">Conclusion</span>
+## Conclusion
 
 For issues or questions:
 
 1. Check the troubleshooting section
-2. Review Argo Rollouts documentation
-3. Check pod logs and events
-4. Verify Prometheus metrics
+1. Review Argo Rollouts documentation
+1. Check pod logs and events
+1. Verify Prometheus metrics
 
 ---
 

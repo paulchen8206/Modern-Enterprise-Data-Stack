@@ -1,25 +1,25 @@
 # 🧭 System Architecture Documentation 🔷
 
-## <span style="color: #0ea5e9;">Table of Contents</span>
+## Table of Contents
 
 1. [Overview](#overview)
-2. [System Architecture](#system-architecture)
-3. [Component Architecture](#component-architecture)
-4. [Data Flow Architecture](#data-flow-architecture)
-5. [Technology Stack](#technology-stack)
-6. [Deployment Architecture](#deployment-architecture)
-7. [Security Architecture](#security-architecture)
-8. [Scalability & Performance](#scalability--performance)
-9. [Monitoring & Observability](#monitoring--observability)
-10. [Disaster Recovery](#disaster-recovery)
-11. [AWS Well-Architected Design Alignment](#aws-well-architected-design-alignment)
-12. [Decision Records](#decision-records)
+1. [System Architecture](#system-architecture)
+1. [Component Architecture](#component-architecture)
+1. [Data Flow Architecture](#data-flow-architecture)
+1. [Technology Stack](#technology-stack)
+1. [Deployment Architecture](#deployment-architecture)
+1. [Security Architecture](#security-architecture)
+1. [Scalability & Performance](#scalability--performance)
+1. [Monitoring & Observability](#monitoring--observability)
+1. [Disaster Recovery](#disaster-recovery)
+1. [AWS Well-Architected Design Alignment](#aws-well-architected-design-alignment)
+1. [Decision Records](#decision-records)
 
-## <span style="color: #0ea5e9;">Overview</span>
+## Overview
 
 This document provides a comprehensive architectural overview of the Modern Data Stack system, designed to handle both batch and streaming data processing at scale. The architecture follows cloud-native principles, emphasizing scalability, reliability, and maintainability.
 
-### <span style="color: #22c55e;">Current Implementation Update</span>
+### Current Implementation Update
 
 - GitHub Actions are separated into CI (`.github/workflows/ci.yml`) and CD (`.github/workflows/cd.yml`).
 - Branch and environment flow is standardized: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
@@ -30,14 +30,14 @@ This document provides a comprehensive architectural overview of the Modern Data
 - Compose data layer intentionally separates project and Conduktor metadata into two Postgres services (`postgres` and `postgres-conduktor`).
 - Local deployment and verification scripts are standardized in `ops/deploy-kind.sh` and `ops/kind-smoke.sh`.
 
-### <span style="color: #22c55e;">How to Read This Document</span>
+### How to Read This Document
 
 - Start with `System Architecture` for high-level context.
 - Use `Component Architecture` and `Data Flow Architecture` for implementation-level understanding.
 - Review `Security`, `Scalability`, and `Disaster Recovery` sections before production rollout.
 - Use this document together with `docs/QUICK_START.md` and `docs/DEPLOYMENT.md` for execution details.
 
-### <span style="color: #22c55e;">Architectural Principles</span>
+### Architectural Principles
 
 - **Microservices Architecture**: Loosely coupled services that can be developed, deployed, and scaled independently
 - **Event-Driven Architecture**: Asynchronous communication between components using message queues
@@ -45,17 +45,17 @@ This document provides a comprehensive architectural overview of the Modern Data
 - **Cloud-Native Design**: Containerized workloads orchestrated by Kubernetes
 - **Infrastructure as Code**: Declarative infrastructure management using Terraform
 
-### <span style="color: #22c55e;">AWS Well-Architected Design Alignment</span>
+### AWS Well-Architected Design Alignment
 
 Project design considerations are aligned with AWS Well-Architected Framework best practices and documented in `docs/AWS_WELL_ARCHITECTED.md`.
 
 Reference:
 
-- AWS Well-Architected Framework: https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html
+- AWS Well-Architected Framework: <https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html>
 
-## <span style="color: #0ea5e9;">System Architecture</span>
+## System Architecture
 
-### <span style="color: #22c55e;">High-Level System Context</span>
+### High-Level System Context
 
 ```mermaid
 graph TB
@@ -97,7 +97,7 @@ graph TB
     SERVE -->|Sends Metrics| MON_EXT
 ```
 
-### <span style="color: #22c55e;">Layered Architecture View</span>
+### Layered Architecture View
 
 ```mermaid
 graph TB
@@ -147,9 +147,9 @@ graph TB
     NET --> SEC
 ```
 
-## <span style="color: #0ea5e9;">Component Architecture</span>
+## Component Architecture
 
-### <span style="color: #22c55e;">Ingestion Components</span>
+### Ingestion Components
 
 ```mermaid
 graph LR
@@ -182,7 +182,7 @@ graph LR
     STREAM_PROC --> LAKE
 ```
 
-### <span style="color: #22c55e;">Processing Components</span>
+### Processing Components
 
 ```mermaid
 flowchart TB
@@ -227,7 +227,7 @@ flowchart TB
     end
 ```
 
-### <span style="color: #22c55e;">Storage Components</span>
+### Storage Components
 
 ```mermaid
 graph TB
@@ -263,33 +263,33 @@ graph TB
     end
 ```
 
-### <span style="color: #22c55e;">Operational Procedures by Component</span>
+### Operational Procedures by Component
 
 Ingestion and orchestration:
 
 1. Start platform and verify source connectivity.
-2. Run one controlled DAG execution before enabling schedule.
-3. Confirm successful writes to raw and processed layers.
+1. Run one controlled DAG execution before enabling schedule.
+1. Confirm successful writes to raw and processed layers.
 
 Processing and quality:
 
 1. Execute batch and streaming jobs in isolation first.
-2. Validate Great Expectations results before publish.
-3. Capture run metadata for traceability and replay.
+1. Validate Great Expectations results before publish.
+1. Capture run metadata for traceability and replay.
 
 Storage:
 
 1. Verify raw object creation and processed table updates.
-2. Check storage growth and retention policy adherence.
-3. Validate read-path latency for downstream consumers.
+1. Check storage growth and retention policy adherence.
+1. Validate read-path latency for downstream consumers.
 
 Observability:
 
 1. Confirm metrics ingestion for Airflow, Kafka, Spark, and storage.
-2. Validate alert routes with controlled failure tests.
-3. Keep dashboards aligned with SLOs and release criteria.
+1. Validate alert routes with controlled failure tests.
+1. Keep dashboards aligned with SLOs and release criteria.
 
-### <span style="color: #22c55e;">Best Practices by Component</span>
+### Best Practices by Component
 
 Orchestration:
 
@@ -316,9 +316,9 @@ Governance and ML:
 - Link lineage to stable dataset identifiers.
 - Track model runs with data snapshot and config metadata.
 
-## <span style="color: #0ea5e9;">Data Flow Architecture</span>
+## Data Flow Architecture
 
-### <span style="color: #22c55e;">End-to-End Data Flow</span>
+### End-to-End Data Flow
 
 ```mermaid
 sequenceDiagram
@@ -353,7 +353,7 @@ sequenceDiagram
     end
 ```
 
-### <span style="color: #22c55e;">Batch Processing Flow</span>
+### Batch Processing Flow
 
 ```mermaid
 sequenceDiagram
@@ -386,7 +386,7 @@ sequenceDiagram
     end
 ```
 
-### <span style="color: #22c55e;">Streaming Processing Flow</span>
+### Streaming Processing Flow
 
 ```mermaid
 stateDiagram-v2
@@ -419,9 +419,9 @@ stateDiagram-v2
     DataServing --> [*]
 ```
 
-## <span style="color: #0ea5e9;">Technology Stack</span>
+## Technology Stack
 
-### <span style="color: #22c55e;">Technology Selection Rationale</span>
+### Technology Selection Rationale
 
 ```mermaid
 mindmap
@@ -511,22 +511,44 @@ mindmap
         Distributed Tracing
 ```
 
-### <span style="color: #22c55e;">Detailed Technology Matrix</span>
+### Detailed Technology Matrix
 
-| Component                   | Technology           | Rationale                                                                            | Alternatives Considered         |
-| --------------------------- | -------------------- | ------------------------------------------------------------------------------------ | ------------------------------- |
-| **Batch Processing**        | Apache Spark         | - Mature ecosystem<br/>- Unified batch/stream API<br/>- Strong ML support            | Hadoop MapReduce, Apache Beam   |
-| **Stream Processing**       | Spark Streaming      | - Integration with batch<br/>- Exactly-once semantics<br/>- Micro-batch architecture | Apache Flink, Apache Storm      |
-| **Message Queue**           | Apache Kafka         | - High throughput<br/>- Durability<br/>- Stream replay capability                    | RabbitMQ, AWS Kinesis           |
-| **Orchestration**           | Apache Airflow       | - Rich UI<br/>- Extensive operators<br/>- Python-native                              | Prefect, Dagster, Luigi         |
-| **Object Storage**          | MinIO                | - S3-compatible<br/>- Self-hosted option<br/>- High performance                      | AWS S3, Azure Blob, GCS         |
-| **OLAP Database**           | PostgreSQL           | - SQL compliance<br/>- Extensions ecosystem<br/>- Cost-effective                     | Snowflake, ClickHouse, BigQuery |
-| **Container Orchestration** | Kubernetes           | - Industry standard<br/>- Cloud-agnostic<br/>- Rich ecosystem                        | Docker Swarm, Nomad             |
-| **Monitoring**              | Prometheus + Grafana | - Open source<br/>- Kubernetes native<br/>- Flexible querying                        | DataDog, New Relic, CloudWatch  |
+- **Batch Processing**
+    Technology: Apache Spark
+    Rationale: Mature ecosystem; unified batch/stream API; strong ML support
+    Alternatives considered: Hadoop MapReduce, Apache Beam
+- **Stream Processing**
+    Technology: Spark Streaming
+    Rationale: Integration with batch; exactly-once semantics; micro-batch architecture
+    Alternatives considered: Apache Flink, Apache Storm
+- **Message Queue**
+    Technology: Apache Kafka
+    Rationale: High throughput; durability; stream replay capability
+    Alternatives considered: RabbitMQ, AWS Kinesis
+- **Orchestration**
+    Technology: Apache Airflow
+    Rationale: Rich UI; extensive operators; Python-native
+    Alternatives considered: Prefect, Dagster, Luigi
+- **Object Storage**
+    Technology: MinIO
+    Rationale: S3-compatible; self-hosted option; high performance
+    Alternatives considered: AWS S3, Azure Blob, GCS
+- **OLAP Database**
+    Technology: PostgreSQL
+    Rationale: SQL compliance; extensions ecosystem; cost-effective
+    Alternatives considered: Snowflake, ClickHouse, BigQuery
+- **Container Orchestration**
+    Technology: Kubernetes
+    Rationale: Industry standard; cloud-agnostic; rich ecosystem
+    Alternatives considered: Docker Swarm, Nomad
+- **Monitoring**
+    Technology: Prometheus + Grafana
+    Rationale: Open source; Kubernetes native; flexible querying
+    Alternatives considered: DataDog, New Relic, CloudWatch
 
-## <span style="color: #0ea5e9;">Deployment Architecture</span>
+## Deployment Architecture
 
-### <span style="color: #22c55e;">Multi-Environment Deployment Model</span>
+### Multi-Environment Deployment Model
 
 ```mermaid
 graph TB
@@ -592,7 +614,7 @@ graph TB
     POD9 --> SC
 ```
 
-### <span style="color: #22c55e;">Kubernetes Deployment Architecture</span>
+### Kubernetes Deployment Architecture
 
 ```mermaid
 gitGraph
@@ -621,7 +643,7 @@ gitGraph
     merge cd-pipeline id: "Deployed"
 ```
 
-### <span style="color: #22c55e;">CI/CD Pipeline Architecture</span>
+### CI/CD Pipeline Architecture
 
 ```mermaid
 graph TB
@@ -669,9 +691,9 @@ graph TB
     STAGE_K8S ==>|Promote| PROD_K8S_1
 ```
 
-## <span style="color: #0ea5e9;">Security Architecture</span>
+## Security Architecture
 
-### <span style="color: #22c55e;">Defense in Depth Strategy</span>
+### Defense in Depth Strategy
 
 ```mermaid
 graph TB
@@ -733,7 +755,7 @@ graph TB
     PRIVACY --> RETAIN
 ```
 
-### <span style="color: #22c55e;">Data Security and Privacy</span>
+### Data Security and Privacy
 
 ```mermaid
 flowchart LR
@@ -768,9 +790,9 @@ flowchart LR
     MONITOR -->|Normal| MAINTAIN[Maintain Access]
 ```
 
-## <span style="color: #0ea5e9;">Scalability & Performance</span>
+## Scalability & Performance
 
-### <span style="color: #22c55e;">Horizontal and Vertical Scaling</span>
+### Horizontal and Vertical Scaling
 
 ```mermaid
 graph LR
@@ -797,7 +819,7 @@ graph LR
     end
 ```
 
-### <span style="color: #22c55e;">Performance Optimization Strategy</span>
+### Performance Optimization Strategy
 
 ```mermaid
 graph TB
@@ -848,9 +870,9 @@ graph TB
     ROUTE --> EDGE
 ```
 
-## <span style="color: #0ea5e9;">Monitoring & Observability</span>
+## Monitoring & Observability
 
-### <span style="color: #22c55e;">Observability Architecture</span>
+### Observability Architecture
 
 ```mermaid
 graph TB
@@ -908,7 +930,7 @@ graph TB
     ALERT_MGR --> EMAIL
 ```
 
-### <span style="color: #22c55e;">Alerting and Incident Response</span>
+### Alerting and Incident Response
 
 ```mermaid
 graph LR
@@ -958,9 +980,9 @@ graph LR
     ROLLBACK --> POSTMORTEM
 ```
 
-## <span style="color: #0ea5e9;">Disaster Recovery</span>
+## Disaster Recovery
 
-### <span style="color: #22c55e;">SLOs and Operational Metrics</span>
+### SLOs and Operational Metrics
 
 ```mermaid
 stateDiagram-v2
@@ -1009,7 +1031,7 @@ stateDiagram-v2
     Alert_Team --> Manual_Intervention
 ```
 
-### <span style="color: #22c55e;">Backup and Recovery Architecture</span>
+### Backup and Recovery Architecture
 
 ```mermaid
 graph TB
@@ -1043,7 +1065,7 @@ graph TB
     STANDARD --> RTO3
 ```
 
-### <span style="color: #22c55e;">Multi-Region and High Availability Strategy</span>
+### Multi-Region and High Availability Strategy
 
 ```mermaid
 sequenceDiagram
@@ -1098,24 +1120,24 @@ sequenceDiagram
     DNS->>DNS: Route to Primary
 ```
 
-## <span style="color: #0ea5e9;">Decision Records</span>
+## Decision Records
 
 Use architecture decision records (ADRs) to document why key technical choices were made, what alternatives were considered, and how to revisit those choices safely.
 
-### <span style="color: #22c55e;">When to Create an ADR</span>
+### When to Create an ADR
 
 - Adopting or replacing a core component (for example Kafka, Airflow, Spark, storage engine).
 - Introducing a cross-cutting pattern (security, observability, deployment strategy).
 - Changing interfaces, data contracts, or persistence strategy with operational impact.
 
-### <span style="color: #22c55e;">ADR Workflow</span>
+### ADR Workflow
 
 1. Create one ADR per significant decision.
-2. Keep status explicit: `Proposed`, `Accepted`, `Superseded`, or `Rejected`.
-3. Link related runbooks, metrics, and rollback plans.
-4. Update or supersede ADRs instead of rewriting history.
+1. Keep status explicit: `Proposed`, `Accepted`, `Superseded`, or `Rejected`.
+1. Link related runbooks, metrics, and rollback plans.
+1. Update or supersede ADRs instead of rewriting history.
 
-### <span style="color: #22c55e;">ADR Template</span>
+### ADR Template
 
 ```md
 # ADR-00X: <Short Decision Title>
@@ -1137,8 +1159,8 @@ State the chosen approach clearly and specifically.
 ## Alternatives Considered
 
 1. Option A: <summary, pros, cons>
-2. Option B: <summary, pros, cons>
-3. Option C: <summary, pros, cons>
+1. Option B: <summary, pros, cons>
+1. Option C: <summary, pros, cons>
 
 ## Consequences
 
@@ -1149,14 +1171,14 @@ State the chosen approach clearly and specifically.
 ## Rollout Plan
 
 1. <step>
-2. <step>
-3. <validation criteria>
+1. <step>
+1. <validation criteria>
 
 ## Rollback Plan
 
 1. <trigger conditions>
-2. <rollback steps>
-3. <post-rollback verification>
+1. <rollback steps>
+1. <post-rollback verification>
 
 ## Monitoring and Guardrails
 
@@ -1165,27 +1187,27 @@ State the chosen approach clearly and specifically.
 - Exit criteria: <what makes this successful>
 ```
 
-### <span style="color: #22c55e;">Best Practices</span>
+### Best Practices
 
 - Prefer evidence-based decisions: include benchmark or incident data when possible.
 - Keep ADRs concise; link to detailed docs rather than duplicating them.
 - Make rollback criteria measurable and pre-agreed.
 - Revisit ADRs after incidents or major scale changes.
 
-## <span style="color: #0ea5e9;">Key Takeaways and Next Steps</span>
+## Key Takeaways and Next Steps
 
 This architecture provides a robust, scalable, and maintainable foundation for enterprise-grade data processing. The modular design allows for independent scaling and evolution of components while maintaining system coherence through well-defined interfaces and protocols.
 
-### <span style="color: #22c55e;">Core Architecture Principles</span>
+### Core Architecture Principles
 
 1. **Modularity**: Each component can be developed, tested, and deployed independently
-2. **Scalability**: Horizontal scaling at every layer ensures system can grow with demand
-3. **Resilience**: Multiple layers of redundancy and failover mechanisms
-4. **Observability**: Comprehensive monitoring and logging at all levels
-5. **Security**: Defense in depth with multiple security layers
-6. **Flexibility**: Technology choices can be adapted based on specific requirements
+1. **Scalability**: Horizontal scaling at every layer ensures system can grow with demand
+1. **Resilience**: Multiple layers of redundancy and failover mechanisms
+1. **Observability**: Comprehensive monitoring and logging at all levels
+1. **Security**: Defense in depth with multiple security layers
+1. **Flexibility**: Technology choices can be adapted based on specific requirements
 
-### <span style="color: #22c55e;">Recommended Next Actions</span>
+### Recommended Next Actions
 
 - Review and customize the architecture based on specific organizational needs
 - Conduct proof of concept for critical components

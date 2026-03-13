@@ -39,10 +39,10 @@ make hybrid-up
 This command:
 
 1. Creates a Kind cluster (if missing).
-2. Builds `workflow-api` Docker image.
-3. Loads the image into Kind.
-4. Applies `k8s/kind/stack.yaml`.
-5. Waits for deployments to become ready.
+1. Builds `workflow-api` Docker image.
+1. Loads the image into Kind.
+1. Applies `k8s/kind/stack.yaml`.
+1. Waits for deployments to become ready.
 
 ## Endpoints
 

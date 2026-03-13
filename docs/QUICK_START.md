@@ -2,7 +2,7 @@
 
 This guide provides fast commands for common advanced deployment operations.
 
-## <span style="color: #0ea5e9;">Current Project Layout Notes</span>
+## Current Project Layout Notes
 
 - CI and CD workflows are split into `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
 - Branch and environment flow: push `dev` for CI/dev checks, PR to `qa`/`stg`/`prd` for env-specific CI checks and Helm CD deployment.
@@ -11,7 +11,7 @@ This guide provides fast commands for common advanced deployment operations.
 - Docker Compose remains the default integration runtime via `infra/compose/docker-compose.yaml`.
 - For full topology and component map, see `README.md` and `docs/ARCHITECTURE.md`.
 
-## <span style="color: #0ea5e9;">Quick Command Matrix</span>
+## Quick Command Matrix
 
 | Goal                       | Command                                                     |
 | -------------------------- | ----------------------------------------------------------- |
@@ -23,7 +23,7 @@ This guide provides fast commands for common advanced deployment operations.
 | Promote rollout            | `kubectl argo rollouts promote airflow-rollout`             |
 | Abort rollout              | `kubectl argo rollouts abort airflow-rollout`               |
 
-## <span style="color: #0ea5e9;">Local Kubernetes (Kind) Quick Path</span>
+## Local Kubernetes (Kind) Quick Path
 
 Use this when you want to run Docker-built containers in a local Kubernetes cluster.
 
@@ -56,55 +56,55 @@ make hybrid-down
 
 Implementation details: `k8s/kind/README.md`
 
-## <span style="color: #0ea5e9;">Component Quick Procedures</span>
+## Component Quick Procedures
 
-### <span style="color: #22c55e;">Orchestration (Airflow)</span>
+### Orchestration (Airflow)
 
 1. Start stack: `make up`
-2. Open UI: `http://localhost:8080`
-3. Enable and trigger `batch_ingestion_dag` once manually
-4. Confirm task logs and downstream writes before enabling schedule
+1. Open UI: `http://localhost:8080`
+1. Enable and trigger `batch_ingestion_dag` once manually
+1. Confirm task logs and downstream writes before enabling schedule
 
 Best practices:
 
 - Keep first production run manual and observable.
 - Set explicit retries and task timeouts.
 
-### <span style="color: #22c55e;">Streaming (Kafka + Spark)</span>
+### Streaming (Kafka + Spark)
 
 1. Start producer: `make run-kafka-producer`
-2. Start consumer pipeline: `make run-streaming-job`
-3. Validate throughput and lag in monitoring dashboards
+1. Start consumer pipeline: `make run-streaming-job`
+1. Validate throughput and lag in monitoring dashboards
 
 Best practices:
 
 - Use stable partitioning keys.
 - Make write path idempotent for retries.
 
-### <span style="color: #22c55e;">Storage and Quality</span>
+### Storage and Quality
 
 1. Verify `raw-data` and `processed-data` buckets in MinIO
-2. Verify transformed records in PostgreSQL
-3. Review Great Expectations validation outputs
+1. Verify transformed records in PostgreSQL
+1. Review Great Expectations validation outputs
 
 Best practices:
 
 - Retain immutable raw records for replay.
 - Treat critical expectation failures as release blockers.
 
-### <span style="color: #22c55e;">Governance and ML</span>
+### Governance and ML
 
 1. Register lineage payloads after successful processing
-2. Create MLflow runs for each experiment change
+1. Create MLflow runs for each experiment change
 
 Best practices:
 
 - Attach dataset/version metadata to lineage and experiments.
 - Keep feature definitions and model metadata versioned.
 
-## <span style="color: #0ea5e9;">Prerequisites</span>
+## Prerequisites
 
-### <span style="color: #22c55e;">Install Required CLI Tools</span>
+### Install Required CLI Tools
 
 ```bash
 # Install kubectl
@@ -121,7 +121,7 @@ unzip awscliv2.zip
 sudo ./aws/install
 ```
 
-### <span style="color: #22c55e;">Run Setup Script</span>
+### Run Setup Script
 
 ```bash
 cd ops
@@ -129,7 +129,7 @@ chmod +x *.sh
 ./setup-advanced-deployments.sh
 ```
 
-### <span style="color: #22c55e;">Provision Infrastructure (Optional)</span>
+### Provision Infrastructure (Optional)
 
 ```bash
 cd iac
@@ -149,9 +149,9 @@ make terraform-validate
 
 ---
 
-## <span style="color: #0ea5e9;">Blue/Green Deployment Quick Start</span>
+## Blue/Green Deployment Quick Start
 
-### <span style="color: #22c55e;">Deploy Blue/Green Rollout</span>
+### Deploy Blue/Green Rollout
 
 ```bash
 # Deploy new version to preview
@@ -165,7 +165,7 @@ make terraform-validate
 # - Rollback to Blue
 ```
 
-### <span style="color: #22c55e;">Manage Blue/Green Manually</span>
+### Manage Blue/Green Manually
 
 ```bash
 # Apply Blue/Green rollout manifest
@@ -186,9 +186,9 @@ kubectl argo rollouts undo airflow-rollout
 
 ---
 
-## <span style="color: #0ea5e9;">Canary Deployment Quick Start</span>
+## Canary Deployment Quick Start
 
-### <span style="color: #22c55e;">Deploy Canary Rollout</span>
+### Deploy Canary Rollout
 
 ```bash
 # List all rollouts
@@ -214,7 +214,7 @@ kubectl argo rollouts set image airflow-rollout \
   airflow-webserver=myrepo/airflow-pipeline:v2.0.0
 ```
 
-### <span style="color: #22c55e;">Manage Canary Manually</span>
+### Manage Canary Manually
 
 ```bash
 # Apply rollout manifests
@@ -239,9 +239,9 @@ kubectl get pods -l app=pipeline
 
 ---
 
-## <span style="color: #0ea5e9;">Monitoring Rollouts</span>
+## Monitoring Rollouts
 
-### <span style="color: #22c55e;">Check Rollout Status</span>
+### Check Rollout Status
 
 ```bash
 # Argo Rollouts Dashboard
@@ -257,7 +257,7 @@ kubectl port-forward -n monitoring svc/kube-prometheus-prometheus 9090:9090
 # Open: http://localhost:9090
 ```
 
-### <span style="color: #22c55e;">Inspect Metrics and Dashboards</span>
+### Inspect Metrics and Dashboards
 
 ```bash
 # Check success rate
@@ -275,9 +275,9 @@ kubectl exec -n monitoring prometheus-0 -- \
 
 ---
 
-## <span style="color: #0ea5e9;">Rollback Procedures</span>
+## Rollback Procedures
 
-### <span style="color: #22c55e;">Roll Back Blue/Green Deployment</span>
+### Roll Back Blue/Green Deployment
 
 ```bash
 kubectl argo rollouts get rollout <rollout-name>
@@ -285,7 +285,7 @@ kubectl describe rollout <rollout-name>
 kubectl get events --sort-by=.metadata.creationTimestamp
 ```
 
-### <span style="color: #22c55e;">Abort Canary Deployment</span>
+### Abort Canary Deployment
 
 ```bash
 kubectl get analysisruns
@@ -293,7 +293,7 @@ kubectl describe analysisrun <analysis-run-name>
 kubectl logs -n argo-rollouts deployment/argo-rollouts
 ```
 
-### <span style="color: #22c55e;">Undo to Previous Revision</span>
+### Undo to Previous Revision
 
 ```bash
 kubectl get svc
@@ -301,7 +301,7 @@ kubectl describe svc <service-name>
 kubectl get endpoints <service-name>
 ```
 
-### <span style="color: #22c55e;">Emergency Full Rollback</span>
+### Emergency Full Rollback
 
 ```bash
 kubectl get pods -l app=pipeline
@@ -310,7 +310,7 @@ kubectl logs <pod-name>
 kubectl logs <pod-name> --previous  # Previous container logs
 ```
 
-### <span style="color: #22c55e;">Verify Post-Rollback Health</span>
+### Verify Post-Rollback Health
 
 ```bash
 # Method 1: Using Argo Rollouts
@@ -326,9 +326,9 @@ kubectl argo rollouts undo <rollout-name> --to-revision=2
 
 ---
 
-## <span style="color: #0ea5e9;">Advanced Testing and Analysis</span>
+## Advanced Testing and Analysis
 
-### <span style="color: #22c55e;">Run Automated Analysis</span>
+### Run Automated Analysis
 
 ```bash
 # Apply canary rollout with auto-promotion
@@ -342,7 +342,7 @@ kubectl argo rollouts set image airflow-canary-rollout \
 kubectl argo rollouts get rollout airflow-canary-rollout --watch
 ```
 
-### <span style="color: #22c55e;">Execute Load Testing</span>
+### Execute Load Testing
 
 ```bash
 # Deploy blue/green with manual promotion
@@ -359,7 +359,7 @@ kubectl port-forward svc/airflow-webserver-preview 8081:8080
 kubectl argo rollouts promote airflow-rollout
 ```
 
-### <span style="color: #22c55e;">Execute Chaos Testing</span>
+### Execute Chaos Testing
 
 ```bash
 # Apply header-based canary
@@ -372,7 +372,7 @@ curl -H "X-Version: canary" http://your-service.com
 curl http://your-service.com
 ```
 
-### <span style="color: #22c55e;">Capture Performance Benchmarks</span>
+### Capture Performance Benchmarks
 
 ```bash
 # Immediate abort
@@ -387,9 +387,9 @@ kubectl argo rollouts get rollout airflow-rollout
 
 ---
 
-## <span style="color: #0ea5e9;">Configuration Reference</span>
+## Configuration Reference
 
-### <span style="color: #22c55e;">Key Configuration Files</span>
+### Key Configuration Files
 
 | File                                | Purpose                           |
 | ----------------------------------- | --------------------------------- |
@@ -402,7 +402,7 @@ kubectl argo rollouts get rollout airflow-rollout
 | `ops/deploy-canary.sh`              | Interactive canary deployment     |
 | `ops/setup-advanced-deployments.sh` | Infrastructure setup              |
 
-### <span style="color: #22c55e;">Tune Analysis Thresholds</span>
+### Tune Analysis Thresholds
 
 Edit `k8s/analysis-templates.yaml`:
 
@@ -414,7 +414,7 @@ metrics:
     failureLimit: 2 # Reduce from 3 to 2
 ```
 
-### <span style="color: #22c55e;">Adjust Canary Weights</span>
+### Adjust Canary Weights
 
 Edit `k8s/rollout-canary.yaml`:
 
@@ -429,9 +429,9 @@ steps:
 
 ---
 
-## <span style="color: #0ea5e9;">Troubleshooting</span>
+## Troubleshooting
 
-### <span style="color: #22c55e;">Rollout Stuck Issues</span>
+### Rollout Stuck Issues
 
 ```bash
 # Check Argo Rollouts
@@ -448,7 +448,7 @@ kubectl get all -n argo-rollouts
 kubectl get all -n monitoring
 ```
 
-### <span style="color: #22c55e;">Analysis Failure Debugging</span>
+### Analysis Failure Debugging
 
 ```bash
 # Test Prometheus
@@ -463,9 +463,9 @@ kubectl exec -n argo-rollouts deployment/argo-rollouts -- wget -qO- http://local
 
 ---
 
-## <span style="color: #0ea5e9;">Best Practices</span>
+## Best Practices
 
-### <span style="color: #22c55e;">Traffic Strategy Guidance</span>
+### Traffic Strategy Guidance
 
 For high-traffic services:
 
@@ -479,7 +479,7 @@ For critical services:
 - Longer soak times (5-10 minutes)
 - Fewer steps (20%, 50%, 100%)
 
-### <span style="color: #22c55e;">Reliability and Availability Settings</span>
+### Reliability and Availability Settings
 
 ```yaml
 # Fast-moving services
@@ -493,23 +493,23 @@ count: 10       # 10 minutes total
 
 ---
 
-## <span style="color: #0ea5e9;">Next Steps</span>
+## Next Steps
 
 1. Review [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed documentation
-2. Customize analysis templates for your metrics
-3. Configure Slack notifications
-4. Set up custom dashboards in Grafana
-5. Practice rollback procedures
-6. Configure automated testing in CI/CD
+1. Customize analysis templates for your metrics
+1. Configure Slack notifications
+1. Set up custom dashboards in Grafana
+1. Practice rollback procedures
+1. Configure automated testing in CI/CD
 
 ---
 
-## <span style="color: #0ea5e9;">Resources</span>
+## Resources
 
-- **Argo Rollouts Docs**: https://argoproj.github.io/argo-rollouts/
-- **Prometheus Docs**: https://prometheus.io/docs/
-- **Grafana Docs**: https://grafana.com/docs/
-- **Kubectl Cheatsheet**: https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+- **Argo Rollouts Docs**: <https://argoproj.github.io/argo-rollouts/>
+- **Prometheus Docs**: <https://prometheus.io/docs/>
+- **Grafana Docs**: <https://grafana.com/docs/>
+- **Kubectl Cheatsheet**: <https://kubernetes.io/docs/reference/kubectl/cheatsheet/>
 
 ---
 

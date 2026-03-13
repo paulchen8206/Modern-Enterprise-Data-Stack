@@ -29,7 +29,7 @@ Use `Makefile` targets to standardize daily operations:
 - `make validate` for end-to-end project validation
 - `make format` for repository formatting
 
-## <span style="color: #0ea5e9;">Current Implementation Snapshot</span>
+## Current Implementation Snapshot
 
 - CI and CD workflows are split into `.github/workflows/ci.yml` and `.github/workflows/cd.yml`.
 - Branch and environment flow is standardized: push `dev` for CI + dev checks, PR to `qa`/`stg`/`prd` for environment-specific CI checks and Helm CD deployment.
@@ -37,7 +37,7 @@ Use `Makefile` targets to standardize daily operations:
 - Docker Compose runs two Postgres services: `postgres` (project data on `5432`) and `postgres-conduktor` (Conduktor metadata on `5433`).
 - Wiki docs are rendered through `devtools/serve_wiki.py` with Mermaid-compatible markdown rendering.
 
-## <span style="color: #0ea5e9;">Documentation Hub</span>
+## Documentation Hub
 
 - Getting started: `docs/QUICK_START.md`
 - Local development workflow: `LOCAL_DEVELOPMENT.md`
@@ -49,7 +49,25 @@ Use `Makefile` targets to standardize daily operations:
 - Java orchestration API: `java-api/README.md`
 - Monitoring setup notes: `pipelines/monitoring/PROMETHEUS_GRAFANA_SETUP.md`
 
-## <span style="color: #0ea5e9;">High-Level Component Diagram</span>
+## Infrastructure Containers Layout (Compose)
+
+Source of truth: `infra/compose/docker-compose.yaml` and `infra/README.md`.
+
+- `zookeeper`: Kafka coordination. Port `2181`. Image `confluentinc/cp-zookeeper:7.3.2`.
+- `kafka`: Event streaming broker. Port `9092`. Image `confluentinc/cp-kafka:7.3.2`.
+- `mysql`: Source OLTP database. Port `3306`. Image `mysql:8.0`.
+- `postgres`: Processed/project data store. Port `5432`. Image `postgres:14`.
+- `postgres-conduktor`: Conduktor metadata DB. Host mapping `5433 -> 5432`. Image `postgres:14`.
+- `minio`: S3-compatible object storage. Ports `9000` and `9001`. Image `minio/minio:latest`.
+- `airflow-webserver`: Airflow UI and API. Port `8080`. Build source `infra/dockerfiles/airflow.Dockerfile`.
+- `airflow-scheduler`: Airflow scheduler. No host port. Build source `infra/dockerfiles/airflow.Dockerfile`.
+- `spark`: Spark runtime for jobs. No host port. Build source `infra/dockerfiles/spark.Dockerfile`.
+- `workflow-api`: Java orchestration API. Port `${WORKFLOW_API_PORT:-8081}`. Build source `infra/dockerfiles/workflow-api.Dockerfile`.
+- `conduktor`: Kafka management console. Host mapping `8085 -> 8080`. Image `conduktor/conduktor-console:1.28.0`.
+
+Named volumes: `minio_data`, `postgres_data`, `postgres_conduktor_data`.
+
+## High-Level Component Diagram
 
 ```mermaid
 flowchart LR
@@ -98,7 +116,7 @@ flowchart LR
   POSTGRES --> ML
 ```
 
-## <span style="color: #0ea5e9;">Deployment Architecture Diagram</span>
+## Deployment Architecture Diagram
 
 ```mermaid
 flowchart TB
@@ -122,7 +140,7 @@ flowchart TB
   GHA --> MAKE
 ```
 
-## <span style="color: #0ea5e9;">Operations Quickstart</span>
+## Operations Quickstart
 
 Use this section when you want to deploy, verify health, and monitor the stack quickly.
 
@@ -132,47 +150,47 @@ Use this section when you want to deploy, verify health, and monitor the stack q
 make up
 ```
 
-2. Verify core services are running:
+1. Verify core services are running:
 
 ```bash
 make ps
 ```
 
-3. Verify service endpoints:
+1. Verify service endpoints:
 
-- Airflow: http://localhost:8080
-- Grafana: http://localhost:3000
-- Prometheus: http://localhost:9090
-- MinIO Console: http://localhost:9001
+- Airflow: [http://localhost:8080](http://localhost:8080)
+- Grafana: [http://localhost:3000](http://localhost:3000)
+- Prometheus: [http://localhost:9090](http://localhost:9090)
+- MinIO Console: [http://localhost:9001](http://localhost:9001)
 
-4. Check logs for failed services:
+1. Check logs for failed services:
 
 ```bash
 make logs
 ```
 
-5. Run pipelines:
+1. Run pipelines:
 
 - Enable `batch_ingestion_dag` in Airflow for batch execution.
 - Run `make run-batch-job` for ad hoc batch execution.
 - Run `make run-kafka-producer` and `make run-streaming-job` for streaming.
 - Run `make run-iceberg-demo` to write Spark batch output to Iceberg.
 
-6. Use the runbook:
+1. Use the runbook:
 
 - See the `Operational Runbook` section for failure triage and recovery steps.
 
-## <span style="color: #0ea5e9;">Component Procedures & Best Practices</span>
+## Component Procedures & Best Practices
 
-### <span style="color: #22c55e;">Airflow (Orchestration)</span>
+### Airflow (Orchestration)
 
 Procedure:
 
 1. Start platform with `make up`.
-2. Open Airflow at `http://localhost:8080`.
-3. Enable `batch_ingestion_dag` and `streaming_monitoring_dag`.
-4. Trigger runs manually first, then rely on schedule.
-5. Review task logs before promoting changes.
+1. Open Airflow at `http://localhost:8080`.
+1. Enable `batch_ingestion_dag` and `streaming_monitoring_dag`.
+1. Trigger runs manually first, then rely on schedule.
+1. Review task logs before promoting changes.
 
 Best practices:
 
@@ -180,14 +198,14 @@ Best practices:
 - Use retries with bounded backoff and clear timeout values.
 - Separate heavy compute from orchestration (Airflow coordinates; Spark computes).
 
-### <span style="color: #22c55e;">Kafka + Spark Streaming</span>
+### Kafka + Spark Streaming
 
 Procedure:
 
 1. Start producer using `make run-kafka-producer`.
-2. Run streaming job using `make run-streaming-job`.
-3. Confirm records in downstream storage and monitoring dashboards.
-4. Stop producer first when testing controlled shutdown.
+1. Run streaming job using `make run-streaming-job`.
+1. Confirm records in downstream storage and monitoring dashboards.
+1. Stop producer first when testing controlled shutdown.
 
 Best practices:
 
@@ -195,13 +213,13 @@ Best practices:
 - Keep partition keys stable for ordering-sensitive workloads.
 - Make sinks idempotent to handle retries and restarts.
 
-### <span style="color: #22c55e;">Storage (MinIO + PostgreSQL)</span>
+### Storage (MinIO + PostgreSQL)
 
 Procedure:
 
 1. Validate MinIO buckets and PostgreSQL connectivity after startup.
-2. Persist raw payloads first, then transformed outputs.
-3. Verify object keys and table row counts after each run.
+1. Persist raw payloads first, then transformed outputs.
+1. Verify object keys and table row counts after each run.
 
 Best practices:
 
@@ -209,13 +227,13 @@ Best practices:
 - Retain raw immutable data for replay and audit.
 - Add retention policies for transient/intermediate datasets.
 
-### <span style="color: #22c55e;">Data Quality (Great Expectations)</span>
+### Data Quality (Great Expectations)
 
 Procedure:
 
 1. Run batch ingestion with `runGreatExpectations=true`.
-2. Review validation report and failed expectations.
-3. Block downstream publish when critical checks fail.
+1. Review validation report and failed expectations.
+1. Block downstream publish when critical checks fail.
 
 Best practices:
 
@@ -223,13 +241,13 @@ Best practices:
 - Distinguish warning checks from release-blocking checks.
 - Track quality drift over time, not only per-run pass/fail.
 
-### <span style="color: #22c55e;">Governance + ML (Atlas/MLflow/Feast)</span>
+### Governance + ML (Atlas/MLflow/Feast)
 
 Procedure:
 
 1. Register lineage after successful batch processing.
-2. Log MLflow runs for every experiment/config change.
-3. Update feature definitions only through reviewed changes.
+1. Log MLflow runs for every experiment/config change.
+1. Update feature definitions only through reviewed changes.
 
 Best practices:
 
@@ -237,13 +255,13 @@ Best practices:
 - Record experiment metadata and data snapshot references.
 - Keep feature contracts explicit and backward-compatible.
 
-### <span style="color: #22c55e;">Platform Operations</span>
+### Platform Operations
 
 Procedure:
 
 1. Run `make validate` before merge/deploy.
-2. Monitor `make logs` during rollout windows.
-3. Use rollback commands from `docs/QUICK_START.md` when health degrades.
+1. Monitor `make logs` during rollout windows.
+1. Use rollback commands from `docs/QUICK_START.md` when health degrades.
 
 Best practices:
 
@@ -251,30 +269,30 @@ Best practices:
 - Maintain runbooks for top failure modes.
 - Treat observability and rollback readiness as release gates.
 
-## <span style="color: #0ea5e9;">Table of Contents</span>
+## Table of Contents
 
 1. [High-Level Component Diagram](#high-level-component-diagram)
-2. [Deployment Architecture Diagram](#deployment-architecture-diagram)
-3. [Operations Quickstart](#operations-quickstart)
-4. [Make Procedures](#make-procedures)
-5. [Setup Instructions](#setup-instructions)
-6. [Operational Runbook](#operational-runbook)
-7. [Architecture Overview](#architecture-overview)
-8. [Directory Structure](#directory-structure)
-9. [Components & Technologies](#components--technologies)
-10. [Configuration & Customization](#configuration--customization)
-11. [Example Applications](#example-applications)
-12. [Troubleshooting & Further Considerations](#troubleshooting--further-considerations)
-13. [Contributing](#contributing)
-14. [License](#license)
-15. [Final Notes](#final-notes)
-16. [Iceberg Tables Guide](docs/ICEBERG.md)
+1. [Deployment Architecture Diagram](#deployment-architecture-diagram)
+1. [Operations Quickstart](#operations-quickstart)
+1. [Make Procedures](#make-procedures)
+1. [Setup Instructions](#setup-instructions)
+1. [Operational Runbook](#operational-runbook)
+1. [Architecture Overview](#architecture-overview)
+1. [Directory Structure](#directory-structure)
+1. [Components & Technologies](#components--technologies)
+1. [Configuration & Customization](#configuration--customization)
+1. [Example Applications](#example-applications)
+1. [Troubleshooting & Further Considerations](#troubleshooting--further-considerations)
+1. [Contributing](#contributing)
+1. [License](#license)
+1. [Final Notes](#final-notes)
+1. [Iceberg Tables Guide](docs/ICEBERG.md)
 
-## <span style="color: #0ea5e9;">Make Procedures</span>
+## Make Procedures
 
 Use `make` as the primary entry point for project operations.
 
-### <span style="color: #22c55e;">Available Make Targets</span>
+### Available Make Targets
 
 ```bash
 make help
@@ -282,7 +300,7 @@ make help
 
 This prints all supported targets and descriptions from the root `Makefile`.
 
-### <span style="color: #22c55e;">Core Lifecycle Commands</span>
+### Core Lifecycle Commands
 
 ```bash
 make up
@@ -304,7 +322,7 @@ make clean
 - `make down`: stop services
 - `make clean`: stop services and remove volumes
 
-### <span style="color: #22c55e;">Validation Commands</span>
+### Validation Commands
 
 Run complete repository validation:
 
@@ -325,7 +343,7 @@ make validate-format
 make validate-terraform
 ```
 
-### <span style="color: #22c55e;">Formatting Commands</span>
+### Formatting Commands
 
 Format all supported components:
 
@@ -341,7 +359,7 @@ make format-text
 make terraform-fmt
 ```
 
-### <span style="color: #22c55e;">Terraform Commands</span>
+### Terraform Commands
 
 ```bash
 make terraform-init
@@ -350,7 +368,7 @@ make terraform-validate
 
 Use these targets after Terraform changes and before committing infrastructure updates.
 
-### <span style="color: #22c55e;">Streaming Commands</span>
+### Streaming Commands
 
 ```bash
 make run-kafka-producer
@@ -361,7 +379,7 @@ make run-iceberg-demo
 
 These targets run producer/batch/streaming Spark jobs inside the compose stack.
 
-### <span style="color: #22c55e;">Legacy Command Mapping</span>
+### Legacy Command Mapping
 
 - `docker-compose up --build -d` -> `make up`
 - `docker-compose ps` -> `make ps`
@@ -371,11 +389,11 @@ These targets run producer/batch/streaming Spark jobs inside the compose stack.
 - `terraform -chdir=iac fmt -recursive` -> `make terraform-fmt`
 - `terraform -chdir=iac validate` -> `make terraform-validate`
 
-## <span style="color: #0ea5e9;">Architecture Overview</span>
+## Architecture Overview
 
 The Modern Data Stack architecture is designed to handle both batch and streaming data processing. Below is a high-level overview of the components and their interactions:
 
-### <span style="color: #22c55e;">End-to-End System Diagram</span>
+### End-to-End System Diagram
 
 ```mermaid
 graph TB
@@ -437,14 +455,14 @@ graph TB
     MIN --> MLF
 ```
 
-### <span style="color: #22c55e;">Data Flow Summary</span>
+### Data Flow Summary
 
 Data is ingested from batch and streaming sources, orchestrated by Airflow/Kafka, processed with Spark, validated by Great Expectations, and persisted to MinIO/PostgreSQL (with optional downstream stores). Prometheus and Grafana provide operational visibility, while MLflow and Feast support ML workflows.
 
 > [!CAUTION]
 > Diagrams are high-level and may omit some optional components included in the repository.
 
-### <span style="color: #22c55e;">Batch Processing Sequence</span>
+### Batch Processing Sequence
 
 ```mermaid
 sequenceDiagram
@@ -471,7 +489,7 @@ sequenceDiagram
     AF->>PR: Job Status Metrics
 ```
 
-### <span style="color: #22c55e;">Streaming Processing Sequence</span>
+### Streaming Processing Sequence
 
 ```mermaid
 sequenceDiagram
@@ -493,7 +511,7 @@ sequenceDiagram
     GF->>GF: Update Dashboard
 ```
 
-### <span style="color: #22c55e;">Data Quality and Governance Flow</span>
+### Data Quality and Governance Flow
 
 ```mermaid
 graph LR
@@ -517,7 +535,7 @@ graph LR
     PROM --> GRAF[Grafana Dashboard]
 ```
 
-### <span style="color: #22c55e;">CI/CD and Deployment Flow</span>
+### CI/CD and Deployment Flow
 
 ```mermaid
 graph LR
@@ -548,7 +566,7 @@ graph LR
     PODS --> MON[Monitoring]
 ```
 
-### <span style="color: #22c55e;">Unified Platform Flow</span>
+### Unified Platform Flow
 
 ```mermaid
 graph TB
@@ -594,13 +612,13 @@ graph TB
     K8S -.orchestrates.-> Stream
 ```
 
-### <span style="color: #22c55e;">Full Flow Reference</span>
+### Full Flow Reference
 
 A more detailed flow diagram that includes backend and frontend integration is available in `assets/full_flow_diagram.png`. It illustrates how pipeline components interact with external systems across data sources, storage, processing, visualization, and monitoring.
 
 Although frontend/backend integration is not implemented in this repository (which focuses on pipeline concerns), it can be added to an existing React, Angular, or Vue application.
 
-### <span style="color: #22c55e;">Runtime Infrastructure View</span>
+### Runtime Infrastructure View
 
 ```mermaid
 graph TB
@@ -639,7 +657,7 @@ graph TB
     end
 ```
 
-### <span style="color: #22c55e;">ML Lifecycle View</span>
+### ML Lifecycle View
 
 ```mermaid
 flowchart LR
@@ -669,9 +687,9 @@ flowchart LR
     RETRAIN --> TRAIN
 ```
 
-## <span style="color: #0ea5e9;">Directory Structure</span>
+## Directory Structure
 
-```
+```text
 modern-enterprise-data-stack/
   ├── README.md
   ├── LOCAL_DEVELOPMENT.md
@@ -735,7 +753,7 @@ modern-enterprise-data-stack/
       └── serve_wiki.py
 ```
 
-## <span style="color: #0ea5e9;">Components & Technologies</span>
+## Components & Technologies
 
 - **Ingestion & Orchestration:**
   - [Apache Airflow](https://airflow.apache.org/) – Schedules batch and streaming jobs.
@@ -761,9 +779,9 @@ modern-enterprise-data-stack/
   - [Feast](https://feast.dev/) – Feature store for machine learning.
   - [BI Tools](https://grafana.com/) – Real-time dashboards and insights.
 
-## <span style="color: #0ea5e9;">Setup Instructions</span>
+## Setup Instructions
 
-### <span style="color: #22c55e;">Prerequisites</span>
+### Prerequisites
 
 - **Docker** and **Docker Compose** must be installed.
 - Ensure that **Python 3.9+** is installed locally if you want to run scripts outside of Docker.
@@ -776,7 +794,7 @@ modern-enterprise-data-stack/
   - Prometheus: 9090
   - Grafana: 3000
 
-### <span style="color: #22c55e;">Getting Started</span>
+### Getting Started
 
 1. **Clone the Repository**
 
@@ -785,7 +803,7 @@ modern-enterprise-data-stack/
    cd Modern-Enterprise-Data-Stack
    ```
 
-2. **Start the Pipeline Stack**
+1. **Start the Pipeline Stack**
 
 Use Make to launch all components:
 
@@ -800,7 +818,7 @@ This command will:
 - Run Airflow DB migrations and create the Airflow UI admin user at startup (if missing).
 - Initialize the MySQL database with demo data (via `ops/init_db.sql`).
 
-3. **Access the Services**
+1. **Access the Services**
    - **Airflow UI:** [http://localhost:8080](http://localhost:8080)  
      Default login: `airflow_user` / `airflow_pass` (created automatically during `make up`)
      Set up connections:
@@ -811,47 +829,51 @@ This command will:
    - **Prometheus:** [http://localhost:9090](http://localhost:9090)
    - **Grafana:** [http://localhost:3000](http://localhost:3000) (Default login: `admin/admin`)
 
-4. **Run Batch Pipeline**
+1. **Run Batch Pipeline**
    - In the Airflow UI, enable the `batch_ingestion_dag` to run the end-to-end batch pipeline.
    - This DAG extracts data from MySQL, validates it, uploads raw data to MinIO, triggers a Spark job for transformation, and loads data into PostgreSQL.
 
-5. **Run Streaming Pipeline**
+1. **Run Streaming Pipeline**
    - Start the Kafka producer:
+
      ```bash
      make run-kafka-producer
      ```
+
    - In another terminal, run the Spark streaming job:
+
      ```bash
      make run-streaming-job
      ```
+
    - The streaming job consumes events from Kafka, performs real-time anomaly detection, and writes results to PostgreSQL and MinIO.
 
-6. **Monitoring & Governance**
+1. **Monitoring & Governance**
    - **Prometheus & Grafana:**  
      Use the `monitoring.py` script (or access Grafana) to view real-time metrics and dashboards.
    - **Data Lineage:**  
      The `pipelines/governance/atlas_stub.py` script registers lineage between datasets (can be extended for full Apache Atlas integration).
 
-7. **ML & Feature Store**
+1. **ML & Feature Store**
    - Use `pipelines/ml/mlflow_tracking.py` to simulate model training and tracking.
    - Use `pipelines/ml/feature_store_stub.py` to integrate with a feature store like Feast.
 
-8. **CI/CD & Deployment**
+1. **CI/CD & Deployment**
    - Use `infra/compose/docker-compose.ci.yaml` to set up CI/CD pipelines.
    - Use the `k8s/` directory for Kubernetes deployment manifests.
    - Use the `iac/` directory for cloud deployment scripts.
    - Use the `.github/workflows/` directory for GitHub Actions CI/CD workflows.
 
-### <span style="color: #22c55e;">Customization Guidance</span>
+### Customization Guidance
 
 This starter implementation is intentionally generic and should be customized for your domain, data contracts, and operating model.
 
 > [!IMPORTANT]
 > Note: Be sure to visit the files and scripts in the repository and change the credentials, configurations, and logic to match your environment and use case. Feel free to extend the pipeline with additional components, services, or integrations as needed.
 
-## <span style="color: #0ea5e9;">Operational Runbook</span>
+## Operational Runbook
 
-### <span style="color: #22c55e;">Health Verification Checklist</span>
+### Health Verification Checklist
 
 - Confirm service states:
 
@@ -874,7 +896,7 @@ This starter implementation is intentionally generic and should be customized fo
   - Processed records are visible in PostgreSQL.
   - Streaming anomalies are present after producer traffic.
 
-### <span style="color: #22c55e;">Restart and Recovery</span>
+### Restart and Recovery
 
 - Restart all services:
 
@@ -900,13 +922,13 @@ This starter implementation is intentionally generic and should be customized fo
   make clean
   ```
 
-### <span style="color: #22c55e;">Production Readiness Notes</span>
+### Production Readiness Notes
 
 - Keep infrastructure changes versioned in `k8s/` and `iac/`.
 - Promote via CI/CD using `infra/compose/docker-compose.ci.yaml` and `.github/workflows/`.
 - Apply credentials and environment-specific values through secrets management, not hardcoded files.
 
-## <span style="color: #0ea5e9;">Configuration & Customization</span>
+## Configuration & Customization
 
 - **Docker Compose:**
   All services are defined in `infra/compose/docker-compose.yaml`. Adjust resource limits, environment variables, and service dependencies as needed.
@@ -933,7 +955,7 @@ This starter implementation is intentionally generic and should be customized fo
 
   Data storage options are in the `pipelines/storage/` directory with AWS S3, InfluxDB, MongoDB, and Hadoop stubs. Replace these with real integrations or credentials as needed.
 
-## <span style="color: #0ea5e9;">Example Applications</span>
+## Example Applications
 
 ```mermaid
 %%{init: {"theme": "default", "themeVariables": { "primaryColor": "#f9f9f9", "fontSize": "14px", "lineColor": "#000000", "textColor": "#000000", "background": "#ffffff"}}}%%
@@ -986,35 +1008,35 @@ mindmap
         Campaign Analytics
 ```
 
-### <span style="color: #22c55e;">Use Case Highlights</span>
+### Use Case Highlights
 
 - **Real-Time Recommendations:**
   Process clickstream data to generate personalized product recommendations.
 - **Fraud Detection:**
   Detect unusual purchasing patterns or multiple high-value transactions in real-time.
 
-### <span style="color: #22c55e;">E-Commerce Use Cases</span>
+### E-Commerce Use Cases
 
 - **Risk Analysis:**
   Aggregate transaction data to assess customer credit risk.
 - **Trade Surveillance:**
   Monitor market data and employee trades for insider trading signals.
 
-### <span style="color: #22c55e;">Finance Use Cases</span>
+### Finance Use Cases
 
 - **Patient Monitoring:**
   Process sensor data from medical devices to alert healthcare providers of critical conditions.
 - **Clinical Trial Analysis:**
   Analyze historical trial data for predictive analytics in treatment outcomes.
 
-### <span style="color: #22c55e;">Healthcare Use Cases</span>
+### Healthcare Use Cases
 
 - **Predictive Maintenance:**
   Monitor sensor data from machinery to predict failures before they occur.
 - **Supply Chain Optimization:**
   Aggregate data across manufacturing processes to optimize production and logistics.
 
-### <span style="color: #22c55e;">IoT and Manufacturing Use Cases</span>
+### IoT and Manufacturing Use Cases
 
 - **Sentiment Analysis:**
   Analyze social media feeds in real-time to gauge public sentiment on new releases.
@@ -1023,7 +1045,7 @@ mindmap
 
 Feel free to use this pipeline as a starting point for your data processing needs. Extend it with additional components, services, or integrations to build a robust, end-to-end data platform.
 
-## <span style="color: #0ea5e9;">Troubleshooting & Further Considerations</span>
+## Troubleshooting & Further Considerations
 
 - **Service Not Starting:**
   - Run `make ps` to identify unhealthy containers.
@@ -1042,25 +1064,25 @@ Feel free to use this pipeline as a starting point for your data processing need
   - Increase memory/CPU allocation for Docker Desktop or host VM.
   - For production, run Spark and Kafka as managed or scaled cluster services.
 
-## <span style="color: #0ea5e9;">Contributing</span>
+## Contributing
 
 Contributions, issues, and feature requests are welcome!
 
 1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-6. We will review your changes and merge according to the promotion flow (`dev` -> `qa` -> `stg` -> `prd`).
+1. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+1. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+1. Push to the Branch (`git push origin feature/AmazingFeature`)
+1. Open a Pull Request
+1. We will review your changes and merge according to the promotion flow (`dev` -> `qa` -> `stg` -> `prd`).
 
-## <span style="color: #0ea5e9;">License</span>
+## License
 
 Copyright (c) 2023 paulchen8206@github
 
-## <span style="color: #0ea5e9;">Final Notes</span>
+## Final Notes
 
 This pipeline is designed for rapid prototyping and production hardening. With targeted configuration and integration work, it can support use cases such as real-time analytics, anomaly detection, predictive maintenance, and ML-enabled decision systems.
 
 If this repository is useful, please consider starring it. Questions, feedback, and suggestions are welcome via [GitHub](https://github.com/paulchen8206).
 
-[**⬆️ Back to top**](#modern-data-stack-with-batch--streaming-processing)
+[**⬆️ Back to top**](#current-implementation-snapshot)
