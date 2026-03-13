@@ -5,7 +5,7 @@
 aws_region = "us-east-1"
 
 # EKS Cluster Configuration
-eks_cluster_name = "end-to-end-pipeline"
+eks_cluster_name = "data-pipeline"
 
 # Instance Configuration
 instance_type = "t3.medium"

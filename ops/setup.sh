@@ -16,7 +16,7 @@ echo "Advanced Deployment Infrastructure Setup"
 echo "=========================================="
 
 # Configuration
-EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME:-"end-to-end-pipeline"}
+EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME:-"data-pipeline"}
 AWS_REGION=${AWS_REGION:-"us-east-1"}
 INSTALL_ARGO_ROLLOUTS=${INSTALL_ARGO_ROLLOUTS:-true}
 INSTALL_AWS_LB_CONTROLLER=${INSTALL_AWS_LB_CONTROLLER:-true}

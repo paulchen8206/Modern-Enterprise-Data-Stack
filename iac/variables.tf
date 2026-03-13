@@ -19,7 +19,7 @@ variable "db_password" {
 
 variable "eks_cluster_name" {
   description = "EKS Cluster Name"
-  default     = "end-to-end-pipeline"
+  default     = "data-pipeline"
 }
 
 variable "slack_webhook_url" {
