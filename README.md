@@ -1,4 +1,4 @@
-# 🚀 Modern Enterprise Data Stack: Enterprise Lakehouse & Streaming Platform 🌈
+# 🚀 Modern Enterprise Data Platform 🌈
 
 This repository provides a production-ready data platform for both batch and streaming workloads.
 
@@ -42,7 +42,7 @@ Use `Makefile` targets to standardize daily operations:
 ## Documentation Hub
 
 - Getting started: `docs/QUICK_START.md`
-- Local development workflow: `LOCAL_DEVELOPMENT.md`
+- Local development workflow: `RUNBOOK.md.md`
 - System design details: `docs/ARCHITECTURE.md`
 - Progressive delivery patterns: `docs/DEPLOYMENT.md`
 - Iceberg table format usage: `docs/ICEBERG.md`
@@ -694,7 +694,7 @@ flowchart LR
 ```text
 modern-enterprise-data-stack/
   ├── README.md
-  ├── LOCAL_DEVELOPMENT.md
+  ├── RUNBOOK.md.md
   ├── Makefile
   ├── .github/
   │   └── workflows/
